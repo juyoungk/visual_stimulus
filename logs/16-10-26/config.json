@@ -1,0 +1,74 @@
+[
+  {
+    "function": "obj_motion_saccade",
+    "naturalscenes": 1,
+    "imgshuffle": 0,
+    "jitteramp": 1,
+    "d_speed": [0, 850, 8],
+    "n_jitter": 4,
+    "n_repeat": 5,
+    "jumpevery": 42,
+    "contrast": [0.3, 0.9, 1],
+    "seed": 1,
+    
+    "global": 1,
+    "waitframes": 1,
+    "ndims": [150, 150],
+    "imgdir": "../database/images/",
+    "imgext": "*.mat"
+  },
+  {
+    "function": "obj_motion_saccade",
+    "naturalscenes": 1,
+    "imgshuffle": 0,
+    "jitteramp": 2,
+    "d_speed": [0, 850, 8],
+    "n_jitter": 4,
+    "n_repeat": 5,
+    "jumpevery": 42,
+    "contrast": [0.3, 0.9, 1],
+    "seed": 1,
+    
+    "global": 1,
+    "waitframes": 1,
+    "ndims": [150, 150],
+    "imgdir": "../database/images/",
+    "imgext": "*.mat"
+  },
+  {
+    "function": "obj_motion_saccade",
+    "naturalscenes": 1,
+    "imgshuffle": 1,
+    "jitteramp": 1,
+    "d_speed": [0, 850, 8],
+    "n_jitter": 4,
+    "n_repeat": 5,
+    "jumpevery": 42,
+    "contrast": [0.3, 0.9, 1],
+    "seed": 1,
+    
+    "global": 1,
+    "waitframes": 1,
+    "ndims": [150, 150],
+    "imgdir": "../database/images/",
+    "imgext": "*.mat"
+  },
+  {
+    "function": "obj_motion_saccade",
+    "naturalscenes": 0,
+    "imgshuffle": 0,
+    "jitteramp": 1,
+    "d_speed": [0, 850, 8],
+    "n_jitter": 4,
+    "n_repeat": 5,
+    "jumpevery": 42,
+    "contrast": [0.3, 0.9, 3],
+    "seed": 1,
+    
+    "global": 1,
+    "waitframes": 1,
+    "ndims": [150, 150],
+    "imgdir": "../database/images/",
+    "imgext": "*.mat"
+  }
+]
