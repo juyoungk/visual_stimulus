@@ -41,7 +41,6 @@ if any([ex.disp.nominal_frate == 0, ex.disp.screen ==0])
                         ex.disp.screen, ex.disp.bgcol,[0 10 1024 778]);
 else
     HideCursor;
-    Screen('Preference', 'ScreenToHead', 1, 1, 0);
     Screen('Preference', 'VisualDebugLevel', 3);
     % Setup PsychImaging pipeline, allows for fast drawing
     PsychImaging('PrepareConfiguration');

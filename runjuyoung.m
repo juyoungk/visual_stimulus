@@ -55,10 +55,10 @@ try
   end
   
   % last screen after all the stimulus
-  ex = lastscreenfunctions(ex);
+  %ex = lastscreenfunctions(ex);
   
   % Check for ESC keypress during the experiment
-  ex = checkesc(ex);
+  ex = checkesc(ex)
 
   % Close windows and textures, clean up
   endexpt();

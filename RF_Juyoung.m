@@ -95,7 +95,8 @@ function [vbls, log] = RandomCheckers(screen, framesN, waitframes, checkersV, ch
     
 log = addLog([]);
 cur_frame = 0;    %current frame number
-
+screen.vbl = GetSecs();
+    
     for frame = 0:framesN-1
         % background
         Screen('FillRect', screen.w, screen.black);

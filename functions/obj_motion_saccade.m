@@ -25,7 +25,7 @@ StimSize_Ct = 800; % um
 StimSize_BG = 3.5; % mm
 BarWidth = 50; % um; Grating Bar; 2*Bar = 1 period; ~RF size of BP
 w_Annulus = BarWidth;
-n_session = 8;
+n_session = 9;
 n_jitter  = me.n_jitter; % num of different jitter sequences
 n_repeat = me.n_repeat;
 jumpevery = me.jumpevery;
@@ -41,6 +41,11 @@ ex.stim{end}.params.numframes = numframes;
 ex.stim{end}.params.runtime_secs = numframes * ex.disp.ifi;    
 ex.stim{end}.params.speedseq = speedseq;
 ex.stim{end}.params.d_speed = d_speed(speedseq);
+if isfield(ex, 'runtime_secs')
+    ex.runtime_secs = ex.runtime_secs + ex.stim{end}.params.runtime_secs;
+else
+    ex.runtime_secs = ex.stim{end}.params.runtime_secs;
+end
 %
 jitteramp = me.jitteramp;
 
@@ -134,8 +139,8 @@ try
         tex_size_Ct = [Ct_size + ampshift_Ct, Ct_size + ampshift_Ct]; % [x y]
         tex_Nat_Bg1  = texFromImages(ex, images{3}, L_patch_Bg + maxshift_BgImg, tex_size_Bg, contrast(c), rs);
         tex_Nat_Bg2  = texFromImages(ex, images{7}, L_patch_Bg + maxshift_BgImg, tex_size_Bg, contrast(c), rs);
-        tex_Nat_Ct1 = texFromImages(ex, images{5}, L_patch_Ct + maxshift_CtImg + [max_driftLimg 0], tex_size_Ct + [max_driftL 0], contrast(c), rs);
-        tex_Nat_Ct2 = texFromImages(ex, images{6}, L_patch_Ct + maxshift_CtImg + [max_driftLimg 0], tex_size_Ct + [max_driftL 0], contrast(c), rs);
+        tex_Nat_Ct1 = texFromImages(ex, images{6}, L_patch_Ct + maxshift_CtImg + [max_driftLimg 0], tex_size_Ct + [max_driftL 0], contrast(c), rs);
+        tex_Nat_Ct2 = texFromImages(ex, images{5}, L_patch_Ct + maxshift_CtImg + [max_driftLimg 0], tex_size_Ct + [max_driftL 0], contrast(c), rs);
 
         %% Grating texture ids
         % BG
@@ -182,42 +187,42 @@ try
                     if me.naturalscenes
                         % No jitter
                         offset = {offset_Bg, offset_Ct};
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct1, [], 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.9*white, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, 2*jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct1, [], 'Ct_drift',         0, 'offset', offset, 'pd_trigger', white, 'masktex', masktex, 'text', text);
                         offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct2, [], 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'masktex', masktex, 'text', text);
                         % New jittered obj w/o Bg
                         offset = {offset_Bg, offset_Ct};
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct1, jitter1obj, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.6*white, 'masktex', masktex, 'text', text);
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct2, jitter2obj, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.3*white, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct1, jitter1obj, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.4*white, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct2, jitter2obj, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'masktex', masktex, 'text', text);
                         % New jittered obj w/ Bg jitter but w/o saccade
                         offset = {offset_Bg, offset_Ct};
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct1, jitter1, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.3*white, 'masktex', masktex, 'text', text);
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct2, jitter2, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.3*white, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct1, jitter1, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.4*white, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct2, jitter2, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'masktex', masktex, 'text', text);
                         % New jittered obj w/ Bg jitter also w/ saccade
                         offset = {offset_Bg, offset_Ct};
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct1, jitter1, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.3*white, 'masktex', masktex, 'text', text);
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg2, tex_Nat_Ct2, jitter2, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.3*white, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct1, jitter1, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.4*white, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg2, tex_Nat_Ct2, jitter2, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'masktex', masktex, 'text', text);
                     else
                         % No jitter
                         offset = {offset_Bg, offset_Ct};
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.9*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, 2*jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Ct_drift',         0, 'offset', offset, 'pd_trigger', white, 'period', p, 'masktex', masktex, 'text', text);
                             offset{2} = offset{2} + [p/2. 0];
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.3*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'period', p, 'masktex', masktex, 'text', text);
                         % New obj w/o Bg
                         offset = {offset_Bg, offset_Ct};
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter1obj, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.6*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter1obj, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.4*white, 'period', p, 'masktex', masktex, 'text', text);
                             offset{2} = offset{2} + [p/2. 0];
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter2obj, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.3*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter2obj, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'period', p, 'masktex', masktex, 'text', text);
                         % New obj w/o Bg jump
                         offset = {offset_Bg, offset_Ct};
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter1, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.3*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter1, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.4*white, 'period', p, 'masktex', masktex, 'text', text);
                             offset{2} = offset{2} + [p/2. 0];
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter2, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.3*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter2, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'period', p, 'masktex', masktex, 'text', text);
                         % New obj w/  New Bg jump also
                         offset = {offset_Bg, offset_Ct};
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter1, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.3*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter1, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.4*white, 'period', p, 'masktex', masktex, 'text', text);
                             offset{1} = offset{1} + [p/2. 0];    
                             offset{2} = offset{2} + [p/2. 0];
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter2, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.3*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter2, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'period', p, 'masktex', masktex, 'text', text);
                     end
                     
                 end % repeat over same jitter sequence
