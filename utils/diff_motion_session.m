@@ -30,6 +30,12 @@ if isempty(jitter)
     jitter{2} = zeros(numframes, 2);
 end
 
+% empty offset input?
+if isempty(offset)
+    offset{1} = zeros(1, 2);
+    offset{2} = zeros(1, 2);
+end
+
 % jitter sequence check
 if any([~isequal(size(jitter{1}), [numframes, 2]), ~isequal(size(jitter{2}), [numframes, 2])])
     error('Invalid jitter sequence.');

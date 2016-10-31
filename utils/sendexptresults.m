@@ -32,7 +32,8 @@ else
   flipStr = '';
   for stimidx = 1:length(ex.stim)
       
-      frametime = 1 / ex.stim{stimidx}.framerate;
+      %frametime = 1 / (ex.stim{stimidx}.framerate);
+      frametime = 1 / (ex.disp.ifi*ex.stim{stimidx}.waitframes);
       mu = mean(abs(diff(ex.stim{stimidx}.timestamps) - frametime) > tol);
       
       if mu > 0

@@ -35,7 +35,7 @@ ex.disp.nominal_frate = Screen('NominalFrameRate', ex.disp.screen);
 if any([ex.disp.nominal_frate == 0, ex.disp.screen ==0])
     Screen('Preference', 'SkipSyncTests',1);
     Screen('Preference', 'VisualDebugLevel', 3);
-    ex.disp.ifi=(0.03322955)/2.;
+    ex.disp.ifi=0.01176568031;
     %[ex.disp.w ex.disp.rect]=Screen('OpenWindow', ex.disp.screen, backColor, [10 10 1000 1000]);
     [ex.disp.winptr, ex.disp.winrect] = PsychImaging('OpenWindow', ...
                         ex.disp.screen, ex.disp.bgcol,[0 10 1024 778]);
