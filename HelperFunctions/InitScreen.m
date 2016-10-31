@@ -29,7 +29,8 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     % don't care about those problems when running in my laptop. Experiment
     % would never be run under those conditions. Force it to start anyway
     screen.rate = Screen('NominalFrameRate', screen.screenNumber);
-    if screen.rate==0
+    if any([screen.rate == 0, screen.screenNumber ==0])
+    %if screen.rate==0
         Screen('Preference', 'SkipSyncTests',1);
         screen.rate = 100; % why 100??
         screen.ifi=(0.03322955)/2.;

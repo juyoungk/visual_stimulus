@@ -14,7 +14,7 @@ addpath('utils/')
 addpath('functions/')
 
 % turn the `debug` flag on when testing
-debug = true;
+%debug = true;
 
 try
 
@@ -54,9 +54,6 @@ try
 
   end
   
-  % last screen after all the stimulus
-  %ex = lastscreenfunctions(ex);
-  
   % Check for ESC keypress during the experiment
   ex = checkesc(ex)
 
@@ -67,6 +64,7 @@ try
 
     % Save the experimental metadata
     savejson('', ex, fullfile(basedir, 'expt.json'));
+    save(fullfile(basedir, 'exlog.mat'), 'ex');
 
     % Send results via Pushover
     sendexptresults(ex);

@@ -23,9 +23,9 @@ end
 %% jumpevery and sessions
 StimSize_Ct = 800; % um
 StimSize_BG = 3.5; % mm
-BarWidth = 50; % um; Grating Bar; 2*Bar = 1 period; ~RF size of BP
-w_Annulus = BarWidth;
-n_session = 9;
+w_gratingbar = me.w_gratingbar; % um; Grating Bar; 2*Bar = 1 period; ~RF size of BP
+w_Annulus = w_gratingbar;
+n_session = 8;
 n_jitter  = me.n_jitter; % num of different jitter sequences
 n_repeat = me.n_repeat;
 jumpevery = me.jumpevery;
@@ -34,13 +34,14 @@ contrast = linspace(me.contrast(1), me.contrast(2), me.contrast(3));
 d_speed = linspace(me.d_speed(1), me.d_speed(2), me.d_speed(3)); % drift speed. um/second. 0 = global motion
 speed = Pixel_for_Micron(d_speed);
 speedseq = [randperm(rs, length(speed))];
+speedseq = [1:length(speed)];
 % 
-numframes = jumpevery * n_session * n_jitter * n_repeat * length(speedseq) * length(contrast);
+numframes = jumpevery * n_session * n_jitter * n_repeat * length(speedseq) * length(w_gratingbar) * length(contrast);
 % save info at ex struct
 ex.stim{end}.params.numframes = numframes;
 ex.stim{end}.params.runtime_secs = numframes * ex.disp.ifi;    
-ex.stim{end}.params.speedseq = speedseq;
-ex.stim{end}.params.d_speed = d_speed(speedseq);
+ex.stim{end}.params.speedidxseq = speedseq;
+ex.stim{end}.params.d_speedseq = d_speed(speedseq);
 if isfield(ex, 'runtime_secs')
     ex.runtime_secs = ex.runtime_secs + ex.stim{end}.params.runtime_secs;
 else
@@ -53,7 +54,7 @@ jitteramp = me.jitteramp;
 w_Annulus = Pixel_for_Micron(w_Annulus);
 rBg = Pixel_for_Micron(StimSize_BG*1000/2.); % radius of the Bg image
 rCt = Pixel_for_Micron(StimSize_Ct/2.);      % radius of the Ct image
-barWidthPixels = Pixel_for_Micron(BarWidth);
+barWidthPixels = Pixel_for_Micron(w_gratingbar);
 
 %% Natural image setting
 L_patch_Bg = me.ndims;
@@ -61,10 +62,12 @@ L_patch_Ct = round(StimSize_Ct/(StimSize_BG*1000)*L_patch_Bg); % pixel number fo
 % Scale bar for the image: 1 pixel of the stimulus = ? pixels in the image
 
 %%
-p = 2*barWidthPixels; % pixels /one cycle (= wavelength) ~2*Bipolar cell RF
-f = 1./p;    % Grating cycles/pixel; spatial phase velocity
+period = 2*barWidthPixels; % pixels /one cycle (= wavelength) ~2*Bipolar cell RF
+f = 1./period;    % Grating cycles/pixel; spatial phase velocity
 fr= f*2*pi;   % phase per one pixel
-
+if me.naturalscenes
+    period = 0;
+end
 %%
 % darken the photodiode
 Screen('FillOval', ex.disp.winptr, 0, ex.disp.pdrect);
@@ -128,6 +131,7 @@ try
     
     %% Loop over exp conditions
     for c = 1:length(contrast)
+    for p = period
         %%
         % drifting length over one session (not saccade)
         shiftperframe = speed(speedseq) * me.waitframes * ex.disp.ifi; % pixels per one stim frame
@@ -159,7 +163,7 @@ try
             %% display drifting velocity
             speed_idx = speedseq(i);
             cur_speed = speed(speed_idx);         % speed = pixels/second
-            cur_shiftperframe = shiftperframe(i) % pixels per 1 frame
+            cur_shiftperframe = shiftperframe(i); % pixels per 1 frame
             %%
             for j = 1:n_jitter
                 %%
@@ -187,9 +191,9 @@ try
                     if me.naturalscenes
                         % No jitter
                         offset = {offset_Bg, offset_Ct};
-                        offset = diff_motion_session(ex, 2*jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct1, [], 'Ct_drift',         0, 'offset', offset, 'pd_trigger', white, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct1, [], 'Ct_drift',         0, 'offset', offset, 'pd_trigger', white, 'masktex', masktex, 'text', text);
                         offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct2, [], 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'masktex', masktex, 'text', text);
-                        % New jittered obj w/o Bg
+                        % New jittered obj w/ Bg1
                         offset = {offset_Bg, offset_Ct};
                         offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct1, jitter1obj, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.4*white, 'masktex', masktex, 'text', text);
                         offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct2, jitter2obj, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'masktex', masktex, 'text', text);
@@ -202,9 +206,10 @@ try
                         offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg1, tex_Nat_Ct1, jitter1, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.4*white, 'masktex', masktex, 'text', text);
                         offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, tex_Nat_Bg2, tex_Nat_Ct2, jitter2, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'masktex', masktex, 'text', text);
                     else
+                        %% Grating
                         % No jitter
                         offset = {offset_Bg, offset_Ct};
-                        offset = diff_motion_session(ex, 2*jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Ct_drift',         0, 'offset', offset, 'pd_trigger', white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Ct_drift',         0, 'offset', offset, 'pd_trigger', white, 'period', p, 'masktex', masktex, 'text', text);
                             offset{2} = offset{2} + [p/2. 0];
                         offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'period', p, 'masktex', masktex, 'text', text);
                         % New obj w/o Bg
@@ -230,6 +235,7 @@ try
 
         end % loop over speeds
 
+    end % loop over grating periods
     end % loop over exp conditions (e.g. contrast)
 
 catch    
