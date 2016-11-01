@@ -25,7 +25,7 @@ StimSize_Ct = 800; % um
 StimSize_BG = 3.5; % mm
 w_gratingbar = me.w_gratingbar; % um; Grating Bar; 2*Bar = 1 period; ~RF size of BP
 w_Annulus = w_gratingbar;
-n_session = 3;
+n_session = 8;
 n_repeat = me.n_repeat;
 jumpevery = me.jumpevery;
 contrast = linspace(me.contrast(1), me.contrast(2), me.contrast(3));
@@ -151,12 +151,11 @@ ex.disp.vbl = Screen('Flip', ex.disp.winptr);
                         offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size,      gray_tex,      gray_tex, [], 'Bg_drift',        0, 'Ct_drift',         0, 'offset',     {}, 'pd_trigger', 0.4*white, 'period', p, 'masktex', masktex, 'text', text);
                         offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift', bg_speed, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.7*white, 'period', p, 'masktex', masktex, 'text', text);
                         
-                        %offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift',        0, 'Ct_drift',         0, 'offset',     {}, 'pd_trigger', white, 'period', p, 'masktex', masktex, 'text', text);
-                        %offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift',        0, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.7*white, 'period', p, 'masktex', masktex, 'text', text);
-                        
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift',        0, 'Ct_drift',         0, 'offset',     {}, 'pd_trigger', 0.4*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift',        0, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.7*white, 'period', p, 'masktex', masktex, 'text', text);
                         % How Bg motion affect the neural coding of the
                         % object
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift',        0, 'Ct_drift',         0, 'offset',    {}, 'pd_trigger', 0.4*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift',        0, 'Ct_drift',         0, 'offset',     {}, 'pd_trigger', 0.4*white, 'period', p, 'masktex', masktex, 'text', text);
                         offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift', bg_speed, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.7*white, 'period', p, 'masktex', masktex, 'text', text);
 
                             offset{1} = offset{1} + [p/2. 0];    
