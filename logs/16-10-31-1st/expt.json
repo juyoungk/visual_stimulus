@@ -1,26 +1,77 @@
 {
-	"stim": {
-		"function": "speed_discrimination",
-		"params": {
-			"naturalscenes": 0,
-			"d_speed": [0,500,3],
-			"bg_speed": [400,600],
-			"n_repeat": 4,
-			"jumpevery": 60,
-			"w_gratingbar": 100,
-			"contrast": [0.3,0.6,1],
-			"seed": 1,
-			"global": 1,
-			"waitframes": 1,
-			"ndims": [150,150],
-			"imgdir": "../database/images/",
-			"imgext": "*.mat",
-			"numframes": 4320,
-			"runtime_secs": 50.82763596,
-			"speedidxseq": [1,2,3],
-			"d_speedseq": [0,250,500]
+	"stim": [
+		{
+			"function": "obj_motion_saccade",
+			"params": {
+				"naturalscenes": 0,
+				"imgshuffle": 0,
+				"jitteramp": 1,
+				"d_speed": [0,900,10],
+				"n_jitter": 4,
+				"n_repeat": 4,
+				"jumpevery": 75,
+				"w_gratingbar": 100,
+				"contrast": [0.4,1,3],
+				"seed": 1,
+				"global": 1,
+				"framerate": 85,
+				"waitframes": 1,
+				"ndims": [150,150],
+				"imgdir": "../database/images/",
+				"imgext": "*.mat",
+				"numframes": 288000,
+				"runtime_secs": 3388.124542,
+				"speedidxseq": [1,2,3,4,5,6,7,8,9,10],
+				"d_speedseq": [0,100,200,300,400,500,600,700,800,900]
+			}
+		},
+		{
+			"function": "obj_motion_saccade",
+			"params": {
+				"naturalscenes": 0,
+				"imgshuffle": 0,
+				"jitteramp": 1,
+				"d_speed": [0,900,10],
+				"n_jitter": 4,
+				"n_repeat": 4,
+				"jumpevery": 75,
+				"w_gratingbar": [50,200],
+				"contrast": [0.3,0.7,1],
+				"seed": 1,
+				"global": 1,
+				"waitframes": 1,
+				"ndims": [150,150],
+				"imgdir": "../database/images/",
+				"imgext": "*.mat",
+				"numframes": 192000,
+				"runtime_secs": 2258.749695,
+				"speedidxseq": [1,2,3,4,5,6,7,8,9,10],
+				"d_speedseq": [0,100,200,300,400,500,600,700,800,900]
+			}
+		},
+		{
+			"function": "speed_discrimination",
+			"params": {
+				"naturalscenes": 0,
+				"d_speed": [0,900,10],
+				"bg_speed": [300,500,700],
+				"n_repeat": 4,
+				"jumpevery": 85,
+				"w_gratingbar": 100,
+				"contrast": [0.3,0.7,1],
+				"seed": 1,
+				"global": 1,
+				"waitframes": 1,
+				"ndims": [150,150],
+				"imgdir": "../database/images/",
+				"imgext": "*.mat",
+				"numframes": 30600,
+				"runtime_secs": 359.9882326,
+				"speedidxseq": [1,2,3,4,5,6,7,8,9,10],
+				"d_speedseq": [0,100,200,300,400,500,600,700,800,900]
+			}
 		}
-	},
+	],
 	"disp": {
 		"bgcol": 0,
 		"screen": 1,
@@ -30,18 +81,18 @@
 		"nominal_frate": 85,
 		"winptr": 10,
 		"winrect": [0,0,1024,768],
-		"ifi": 0.01176565647,
+		"ifi": 0.01176432133,
 		"frate": 85,
 		"nominalifi": 0.01176470588,
 		"winctr": [512,384],
 		"info": {
-			"Beamposition": 47,
-			"LastVBLTimeOfFlip": 1477937537,
-			"LastVBLTime": 1477937537,
+			"Beamposition": 64,
+			"LastVBLTimeOfFlip": 1477951864,
+			"LastVBLTime": 1477951864,
 			"VBLCount": 0,
-			"TimeAtSwapRequest": 1477937537,
-			"TimePostSwapRequest": 1477937537,
-			"RawSwapTimeOfFlip": 1477937537,
+			"TimeAtSwapRequest": 1477951864,
+			"TimePostSwapRequest": 1477951864,
+			"RawSwapTimeOfFlip": 1477951864,
 			"VBLTimePostFlip": -1,
 			"OSSwapTimestamp": 0,
 			"GPULastFrameRenderTime": 0,
@@ -54,7 +105,7 @@
 			"GuesstimatedMemoryUsageMB": 0,
 			"VBLStartline": 768,
 			"VBLEndline": 807,
-			"VideoRefreshFromBeamposition": 0.01176547031,
+			"VideoRefreshFromBeamposition": 0.01176538759,
 			"GLVendor": "NVIDIA Corporation",
 			"GLRenderer": "GeForce GTX 970/PCIe/SSE2",
 			"GLVersion": "4.5.0 NVIDIA 352.63",
@@ -84,14 +135,14 @@
 			"_ArraySize_": [0,0],
 			"_ArrayData_": null
 		},
-		"vbl": 1477937593
+		"vbl": 1477958016
 	},
 	"key": {
 		"esc": 10,
 		"space": 66,
 		"t": 29,
 		"keydown": 1,
-		"secs": 1477937538,
+		"secs": 1477951874,
 		"keycode": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 	},
 	"me": {
@@ -100,5 +151,5 @@
 		"_ArrayData_": null
 	},
 	"today": "16-10-31",
-	"runtime_secs": 50.82763596
+	"runtime_secs": 6006.86247
 }

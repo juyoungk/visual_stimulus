@@ -145,12 +145,19 @@ ex.disp.vbl = Screen('Flip', ex.disp.winptr);
                         %% Grating                       
                         %offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size,      gray_tex,      gray_tex, [], 'Bg_drift',        0, 'Ct_drift',        0, 'offset',     {}, 'pd_trigger',     white, 'period', p, 'masktex', masktex, 'text', text);
                         
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift', 0, 'Ct_drift',         0, 'offset',     {}, 'pd_trigger', white, 'period', p, 'masktex', masktex, 'text', text);
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift', 0, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.4*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size,      gray_tex,      gray_tex, [], 'Bg_drift',        0, 'Ct_drift',         0, 'offset',     {}, 'pd_trigger',     white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size,      gray_tex, Ct_gratingtex, [], 'Bg_drift',        0, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.7*white, 'period', p, 'masktex', masktex, 'text', text);
+                        
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size,      gray_tex,      gray_tex, [], 'Bg_drift',        0, 'Ct_drift',         0, 'offset',     {}, 'pd_trigger', 0.4*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift', bg_speed, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.7*white, 'period', p, 'masktex', masktex, 'text', text);
+                        
+                        %offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift',        0, 'Ct_drift',         0, 'offset',     {}, 'pd_trigger', white, 'period', p, 'masktex', masktex, 'text', text);
+                        %offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift',        0, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.7*white, 'period', p, 'masktex', masktex, 'text', text);
+                        
                         % How Bg motion affect the neural coding of the
                         % object
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift',        0, 'Ct_drift',         0, 'offset',    {}, 'pd_trigger', 0.7*white, 'period', p, 'masktex', masktex, 'text', text);
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift', bg_speed, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.4*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift',        0, 'Ct_drift',         0, 'offset',    {}, 'pd_trigger', 0.4*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, [], 'Bg_drift', bg_speed, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.7*white, 'period', p, 'masktex', masktex, 'text', text);
 
                             offset{1} = offset{1} + [p/2. 0];    
                             offset{2} = offset{2} + [p/2. 0];
