@@ -91,7 +91,7 @@ catch my_error
 
   % Send results via Pushover
   if ~debug_exp
-    sendexptresults(ex);
+    %sendexptresults(ex);
   end
 
 end
