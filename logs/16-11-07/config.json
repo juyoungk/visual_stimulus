@@ -7,6 +7,7 @@
     "d_speed": [100, 900, 5],
     "n_jitter": 4,
     "n_repeat": 5,
+    "n_session": 12,
     "jumpevery": 120,
     "w_gratingbar": 200,
     "contrast_obj": [0.1, 0.9, 3],
@@ -16,7 +17,9 @@
     "framerate": 85,
     "waitframes": 1,
     "ndims": [150, 150],
-    "imgdir": "../database/images_sub/",
+    "imgdir": "../database/images/",
     "imgext": "*.mat"
   }
 ]
+Nominal-rate-optimaized flip interval (juyoung) = 0.03530033
+Number of norminal frames per RF stimulus flip = 3

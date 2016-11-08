@@ -3,7 +3,7 @@ function testscreen
 commandwindow
 screen = InitScreen(0, 1024, 768, 85);
 
-    boxL_um = 65; %unit: um
+    boxL_um = 50; %unit: um
     boxL = Pixel_for_Micron(boxL_um);  %um to pixels
     disp(['Pixel N for ', num2str(boxL_um), 'um =  ', num2str(boxL), ' px']);
     disp(['Pixel N for ', num2str(100), 'um =  ', num2str(PIXELS_PER_100_MICRONS), ' px']);
@@ -11,7 +11,7 @@ screen = InitScreen(0, 1024, 768, 85);
     N = 31; % determines the stim size
     stimsize = boxL*N;
     % 3-2. MEA Box (150um = MEA length = 30 * 5)
-    boxL_ref = 1.5*PIXELS_PER_100_MICRONS;
+    boxL_ref = 7*PIXELS_PER_100_MICRONS;
     
  % Define the obj Destination Rectangle
 objRect = RectForScreen(screen,stimsize,stimsize,0,0);
@@ -59,7 +59,7 @@ objRect = RectForScreen(screen,stimsize,stimsize,0,0);
     if YorN==27, break; end;
     
     % 3-2. MEA Box
-    box =  RectForScreen(screen,boxL_ref,boxL_ref,0, 0);
+    box =  RectForScreen(screen, boxL_ref, boxL_ref, 0, 0);
     Screen('FillRect', screen.w, screen.gray);
     Screen('FillRect', screen.w, screen.black, box);
     Screen('Flip', screen.w, 0);
@@ -71,6 +71,8 @@ objRect = RectForScreen(screen,stimsize,stimsize,0,0);
     Screen('FillRect', screen.w, screen.black);
     Screen('FillRect', screen.w, screen.white, box);
     Screen('Flip', screen.w, 0);
+    KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
+    if YorN==27, break; end;
     
     % black screen
     Screen('FillRect', screen.w, screen.black);

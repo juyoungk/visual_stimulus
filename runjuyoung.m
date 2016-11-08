@@ -28,7 +28,6 @@ try
   ex.disp.bgcol = 0;
   ex = initdisp(ex);
   
-
   % wait for trigger
   ex = waitForTrigger(ex);
 

@@ -22,10 +22,10 @@ end
 
 %% jumpevery and sessions
 StimSize_Ct = 800; % um
-StimSize_BG = 3.5; % mm
+StimSize_BG = 4.0; % mm
 w_gratingbar = me.w_gratingbar; % um; Grating Bar; 2*Bar = 1 period; ~RF size of BP
 w_Annulus = w_gratingbar;
-n_session = 8;
+n_session = me.n_session;
 n_jitter  = me.n_jitter; % num of different jitter sequences
 n_repeat = me.n_repeat;
 jumpevery = me.jumpevery;
@@ -105,7 +105,8 @@ try
     mask(:, :, 2) = white * (1-(x.^2 + y.^2 <= rBg^2));
     masktex = Screen('MakeTexture', s.window, mask);
     
-    %% Generate a full sequence of jitters (estimate max shift). 2 sessions long.
+    %% Generate a full sequence of jitters (estimate max shift). 
+    % 2 sessions long.
     % n different sequence
     jitter_Bg = (randi(rs, (2*jitteramp+1), 2*jumpevery, 2, n_jitter) - (jitteramp+1));
     jitter_Ct = (randi(rs, (2*jitteramp+1), 2*jumpevery, 2, n_jitter) - (jitteramp+1));
@@ -222,7 +223,7 @@ try
                         % shift (0.5 degree ~ 5 px)
                         % {1} : Bg, {2} : object
                         offset = {offset_Bg, offset_Ct};
-                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter1, 'Bg_drift', bg_speed1, 'Ct_drift',         0, 'offset', offset, 'pd_trigger', 0.4*white, 'period', p, 'masktex', masktex, 'text', text);
+                        offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter1, 'Bg_drift', bg_speed1, 'Ct_drift',         0, 'offset', offset, 'pd_trigger',     white, 'period', p, 'masktex', masktex, 'text', text);
                             offset{1} = offset{1} + [5 0];
                         offset = diff_motion_session(ex, jumpevery, Bg_size, Ct_size, Bg_gratingtex, Ct_gratingtex, jitter2, 'Bg_drift', bg_speed1, 'Ct_drift', cur_speed, 'offset', offset, 'pd_trigger', 0.6*white, 'period', p, 'masktex', masktex, 'text', text);
 
