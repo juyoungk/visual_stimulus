@@ -1,0 +1,23 @@
+[
+  {
+    "function": "obj_motion_saccade",
+    "naturalscenes": 0,
+    "imgshuffle": 0,
+    "jitteramp": 1,
+    "d_speed": [500, 900, 5],
+    "n_jitter": 4,
+    "n_repeat": 5,
+    "n_session": 12,
+    "jumpevery": 120,
+    "w_gratingbar": 200,
+    "contrast_obj": [0.1, 0.9, 3],
+    "contrast_bg": 0.9,
+    "seed": 1,
+    "global": 1,
+    "framerate": 85,
+    "waitframes": 1,
+    "ndims": [150, 150],
+    "imgdir": "../database/images_sub/",
+    "imgext": "*.mat"
+  }
+]

@@ -37,8 +37,8 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
         [screen.w screen.rect]=Screen('OpenWindow',screen.screenNumber, backColor, [10 10 1000 1000]);
     elseif debugging ==1
         Screen('Preference', 'SkipSyncTests',1);
-        screen.ifi=Screen('GetFlipInterval', screen.w);
         [screen.w screen.rect]=Screen('OpenWindow',screen.screenNumber, backColor, [10 10 1000 1000]);
+        screen.ifi=Screen('GetFlipInterval', screen.w);
         Priority(1);
     else
         %Screen('Resolution', screen.screenNumber, width, height, rate);
