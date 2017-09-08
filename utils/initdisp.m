@@ -81,7 +81,8 @@ ex.disp.dstrect      = CenterRectOnPoint(...	% Stimulus destination rectangle
   ex.disp.winctr(1), ex.disp.winctr(2));
 
 % Microns per pixel
-ex.disp.umperpix = 50 / 9;
+ex.disp.umperpix = 100 / 17;
+ex.disp.pix_per_100um = PIXELS_PER_100_MICRONS;
 
 % missed flips
 ex.disp.missedflips = [];

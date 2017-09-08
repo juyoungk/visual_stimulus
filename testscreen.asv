@@ -19,19 +19,18 @@ addpath('HelperFunctions/')
 screen = InitScreen(debug);
 waitframes = 1;
 
-    boxL_um = 120; %unit: um
+    boxL_um = 50; %unit: um
         bar_width = 3; % # boxes.
-    boxL = Pixel_for_Micron(boxL_um);  %um to pixels %not good to round here.
+    boxL = Pixel_for_Micron(boxL_um);  %um to pixels
     disp(['Pixel N for ', num2str(boxL_um), 'um =  ', num2str(boxL), ' px']);
     disp(['Pixel N for ', num2str(100), 'um =  ', num2str(PIXELS_PER_100_MICRONS), ' px']);
     
-    % MEA Box (150um = MEA length = 30 * 5)
+    N = 31; % determines the stim size
+    stimsize = boxL*N;
+    disp(['Stim size = ', num2str(N*boxL_um), ' um (', num2str(stimsize), ' px)']);
+    % 3-2. MEA Box (150um = MEA length = 30 * 5)
     boxL_mea = 5*boxL;
     
-    N = 15; % determines the stim size
-    stimsize = N*boxL;
-    disp(['Stim size = ', num2str(N*boxL_um), ' um (', num2str(stimsize), ' px)']);
-
  % Define the obj Destination Rectangle
 objRect = RectForScreen(screen,stimsize,stimsize,0,0);
 
@@ -77,42 +76,31 @@ objRect = RectForScreen(screen,stimsize,stimsize,0,0);
     KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
     if YorN==27, break; end;
     
-    % One box on gray
+    % One box on black
     box =  RectForScreen(screen,boxL,boxL,0, 0);
-    Screen('FillRect', screen.w, 0.5*modulateColor);
+    Screen('FillRect', screen.w, 0);
     Screen('FillRect', screen.w, modulateColor, box);
     Screen('Flip', screen.w, 0);
     KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
     if YorN==27, break; end
     
     % 3-2. MEA Box (0 intensity)
-    %dark MEA
     box =  RectForScreen(screen, boxL_mea, boxL_mea, 0, 0);
-        Screen('FillRect', screen.w, 0.5*modulateColor); % background
-        Screen('FillRect', screen.w, 0, box);
-        Screen('Flip', screen.w, 0);
-        KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-        if YorN==27, break; end;
-        % white MEA
-        Screen('FillRect', screen.w, 0.5*modulateColor); % background
-        Screen('FillRect', screen.w, modulateColor, box);
-        Screen('Flip', screen.w, 0);
-        KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-        if YorN==27, break; end;
+    Screen('FillRect', screen.w, 0.5*modulateColor); % background
+    Screen('FillRect', screen.w, 0, box);
+    Screen('Flip', screen.w, 0);
+    KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
+    if YorN==27, break; end;
     
     % Stim area (0 intensity outside of the stim area)
     box =  RectForScreen(screen,stimsize,stimsize,0, 0);
-        Screen('FillRect', screen.w, 0);
-        Screen('FillRect', screen.w, modulateColor, box);
-        Screen('Flip', screen.w, 0);
-        KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-        if YorN==27, break; end
-        % dark Stim area
-        Screen('FillRect', screen.w, modulateColor);
-        Screen('FillRect', screen.w, 0, box);
-        Screen('Flip', screen.w, 0);
-        KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-        if YorN==27, break; end
+    Screen('FillRect', screen.w, 0);
+    Screen('FillRect', screen.w, modulateColor, box);
+    Screen('Flip', screen.w, 0);
+    KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
+    if YorN==27, break; end
+    
+
     
     % black screen
     Screen('FillRect', screen.w, 0);

@@ -42,6 +42,7 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
         Priority(1);
     else
         %Screen('Resolution', screen.screenNumber, width, height, rate);
+         %Screen('Preference', 'SkipSyncTests',1);
         [screen.w screen.rect]=Screen('OpenWindow',screen.screenNumber, backColor);
         screen.ifi=Screen('GetFlipInterval', screen.w);
         HideCursor();

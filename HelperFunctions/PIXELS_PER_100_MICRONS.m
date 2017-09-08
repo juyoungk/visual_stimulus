@@ -11,12 +11,11 @@ function [pixelsX] = PIXELS_PER_100_MICRONS(varargin)
     % will depend on two factors: 1. display resolution, 2. imaging
     % magnification.
     % Add the imaging parameter.
-    
-    %Add2StimLogList();
-    
+
     p=ParseInput(varargin{:});
-    
+    % 
     [width height] = Screen('WindowSize', max(Screen('Screens')));
+    
     switch p.Results.imaging
         case 'D239rig'
             switch width
@@ -40,6 +39,8 @@ function [pixelsX] = PIXELS_PER_100_MICRONS(varargin)
             pixelsX = 50;
         case '2P_rig_Nikon_10x'     
             pixelsX = 20;
+        case '2P_new_rig_Olympus 10x'
+            pixelsX = 12;
     end
     fprintf('screen size [width]: %d, imaged by %s, 100 um = %d pixels\n', width, p.Results.imaging, pixelsX);       
 end
@@ -47,8 +48,8 @@ end
 function p =  ParseInput(varargin)
     p  = inputParser;   % Create an instance of the inputParser class.
     
-    p.addParameter('imaging', 'D239rig', @(x) strcmp(x,'D239rig') || ...
-        strcmp(x,'2P_rig_Nikon_10x') || strcmp(x,'2P_rig_Leica_25x') );
+    p.addParameter('imaging', '2P_new_rig_Olympus 10x', @(x) strcmp(x,'D239rig') || ...
+        strcmp(x,'2P_rig_Nikon_10x') || strcmp(x,'2P_rig_Leica_25x') || strcmp(x,'2P_new_rig_Olympus 10x') );
     
     % p.addParameter('objective', '2P_rig_Leica_25x', @(x) ischar(x));
     %
