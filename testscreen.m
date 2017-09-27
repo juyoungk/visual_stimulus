@@ -19,16 +19,16 @@ addpath('HelperFunctions/')
 screen = InitScreen(debug);
 waitframes = 1;
 
-    boxL_um = 120; %unit: um
+    boxL_um = 60; %unit: um
         bar_width = 3; % # boxes.
     boxL = Pixel_for_Micron(boxL_um);  %um to pixels %not good to round here.
     disp(['Pixel N for ', num2str(boxL_um), 'um =  ', num2str(boxL), ' px']);
     disp(['Pixel N for ', num2str(100), 'um =  ', num2str(PIXELS_PER_100_MICRONS), ' px']);
     
     % MEA Box (150um = MEA length = 30 * 5)
-    boxL_mea = 5*boxL;
+    boxL_mea = 10*boxL;
     
-    N = 15; % determines the stim size
+    N = 36; % determines the stim size
     stimsize = N*boxL;
     disp(['Stim size = ', num2str(N*boxL_um), ' um (', num2str(stimsize), ' px)']);
 
@@ -36,29 +36,21 @@ waitframes = 1;
 objRect = RectForScreen(screen,stimsize,stimsize,0,0);
 
  for i=1:2
-    Screen('FillRect', screen.w, 0.5*modulateColor);
-    texMatrix = ( rand(N, N)>.5)*2*screen.gray;
-
     % 1. random texture pointer
-    objTex  = Screen('MakeTexture', screen.w, texMatrix);
+    %Screen('FillRect', screen.w, 0.5*modulateColor);
+    %texMatrix = ( rand(N, N)>.5)*2*screen.gray;
+    %objTex  = Screen('MakeTexture', screen.w, texMatrix);
     % display last texture
-    Screen('DrawTexture', screen.w, objTex, [], objRect, 0, 0, 1, modulateColor); % globalalpha default = 1, but ignored when modulateColor is specified.
-    Screen('FillOval', screen.w, screen.white, DefinePD);
-    Screen('Flip', screen.w, 0);
-    % pause until Keyboard pressed
-    KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-    % 27 is 'esc'
-    if YorN==27, break; end;
-    %
-    % 2. checker
-    %
-    %Screen('FillRect', screen.w, screen.gray);
+    %Screen('DrawTexture', screen.w, objTex, [], objRect, 0, 0, 1, modulateColor); % globalalpha default = 1, but ignored when modulateColor is specified.
+    
+    % 2. checker on gray
+    % 
     [x, y] = meshgrid(1:N, 1:N);
     texMatrix = mod(x+y,2)*2*screen.gray;
     % texture pointer
     objTex  = Screen('MakeTexture', screen.w, texMatrix);
-    % display last texture
     for j=1:n_colors
+        Screen('FillRect', screen.w, 0.5*modulateColor);
         Screen('DrawTexture', screen.w, objTex, [], objRect, 0, 0, 1, color_sequence{j});
         Screen('FillOval', screen.w, screen.white, DefinePD);
          %Screen('DrawTexture', windowPointer, texturePointer [,sourceRect]
@@ -68,52 +60,60 @@ objRect = RectForScreen(screen,stimsize,stimsize,0,0);
         KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
         if YorN==27, break; end;
     end
-
-    % 3-1. One Box (0 intensity)
-    box =  RectForScreen(screen,boxL,boxL,0, 0);
-    Screen('FillRect', screen.w, 0.5*modulateColor);
-    Screen('FillRect', screen.w, 0, box);
-    Screen('Flip', screen.w, 0);
-    KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-    if YorN==27, break; end;
     
-    % One box on gray
-    box =  RectForScreen(screen,boxL,boxL,0, 0);
-    Screen('FillRect', screen.w, 0.5*modulateColor);
-    Screen('FillRect', screen.w, modulateColor, box);
-    Screen('Flip', screen.w, 0);
-    KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-    if YorN==27, break; end
+    % 3-0. Stim area (0 intensity outside of the stim area)
+    box =  RectForScreen(screen,stimsize,stimsize,0, 0);
+        % dark Stim area on gray       
+        Screen('FillRect', screen.w, modulateColor);
+        Screen('FillRect', screen.w, 0, box);
+        Screen('Flip', screen.w, 0);
+        KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
+        if YorN==27, break; end
+        
+        % bright stim area on dark
+ 
+        Screen('FillRect', screen.w, 0);
+        Screen('FillRect', screen.w, modulateColor, box);
+        Screen('Flip', screen.w, 0);
+        KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
+        if YorN==27, break; end
+ 
+        
+    % 3-1. MEA Box (0 intensity)
     
-    % 3-2. MEA Box (0 intensity)
-    %dark MEA
+    % dark MEA on gray
     box =  RectForScreen(screen, boxL_mea, boxL_mea, 0, 0);
         Screen('FillRect', screen.w, 0.5*modulateColor); % background
         Screen('FillRect', screen.w, 0, box);
         Screen('Flip', screen.w, 0);
         KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
         if YorN==27, break; end;
-        % white MEA
-        Screen('FillRect', screen.w, 0.5*modulateColor); % background
+    
+        % white MEA on dark 
+    % for power calibration
+        Screen('FillRect', screen.w, 0); % background
         Screen('FillRect', screen.w, modulateColor, box);
         Screen('Flip', screen.w, 0);
         KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
         if YorN==27, break; end;
     
-    % Stim area (0 intensity outside of the stim area)
-    box =  RectForScreen(screen,stimsize,stimsize,0, 0);
+
+    % 3-2. 1 Box
+    box =  RectForScreen(screen,boxL,boxL,0, 0);
+        % dark box on gray
+        Screen('FillRect', screen.w, 0.5*modulateColor);
+        Screen('FillRect', screen.w, 0, box);
+        Screen('Flip', screen.w, 0);
+        KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
+        if YorN==27, break; end;
+
+        % bright box on dark
         Screen('FillRect', screen.w, 0);
         Screen('FillRect', screen.w, modulateColor, box);
         Screen('Flip', screen.w, 0);
         KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
         if YorN==27, break; end
-        % dark Stim area
-        Screen('FillRect', screen.w, modulateColor);
-        Screen('FillRect', screen.w, 0, box);
-        Screen('Flip', screen.w, 0);
-        KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-        if YorN==27, break; end
-    
+
     % black screen
     Screen('FillRect', screen.w, 0);
     Screen('Flip', screen.w, 0);

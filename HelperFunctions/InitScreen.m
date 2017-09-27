@@ -22,7 +22,8 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     AssertOpenGL;
 
     % Get the list of screens and choose the one with the highest screen number.
-    screen.screenNumber=max(Screen('Screens'));
+    %screen.screenNumber = 2;
+    screen.screenNumber=max(Screen('Screens'))
 
     % if Nominal rate is 0, (running from a laptop) Psychtoolbox is failing
     % to initialize the screen because there are synchronization problems. I
@@ -52,8 +53,8 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     %screen.waitframes = round(.033*screen.rate);
     
     % Find the color values which correspond to white and black.
-    screen.white=WhiteIndex(screen.screenNumber);
-    screen.black=BlackIndex(screen.screenNumber);
+    screen.white=WhiteIndex(screen.screenNumber)
+    screen.black=BlackIndex(screen.screenNumber)
 
     % Round gray to integral number, to avoid roundoff artifacts with some
     % graphics cards:
