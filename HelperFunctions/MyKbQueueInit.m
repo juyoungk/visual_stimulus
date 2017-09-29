@@ -10,7 +10,9 @@ keys = [4:44, 51:56, 79:82, 13, 110, 96, 27];
 keylist = zeros(1, 256); keylist(keys) = 1;
 
 %
-KbQueueCreate(id(1), keylist);
+%KbQueueCreate(id(1), keylist);
+KbQueueCreate(-1, keylist);
+% if id is negative, default device will be used.
 %
 KbQueueStart();
 KbQueueFlush();

@@ -13,7 +13,6 @@ function ex = initdisp(ex)
 % Make sure PTB is working, hide the on screen cursor
 AssertOpenGL;
 
-
 % Get the screen numer
 ex.disp.screen = max(Screen('Screens'));
 

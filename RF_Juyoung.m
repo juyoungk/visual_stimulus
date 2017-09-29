@@ -21,14 +21,15 @@ function stim = RF_Juyoung(varargin)
     objCenterXY = p.Results.objCenterXY;
     noise.type = p.Results.noiseType;
     array_type = p.Results.array_type;
-    dispRes = p.Results.DisplayRes;
-    dispRate = p.Results.DisplayRate;
+    %dispRes = p.Results.DisplayRes;
+    %dispRate = p.Results.DisplayRate;
     stim = []; log = [];
 try
     checkersN_H = ceil(p.Results.stimSizeXYum(1)/p.Results.checkerSizeXum);
     checkersN_V = ceil(p.Results.stimSizeXYum(2)/p.Results.checkerSizeYum);
   
-    screen = InitScreen(0, dispRes(1), dispRes(2), dispRate);
+    %screen = InitScreen(0, dispRes(1), dispRes(2), dispRate);
+    screen = InitScreen(0);
     % whiteFrames = round(screen.rate/waitframes); % # of stim flip for 1s
     % (defined by Pablo)
     % screen.rate = NominalFrameRate (Hz)
@@ -189,12 +190,12 @@ function p =  ParseInput(varargin)
         frameRate=100;
     end
     
-    addParamValue(p,'DisplayRes', [1024,768], @(x) length(x)==2);
-    addParamValue(p,'DisplayRate', 85, @(x) x>=30);
+    %addParamValue(p,'DisplayRes', [1024,768], @(x) length(x)==2);
+    %addParamValue(p,'DisplayRate', 85, @(x) x>=30);
     addParamValue(p,'objContrast', 1, @(x) x>=0 && x<=1);
     addParamValue(p,'seed', 1, @(x) isnumeric(x));
     %
-    addParamValue(p,'movieDurationSecs', 60*30, @(x)x>0);
+    addParamValue(p,'movieDurationSecs', 60*30, @(x)x>0); % 30 min
     % Checker Size = 50 um (= 25 px in 2P rig with 25x Leica)
     addParamValue(p,'checkerSizeXum', 50, @(x) x>0); % um
     addParamValue(p,'checkerSizeYum', 50, @(x) x>0); % um

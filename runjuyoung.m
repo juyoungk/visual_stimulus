@@ -25,7 +25,7 @@ try
   ex = initkb(ex);
 
   % Initalize the visual display
-  ex.disp.bgcol = 0;
+  ex.disp.bgcol = 0; % specify bg color here
   ex = initdisp(ex);
   
   % wait for trigger

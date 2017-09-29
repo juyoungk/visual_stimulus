@@ -7,7 +7,7 @@ text = ['Press any key to start (space key for external trigger)'];
 
 Screen('FillOval', screen.w, screen.black, pd); % first PD: black
 % Screen('DrawText', screen.w, text, 0.6*screen.sizeX, p.Results.posY-15, screen.white);
-% Screen('DrawText', screen.w, p.Results.TEXT, p.Results.posX, p.Results.posY, screen.white);
+Screen('DrawText', screen.w, p.Results.TEXT, p.Results.posX, p.Results.posY, screen.white);
 
 Screen('Flip', screen.w, 0);
 
@@ -28,7 +28,7 @@ if YorN==KbName('space'), WaitForRec; end;
 
 % last screen before stimulus
 Screen('FillOval', screen.w, screen.black, pd); % first PD: black
-Screen('Flip', screen.w, 0);
+Screen('Flip', screen.w, screen.gray);
 pause(1);
 
 log = [datestr(now), '  ', p.Results.TEXT];

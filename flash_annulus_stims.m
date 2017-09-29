@@ -1,4 +1,4 @@
-function [log] = annulusStimList(varargin)
+function [log] = flash_annulus_stims(varargin)
     addpath('HelperFunctions/')
     addpath('Functions/')
     % 
@@ -11,71 +11,45 @@ function [log] = annulusStimList(varargin)
     duration = p.Results.DurationSecs;
     contrast = p.Results.objContrast;
 try
-    % monitor setting: resolution and refresh rate
+    % monitor setting: 
     screen = InitScreen(0);
     % BG
     Screen('FillRect', screen.w, screen.gray);
-    % frame parameters
-    vbl = 0; vbl_prev =0; stop =0;
+    %
     OnColor = screen.white; OffColor = screen.black; 
     bgColor = screen.gray;
+ 
+    % flash stimulus
+    r = 3000; %as microns
+    radiusDot = Pixel_for_Micron(r);
+    % 
+    halfperiod = 1.0 ; % in secs
+    halfperiodGrating = 1.0;
+    Ncycle = 100;      % # of trials. avg # in analysis
     
+    % Tot time = [half period(1.5)*2*Ncycle+ 1.5]* N (radius,8) = 252
+    % Tot time (grating) =Nwidth(3)*Nphase(4)*Ncycle(10)*halfperiod(1.)*2 = 240s
+ 
     % time & duration parameters
     pause = 2;
     
-    % pause between differnet stimuli
-    halfperiod = 0.5 ; % in secs
-    halfperiodGrating = 1.0;
-    Ncycle = 3;      % # of trials. avg # in analysis
+    % frame parameters
+    vbl = 0; vbl_prev =0; stop =0;
     
-    % Dot & Annulus radius dimension
-    N = 1;  rMin = 50; rMax = 750;    % as microns
-    % Tot time = [half period(1.5)*2*Ncycle+ 1.5]* N (radius,8) = 252
-    % Tot time (grating) =Nwidth(3)*Nphase(4)*Ncycle(10)*halfperiod(1.)*2 = 240s
-    
-    radiusDot = Pixel_for_Micron( linspace(rMin, rMax, N) );
-     width = Pixel_for_Micron(100);
-    % radius for annulus flash and noise.
-    % radius(1) is for center dot.
-    % Steve's suggestion for annulus flash: 100 um width
-    % Steve's suggestion for annulus noise: 50 um width, 40-60 Hz
-    radiusAnn = Pixel_for_Micron( linspace(100, 700, 7) );
-    radiusNoise = Pixel_for_Micron( linspace(100, 700, 7) );
-     widthNoise = Pixel_for_Micron(50); 
-    % anuulus noise
-    NoiseDuration = 300; seed = 0;
     % grating or checker
     StimSizeX = Pixel_for_Micron( 1000 ); StimSizeY = StimSizeX; Checker_Y = StimSizeY; 
     Checker_X = Pixel_for_Micron( [25, 50, 100] );
     Nphase = 4;
     %
     % stimulus 1: Simple dot flash with increasing radius (Measure the surround inhibition)
-    WaitStartKeyTrigger(screen, 'TEXT', 'Dot stimulus', 'posX', 0.7*screen.sizeX);
+    WaitStartKeyTrigger(screen, 'TEXT', 'Dot stimulus', 'posX', 0.75*screen.sizeX);
     [vbl, log] = DotFlashStim(screen, vbl, halfperiod, Ncycle, centerX, centerY, radiusDot, OnColor, OffColor);    
  
-    % stimulus 2: Annulus flash with varying radius
-    WaitStartKeyTrigger(screen, 'TEXT', 'Annulus flashes w/o Dot', 'posX', 0.7*screen.sizeX);
-    [vbl, log] = AnnulusFlashStim(screen, vbl+pause, halfperiod, Ncycle, centerX, centerY, radiusAnn, width, OnColor, OffColor, bgColor, 'log', log, ...
-                                'centerDot','No');
-    
-    % stimulus 2-2: Annulus flash with varying radius
-    WaitStartKeyTrigger(screen, 'TEXT', 'Annulus flashes w/ Dot', 'posX', 0.7*screen.sizeX);
-    [vbl, log] = AnnulusFlashStim(screen, vbl+pause, halfperiod, Ncycle, centerX, centerY, radiusAnn, width, OnColor, OffColor, bgColor, 'log', log, ...
-                                'centerDot','Yes');
-    
-    % stimulus 3: Temporal filter for each annulus (peak time vs radius)
-    WaitStartKeyTrigger(screen, 'TEXT', 'Annulus white noise', 'posX', 0.7*screen.sizeX);
-    [vbl, log] = AnnulusBNoiseStim(screen, vbl+pause, contrast, NoiseDuration, stimFrameInterval, seed, centerX, centerY, radiusNoise, widthNoise, 'log', log);
-    
     % stimulus 4: Nonlinear spatial summation (X)
-    WaitStartKeyTrigger(screen, 'TEXT', 'Periodic Checkers (X)', 'posX', 0.7*screen.sizeX);
+    WaitStartKeyTrigger(screen, 'TEXT', 'Periodic Checkers (X)', 'posX', 0.75*screen.sizeX);
     [vbl, log] = CheckerPeriodicStim(screen, vbl+pause, contrast, halfperiodGrating, Ncycle, centerX, centerY, ...
                                 StimSizeX, StimSizeY, Checker_X, Checker_Y, 0, Nphase, 'log', log);
        
-    % stimulus 5: Nonlinear spatial summation (Y)
-    %WaitStartKeyTrigger(screen, 'TEXT', 'Periodic Checkers (Y)', 'posX', 0.7*screen.sizeX);
-    %[vbl, log] = CheckerPeriodicStim(screen, vbl+pause, contrast, halfperiod/2., Ncycle, centerX, centerY, ...
-    %                            StimSizeX, StimSizeY, Checker_X, Checker_Y, 0, Nphase, 'rotationAngle', 90, 'log', log); 
     disp log;
     Screen('CloseAll');
     Priority(0);

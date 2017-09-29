@@ -14,12 +14,13 @@ Screen('DrawText', ex.disp.winptr, 'Press spacebar to arm trigger ... ', ...
 	50, 50, ex.disp.white);
 ex.disp.vbl = Screen('Flip', ex.disp.winptr);
 while ~ex.key.keycode(ex.key.space) && ~ex.key.keycode(ex.key.esc)
+    % (JK comment) Assumption: keycode was initialized as zero vector. 
     % escape the loop by pressing space or esc
 	ex = checkkb(ex);
 end
 
 %% wait for trigger
-if any(strcmp('m', {'m', 'manual'}))
+if any(strcmp('m', {'m', 'manual'})) % ??? always true?
 	Screen('DrawText', ex.disp.winptr, 'Waiting for experimenter trigger (t) ... ', ...
 		50, 50, ex.disp.white);
 	Screen('FillOval', ex.disp.winptr, ex.disp.black, ex.disp.pdrect);

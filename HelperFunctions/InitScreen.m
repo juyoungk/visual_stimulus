@@ -12,18 +12,11 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     p = ParseInput(varargin{:});
     backColor = p.Results.backColor;
 
-    Add2StimLogList();
-
-    % write which function initialized the screen. So that we know when to
-    % close it.
-    s = dbstack('-completenames');
-    screen.callingFunction = s(length(s)).file;
-
     AssertOpenGL;
 
     % Get the list of screens and choose the one with the highest screen number.
     %screen.screenNumber = 2;
-    screen.screenNumber=max(Screen('Screens'))
+    screen.screenNumber = max(Screen('Screens'))
 
     % if Nominal rate is 0, (running from a laptop) Psychtoolbox is failing
     % to initialize the screen because there are synchronization problems. I
@@ -31,20 +24,31 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     % would never be run under those conditions. Force it to start anyway
     screen.rate = Screen('NominalFrameRate', screen.screenNumber);
     if any([screen.rate == 0, screen.screenNumber ==0])
-    %if screen.rate==0
         Screen('Preference', 'SkipSyncTests',1);
+        Screen('Preference', 'VisualDebugLevel', 3);
         screen.rate = 100; % why 100??
         screen.ifi=(0.03322955)/2.;
-        [screen.w screen.rect]=Screen('OpenWindow',screen.screenNumber, backColor, [10 10 1000 1000]);
+        %[screen.w screen.rect] = Screen('OpenWindow',screen.screenNumber, backColor, [10 10 1000 1000]);
+        [screen.w screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, backColor, [10 10 1024 778]);
     elseif debugging ==1
         Screen('Preference', 'SkipSyncTests',1);
-        [screen.w screen.rect]=Screen('OpenWindow',screen.screenNumber, backColor, [10 10 1000 1000]);
+        Screen('Preference', 'VisualDebugLevel', 3);
+        %[screen.w screen.rect]=Screen('OpenWindow',screen.screenNumber, backColor, [10 10 1000 1000]);
+        [screen.w screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, backColor, [0 10 1024 778]);
         screen.ifi=Screen('GetFlipInterval', screen.w);
         Priority(1);
     else
         %Screen('Resolution', screen.screenNumber, width, height, rate);
-         %Screen('Preference', 'SkipSyncTests',1);
-        [screen.w screen.rect]=Screen('OpenWindow',screen.screenNumber, backColor);
+        %[screen.w screen.rect]=Screen('OpenWindow',screen.screenNumber, backColor);
+        
+        Screen('Preference', 'VisualDebugLevel', 3);
+        % Setup PsychImaging pipeline, allows for fast drawing
+        PsychImaging('PrepareConfiguration');
+        PsychImaging('AddTask', 'General', 'UseFastOffscreenWindows');
+        PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
+        % Open the window, fullscreen is default
+        [screen.w screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, backColor);
+
         screen.ifi=Screen('GetFlipInterval', screen.w);
         HideCursor();
         Priority(1);
@@ -86,9 +90,10 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     %    end
     %end
 
-    % Text setting
-    Screen('TextFont', screen.w, 'Ariel');
+    % Set some text properties
+    Screen('TextFont', screen.w, 'Helvetica'); % 'Ariel' doesn't work in Macbook
     Screen('TextSize', screen.w, 24);
+    
     % timestamps initialization.
     screen.vbl = 0;
 end

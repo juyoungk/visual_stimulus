@@ -1,0 +1,9 @@
+function flash(screen, )
+
+
+
+
+
+
+
+end

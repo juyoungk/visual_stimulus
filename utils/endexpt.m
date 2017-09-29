@@ -9,6 +9,6 @@ function endexpt()
 % 21 Jan 2014 - wrote it
 
 Screen('CloseAll');
-ListenChar(0);
+%ListenChar(0);
 ShowCursor;
 Priority(0);
