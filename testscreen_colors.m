@@ -22,15 +22,16 @@ screen = InitScreen(debug);
 disp(['screen.white = ',num2str(screen.white)]);
 disp(['screen.black = ',num2str(screen.black)]);
 
-    boxL_um = 50; %unit: um
+    boxL_um = 100; %unit: um
     boxL = Pixel_for_Micron(boxL_um);  %um to pixels
     
-    N = 40; % determines the stim size
+    N = 25; % determines the stim size
+    pd_shift_from_center = 1.5; % mm
     stimsize = Pixel_for_Micron(boxL_um*N);
     
-    disp(['Pixel N for ', num2str(boxL_um), 'um =  ', num2str(boxL), ' px']);
-    disp(['Pixel N for ', num2str(100), 'um =  ', num2str(PIXELS_PER_100_MICRONS), ' px']);
-    disp(['Pixel N for ', num2str(boxL_um*N), 'um =  ', num2str(stimsize), ' px']);
+    disp(['Pixel N for ', num2str(boxL_um), ' um =  ', num2str(boxL), ' px']);
+    disp(['Pixel N for ', num2str(100), ' um =  ', num2str(PIXELS_PER_100_MICRONS), ' px']);
+    disp(['Pixel N for ', num2str(boxL_um*N), ' um =  ', num2str(stimsize), ' px']);
     
 
     % 3-2. MEA Box (150um = MEA length = 30 * 5)
@@ -38,15 +39,6 @@ disp(['screen.black = ',num2str(screen.black)]);
     
 % Define the obj Destination Rectangle
 objRect = RectForScreen(screen,stimsize,stimsize,0,0);
-
-% Define PD
-[windowSizeX, windowSizeY] = Screen('WindowSize', max(Screen('Screens')))
-pd = SetRect(0,0, windowSizeY*.08, windowSizeY*.08);
-pd = CenterRect(pd, screen.rect);
-pd_shift = 1000 %from center. um.
-x = Pixel_for_Micron(pd_shift);
-pd = OffsetRect(pd, x, x);
-%pd = CenterRectOnPoint(pd, windowSizeX*.65, windowSizeY*.45);
 
  for i=1:1
     % 1. Stim area (0 intensity outside of the stim area)
@@ -56,6 +48,7 @@ pd = OffsetRect(pd, x, x);
             % bright stim area on dark
             Screen('FillRect', screen.w, 0);
             Screen('FillRect', screen.w, color_sequence{j}, box);
+            Screen('FillOval', screen.w, color_sequence{j}, DefinePD_shift(screen, pd_shift_from_center*1000));
             Screen('Flip', screen.w, 0);
             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
             if YorN==27, break; end
@@ -69,7 +62,7 @@ pd = OffsetRect(pd, x, x);
             % bright stim area on dark
             Screen('FillRect', screen.w, 0);
             Screen('DrawTexture', screen.w, objTex, [], objRect, 0, 0, 1, color_sequence{j});
-            Screen('FillOval', screen.w, color_sequence{j}, pd);
+            Screen('FillOval', screen.w, color_sequence{j}, DefinePD_shift(screen, pd_shift_from_center*1000));
             Screen('Flip', screen.w, 0);
             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
             if YorN==27, break; end
