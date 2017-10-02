@@ -48,7 +48,7 @@ objRect = RectForScreen(screen,stimsize,stimsize,0,0);
             % bright stim area on dark
             Screen('FillRect', screen.w, 0);
             Screen('FillRect', screen.w, color_sequence{j}, box);
-            Screen('FillOval', screen.w, color_sequence{j}, DefinePD_shift(screen, pd_shift_from_center*1000));
+            Screen('FillOval', screen.w, color_sequence{j}, DefinePD_shift(screen.w, 'shift', pd_shift_from_center*1000));
             Screen('Flip', screen.w, 0);
             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
             if YorN==27, break; end
@@ -62,7 +62,7 @@ objRect = RectForScreen(screen,stimsize,stimsize,0,0);
             % bright stim area on dark
             Screen('FillRect', screen.w, 0);
             Screen('DrawTexture', screen.w, objTex, [], objRect, 0, 0, 1, color_sequence{j});
-            Screen('FillOval', screen.w, color_sequence{j}, DefinePD_shift(screen, pd_shift_from_center*1000));
+            Screen('FillOval', screen.w, color_sequence{j}, DefinePD_shift(screen.w, 'shift', pd_shift_from_center*1000));
             Screen('Flip', screen.w, 0);
             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
             if YorN==27, break; end

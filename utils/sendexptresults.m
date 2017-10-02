@@ -33,7 +33,8 @@ else
   for stimidx = 1:length(ex.stim)
       
       %frametime = 1 / (ex.stim{stimidx}.framerate);
-      frametime = 1 / (ex.disp.ifi*ex.stim{stimidx}.waitframes);
+      %frametime = 1 / (ex.disp.ifi*ex.stim{stimidx}.waitframes);
+      frametime = 1 / (ex.disp.ifi*ex.stim{stimidx}.params.waitframes); % 1001 Juyoung
       mu = mean(abs(diff(ex.stim{stimidx}.timestamps) - frametime) > tol);
       
       if mu > 0

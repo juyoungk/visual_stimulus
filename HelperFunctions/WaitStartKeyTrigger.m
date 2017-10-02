@@ -2,11 +2,11 @@ function log = WaitStartKeyTrigger(screen, varargin)
 % text string
 % posX, poY in pixels
 p = ParseInput(screen, varargin{:});
-pd = DefinePD;
+pd = DefinePD_shift(screen.w);
 text = ['Press any key to start (space key for external trigger)'];
 
 Screen('FillOval', screen.w, screen.black, pd); % first PD: black
-% Screen('DrawText', screen.w, text, 0.6*screen.sizeX, p.Results.posY-15, screen.white);
+Screen('DrawText', screen.w, text, 0.6*screen.sizeX, p.Results.posY-15, screen.white);
 Screen('DrawText', screen.w, p.Results.TEXT, p.Results.posX, p.Results.posY, screen.white);
 
 Screen('Flip', screen.w, 0);
@@ -40,7 +40,7 @@ function p = ParseInput(screen, varargin)
     text = date;
     
     % Gabor parameters
-    p.addParamValue('posX', 0.75*screen.sizeX, @(x) x>=0 && x<screen.sizeX);
+    p.addParameter('posX', 0.75*screen.sizeX, @(x) x>=0 && x<screen.sizeX);
     p.addParameter('posY', 20, @(x) x>=0 && x<screen.sizeY);
     p.addParameter('TEXT', text, @(x) ischar(x));
     % 

@@ -43,7 +43,7 @@ try
     % init random seed generator
     randomStream = RandStream('mcg16807', 'Seed', seed);
     % DefinePD returns the Rect dimension matrix; pd=newRect=[left,top,right,bottom];
-    pd = DefinePD();
+    pd = DefinePD_shift(screen.w);
     
     if strcmp(p.Results.recreation, 'yes')
         stim = RandomCheckersRecreate(framesN, checkersN_V, checkersN_H, objContrast, randomStream, noise);

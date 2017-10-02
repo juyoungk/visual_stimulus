@@ -18,7 +18,7 @@ function vbl = diff_Grating_Screen(vbl0, w, screenRect, waitframes, ifi, white, 
       gray=white / 2;
     end
     inc=white-gray;
-    pd = DefinePD(w);
+    pd = DefinePD_shift(w);
     % Annulus for boundary between center and BG
     rectAnnul = CenterRect([0 0 Ct_visiblesize+2*w_Annulus Ct_visiblesize+2*w_Annulus], screenRect);
 
@@ -160,7 +160,7 @@ function vbl = diff_Grating_Screen(vbl0, w, screenRect, waitframes, ifi, white, 
                         break;             
                     case KbName('j') % jitter
                         %FLAG_SimpleMove = 0;
-                    case KbName('n')
+                    case KbName('n') % next
                         break;
                     case KbName('RightArrow')
                         break;
@@ -177,6 +177,7 @@ function vbl = diff_Grating_Screen(vbl0, w, screenRect, waitframes, ifi, white, 
                     case KbName(',<')
                         phase_delay_Bg = phase_delay_Bg - 1;
                     case KbName('space')
+                        FLAG_Global_Motion = ~FLAG_Global_Motion;
                         %phase_delay_Bg = (~phase_delay_Bg)*round(N_phase/2);
                     case KbName('UpArrow') 
 

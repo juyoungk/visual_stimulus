@@ -10,6 +10,8 @@ function [log] = flash_annulus_stims(varargin)
     seed = p.Results.seed;
     duration = p.Results.DurationSecs;
     contrast = p.Results.objContrast;
+    Ncycle = p.Results.Ncycle;      % # of trials. avg # in analysis
+    halfperiod = p.Results.halfPeriodSecs;
 try
     % monitor setting: 
     screen = InitScreen(0);
@@ -20,29 +22,27 @@ try
     bgColor = screen.gray;
  
     % flash stimulus
-    r = 3000; %as microns
+    r = p.Results.radius; % in microns
     radiusDot = Pixel_for_Micron(r);
     % 
-    halfperiod = 1.0 ; % in secs
-    halfperiodGrating = 1.0;
-    Ncycle = 100;      % # of trials. avg # in analysis
+    halfperiodGrating = halfperiod;
     
     % Tot time = [half period(1.5)*2*Ncycle+ 1.5]* N (radius,8) = 252
     % Tot time (grating) =Nwidth(3)*Nphase(4)*Ncycle(10)*halfperiod(1.)*2 = 240s
  
     % time & duration parameters
-    pause = 2;
+    pause = 1;
     
     % frame parameters
     vbl = 0; vbl_prev =0; stop =0;
     
     % grating or checker
     StimSizeX = Pixel_for_Micron( 1000 ); StimSizeY = StimSizeX; Checker_Y = StimSizeY; 
-    Checker_X = Pixel_for_Micron( [25, 50, 100] );
+    Checker_X = Pixel_for_Micron( [50, 100] );
     Nphase = 4;
     %
     % stimulus 1: Simple dot flash with increasing radius (Measure the surround inhibition)
-    WaitStartKeyTrigger(screen, 'TEXT', 'Dot stimulus', 'posX', 0.75*screen.sizeX);
+    WaitStartKeyTrigger(screen, 'TEXTq', 'Dot stimulus', 'posX', 0.75*screen.sizeX);
     [vbl, log] = DotFlashStim(screen, vbl, halfperiod, Ncycle, centerX, centerY, radiusDot, OnColor, OffColor);    
  
     % stimulus 4: Nonlinear spatial summation (X)
@@ -67,7 +67,7 @@ function [vbl, log] = CheckerPeriodicStim(screen, vbl, contrast, halfperiod, Ncy
                                 StimSizeX, StimSizeY, CheckerSizeX, CheckerSizeY, maskRadius, Nphase, varargin)
 %
   p = ParseInput(varargin{:});
- pd = DefinePD;
+ pd = DefinePD_shift(screen.w);
 log = addLog(p.Results.log);
 vbl0 = vbl;
 stopFLAG =0; cur_frame = 0;
@@ -135,7 +135,7 @@ function [vbl, log] = DotFlashStim(screen, vbl, halfperiod, Ncycle, centerX, cen
 % CenterX = 0 means at the center of the screen.
   p = ParseInput(varargin{:});
 log = addLog(p.Results.log);
- pd = DefinePD;
+ pd = DefinePD_shift(screen.w);
 vbl0 = vbl;
 stopFLAG = 0;
 cur_frame = 0;    %current frame number
@@ -373,14 +373,14 @@ function p =  ParseInput(varargin)
 
     addParamValue(p,'centerX', 0, @(x) isnumeric(x));
     addParamValue(p,'centerY', 0, @(x) isnumeric(x));
-    addParamValue(p,'radius', 100, @(x) isnumeric(x));
+    addParamValue(p,'radius', 2500, @(x) isnumeric(x)); % um
     addParamValue(p,'rotationAngle', 0, @(x) x>=0 && x <=360);
     addParamValue(p,'objContrast', 1, @(x) x>=0 && x <=1);
     addParamValue(p,'centerDot', 'Yes', @(x) ischar(x));
     % 
     addParamValue(p,'DurationSecs', 15, @(x)x>0);
     addParamValue(p,'Ncycle', 10, @(x)x>0);
-    addParamValue(p,'halfPeriodSecs', 2, @(x)x>0);
+    addParamValue(p,'halfPeriodSecs', 1.5, @(x)x>0);
     %
     addParamValue(p,'seed', 1, @(x) isnumeric(x));
     addParamValue(p,'debugging', 0, @(x) x>=0 && x <=1);

@@ -19,9 +19,11 @@ end
 [windowSizeX, windowSizeY] = Screen('WindowSize', w);
 
 %
-pd = DefinePD(w);
-text = ['Press any key to start (SPACE key for external trigger)'];
-expName = [date, 'exp name'];
+%pd = DefinePD(w);
+pd = DefinePD_shift(w);
+
+text = ['Press any key to start'];
+expName = [date, ' ', p.Results.expName];
 
 Screen('FillOval', w, black, pd); % first PD: black
 Screen('DrawText', w, text, 0.5*windowSizeX, 0.5*windowSizeY, white);
@@ -42,23 +44,23 @@ while ( keybuffer )
     [~, ~, c]=KbCheck;
     keybuffer = max(vec(c));
 end
-if YorN==KbName('space'), WaitForRec; end;
+%if YorN==KbName('space'), WaitForRec; end;
 
 % last screen before stimulus
 Screen('FillOval', w, black, pd); % first PD: black
 Screen('Flip', w, 0);
 pause(1);
 
-log = [datestr(now), '  ', p.Results.TEXT];
+log = [datestr(now), '  ', p.Results.expName];
 
 end
 
 function p = ParseInput(varargin)
     p  = inputParser;   % Create an instance of the inputParser class.
-    text = date;
+    text = 'experiment';
     
     % Gabor parameters
-    addParamValue(p,'TEXT', text, @(x) ischar(x));
+    addParamValue(p,'expName', text, @(x) ischar(x));
     % 
     p.parse(varargin{:});
 end
