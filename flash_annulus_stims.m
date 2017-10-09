@@ -42,7 +42,7 @@ try
     Nphase = 4;
     %
     % stimulus 1: Simple dot flash with increasing radius (Measure the surround inhibition)
-    WaitStartKeyTrigger(screen, 'TEXTq', 'Dot stimulus', 'posX', 0.75*screen.sizeX);
+    WaitStartKeyTrigger(screen, 'TEXT', 'Dot stimulus', 'posX', 0.75*screen.sizeX);
     [vbl, log] = DotFlashStim(screen, vbl, halfperiod, Ncycle, centerX, centerY, radiusDot, OnColor, OffColor);    
  
     % stimulus 4: Nonlinear spatial summation (X)

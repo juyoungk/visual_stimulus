@@ -39,8 +39,10 @@ function [pixelsX] = PIXELS_PER_100_MICRONS(varargin)
             pixelsX = 50;
         case '2P_rig_Nikon_10x'     
             pixelsX = 20;
-        case '2P_new_rig_Olympus 10x'
-            pixelsX = 12;
+        case '2P_new_rig_Olympus_10x'
+            pixelsX = 11.7; % 1 px ~ 8.485 um
+        case '2P_new_rig_Olympus_4x'
+            pixelsX = 4.7; % 1 px ~ 21.2 um
     end
     fprintf('screen size [width]: %d, imaged by %s, 100 um = %d pixels\n', width, p.Results.imaging, pixelsX);       
 end
@@ -48,8 +50,9 @@ end
 function p =  ParseInput(varargin)
     p  = inputParser;   % Create an instance of the inputParser class.
     
-    p.addParameter('imaging', '2P_new_rig_Olympus 10x', @(x) strcmp(x,'D239rig') || ...
-        strcmp(x,'2P_rig_Nikon_10x') || strcmp(x,'2P_rig_Leica_25x') || strcmp(x,'2P_new_rig_Olympus 10x') );
+    p.addParameter('imaging', '2P_new_rig_Olympus_4x', @(x) strcmp(x,'D239rig') || ...
+        strcmp(x,'2P_rig_Nikon_10x') || strcmp(x,'2P_rig_Leica_25x') || ...
+        strcmp(x,'2P_new_rig_Olympus_10x') || strcmp(x,'2P_new_rig_Olympus_4x'));
     
     % p.addParameter('objective', '2P_rig_Leica_25x', @(x) ischar(x));
     %

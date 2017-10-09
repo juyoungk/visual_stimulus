@@ -1,7 +1,7 @@
 function testscreen(debug, modulateColor)
 
 if nargin == 0 
-    debug =1;
+    debug =0;
     modulateColor =[255 255 255];
 elseif nargin == 1
     modulateColor =[255 255 255];
@@ -19,16 +19,15 @@ addpath('HelperFunctions/')
 screen = InitScreen(debug);
 waitframes = 1;
 
-    boxL_um = 60; %unit: um
-        bar_width = 3; % # boxes.
+    boxL_um = 120; %unit: um
     boxL = Pixel_for_Micron(boxL_um);  %um to pixels %not good to round here.
     disp(['Pixel N for ', num2str(boxL_um), 'um =  ', num2str(boxL), ' px']);
     disp(['Pixel N for ', num2str(100), 'um =  ', num2str(PIXELS_PER_100_MICRONS), ' px']);
     
     % MEA Box (150um = MEA length = 30 * 5)
-    boxL_mea = 10*boxL;
+    boxL_mea = 5*boxL;
     
-    N = 36; % determines the stim size
+    N = 20; % determines the stim size
     stimsize = N*boxL;
     disp(['Stim size = ', num2str(N*boxL_um), ' um (', num2str(stimsize), ' px)']);
 

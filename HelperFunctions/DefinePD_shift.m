@@ -22,7 +22,7 @@ function p =  ParseInput(varargin)
     p  = inputParser;   % Create an instance of the inputParser class.
     
     addParamValue(p,'shift', 2000, @(x)x>=0); % um
-    addParamValue(p,'size', 400, @(x)x>=0); % um
+    addParamValue(p,'size', 800, @(x)x>=0); % um
     
     % Call the parse method of the object to read and validate each argument in the schema:
     p.parse(varargin{:});

@@ -15,9 +15,21 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     AssertOpenGL;
 
     % Get the list of screens and choose the one with the highest screen number.
+    % screen.screenNumber = 2;
+    n = max(Screen('Screens'));
+    resolutions = cell(1, n);
+    cur_display_Res_width = 100000000;
+    for i = 1:n
+        resolutions{i} = Screen('resolution', i);
+        if resolutions{i}.width < cur_display_Res_width
+            cur_display_Res_width = resolutions{i}.width
+            % pick screen number whose resolution is the lowest among
+            % others.
+            screen.screenNumber = i
+        end
+    end
+    %screen.screenNumber = n;
     %screen.screenNumber = 2;
-    screen.screenNumber = max(Screen('Screens'))
-
     % if Nominal rate is 0, (running from a laptop) Psychtoolbox is failing
     % to initialize the screen because there are synchronization problems. I
     % don't care about those problems when running in my laptop. Experiment
@@ -40,7 +52,6 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     else
         %Screen('Resolution', screen.screenNumber, width, height, rate);
         %[screen.w screen.rect]=Screen('OpenWindow',screen.screenNumber, backColor);
-        
         Screen('Preference', 'VisualDebugLevel', 3);
         % Setup PsychImaging pipeline, allows for fast drawing
         PsychImaging('PrepareConfiguration');

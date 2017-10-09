@@ -25,9 +25,10 @@ disp(['screen.black = ',num2str(screen.black)]);
 
     boxL_um = 60; %unit: um
     boxL = Pixel_for_Micron(boxL_um);  %um to pixels
+    boxL = 8; % 60um
     
-    N = 10; % determines the stim size
-    pd_shift_from_center = 2.5; % mm
+    N = 35; % determines the stim size
+    pd_shift_from_center = 1.5; % mm
     stimsize = Pixel_for_Micron(boxL_um*N);
     
     disp(['Pixel N for ', num2str(boxL_um), ' um =  ', num2str(boxL), ' px']);
@@ -35,6 +36,7 @@ disp(['screen.black = ',num2str(screen.black)]);
     disp(['Pixel N for ', num2str(boxL_um*N), ' um =  ', num2str(stimsize), ' px']);
     
 % Define the obj Destination Rectangle
+stimsize = 4*N;
 objRect = RectForScreen(screen,stimsize,stimsize,0,0);
 % pd rect
 pd = DefinePD_shift(screen.w, 'shift', pd_shift_from_center*1000);
@@ -47,7 +49,7 @@ pd = DefinePD_shift(screen.w, 'shift', pd_shift_from_center*1000);
             % bright stim area on dark
             Screen('FillRect', screen.w, 0);
             Screen('FillRect', screen.w, color_sequence{j}, box);
-            Screen('FillOval', screen.w, screen.white, pd);
+            Screen('FillOval', screen.w, color_sequence{j}, pd);
             Screen('Flip', screen.w, 0);
             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
             if YorN==27, break; end
@@ -56,13 +58,12 @@ pd = DefinePD_shift(screen.w, 'shift', pd_shift_from_center*1000);
     [x, y] = meshgrid(1:N, 1:N);
     texMatrix = mod(x+y,2)*2*screen.gray;
     objTex  = Screen('MakeTexture', screen.w, texMatrix);
-    angle = 0;
     % color change @ white intensity
         for j=1:n_colors
             % bright stim area on dark
             Screen('FillRect', screen.w, 0);
             Screen('DrawTexture', screen.w, objTex, [], objRect, angle, 0, 1, color_sequence{j});
-            Screen('FillOval', screen.w, screen.white, pd);
+            Screen('FillOval', screen.w, color_sequence{j}, pd);
             Screen('Flip', screen.w, 0);
             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
             if YorN==27, break; end
@@ -70,15 +71,15 @@ pd = DefinePD_shift(screen.w, 'shift', pd_shift_from_center*1000);
         
         
         % intensity scan @ specific color
-        brightness = [32, 64, 128, 255];
-        color = [0 0 1];
-        for j=1:length(brightness)
-            Screen('FillRect', screen.w, 0);
-            Screen('FillRect', screen.w, brightness(j)*color, box);
-            Screen('Flip', screen.w, 0);
-            KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-            if YorN==27, break; end
-        end
+%         brightness = [32, 64, 128, 255];
+%         color = [0 0 1];
+%         for j=1:length(brightness)
+%             Screen('FillRect', screen.w, 0);
+%             Screen('FillRect', screen.w, brightness(j)*color, box);
+%             Screen('Flip', screen.w, 0);
+%             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
+%             if YorN==27, break; end
+%         end
  end
 
 % Text for getting focusing?
