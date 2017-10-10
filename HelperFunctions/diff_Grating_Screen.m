@@ -18,7 +18,7 @@ function vbl = diff_Grating_Screen(vbl0, w, screenRect, waitframes, ifi, white, 
       gray=white / 2;
     end
     inc=white-gray;
-    pd = DefinePD_shift(w);
+    [pd, pd_color_max] = DefinePD_shift(w);
     % Annulus for boundary between center and BG
     rectAnnul = CenterRect([0 0 Ct_visiblesize+2*w_Annulus Ct_visiblesize+2*w_Annulus], screenRect);
 
@@ -133,9 +133,9 @@ function vbl = diff_Grating_Screen(vbl0, w, screenRect, waitframes, ifi, white, 
         Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
            
         % photodiode
-        Screen('FillOval', w, xoffset_Ct/0.5*(white-gray)+gray, pd);
+        Screen('FillOval', w, xoffset_Ct/0.5*pd_color_max, pd);
         if cur_frame ==1
-            Screen('FillOval', w, white, pd);
+            Screen('FillOval', w, pd_color_max, pd);
         end
         
         % Flip 'waitframes' monitor refresh intervals after last redraw.

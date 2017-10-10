@@ -41,14 +41,20 @@ speed = Pixel_for_Micron(shift_speed);
 
 %
 try
-    AssertOpenGL;
+    screen = InitScreen(0);
+    white = screen.white;
+    black = screen.black;
+    w = screen.w;
+    ifi = screen.ifi;
     
-    % Get the list of screens and choose the one with the highest screen number.
-    screenNumber=max(Screen('Screens'))
-    % Find the color values which correspond to white and black.
-    white=WhiteIndex(screenNumber);
-    black=BlackIndex(screenNumber);
-    
+%             AssertOpenGL;
+% 
+%             % Get the list of screens and choose the one with the highest screen number.
+%             screenNumber=max(Screen('Screens'))
+%             % Find the color values which correspond to white and black.
+%             white=WhiteIndex(screenNumber);
+%             black=BlackIndex(screenNumber);
+% 
     % Round gray to integral number, to avoid roundoff artifacts with some
     % graphics cards:
     gray=round((white+black)/2);
@@ -59,20 +65,20 @@ try
     end
     inc=white-gray;
 
-    % Open a double buffered fullscreen window with a gray background:
-    rate = Screen('NominalFrameRate', screenNumber);
-    if rate == 0
-        Screen('Preference', 'SkipSyncTests',1);
-        [w, screenRect]=Screen('OpenWindow',screenNumber, gray, [10 10 1010 1160]);
-        oldtxtsize = Screen('TextSize', w, 17);
-    else
-        Screen('Resolution', screenNumber, 800, 600, 60);
-        [w, screenRect]=Screen('OpenWindow',screenNumber, gray);
-        oldtxtsize = Screen('TextSize', w, 9);
-        HideCursor(screenNumber);
-    end
-    % Query duration of monitor refresh interval:
-    ifi=Screen('GetFlipInterval', w)
+%     % Open a double buffered fullscreen window with a gray background:
+%     rate = Screen('NominalFrameRate', screenNumber);
+%     if rate == 0
+%         Screen('Preference', 'SkipSyncTests',1);
+%         [w, screenRect]=Screen('OpenWindow',screenNumber, gray, [10 10 1010 1160]);
+%         oldtxtsize = Screen('TextSize', w, 17);
+%     else
+%         Screen('Resolution', screenNumber, 800, 600, 60);
+%         [w, screenRect]=Screen('OpenWindow',screenNumber, gray);
+%         oldtxtsize = Screen('TextSize', w, 9);
+%         HideCursor(screenNumber);
+%     end
+%     % Query duration of monitor refresh interval:
+%     ifi=Screen('GetFlipInterval', w)
     
     % Calculate parameters of the grating:
     BG_visiblesize=2*TexBgSize_Half+1;
@@ -117,7 +123,7 @@ try
     delays_Ct_Bg = fliplr(delays_Ct_Bg);
     %
     
-    WaitStartKey(w, 'expName', 'Differential step stimulus for OMS');
+    WaitStartKey(w, 'expName', 'Diff. Step stimulus for OMS');
     device_id = MyKbQueueInit; % paired with "KbQueueFlush()"
     %
     vbl=0;
@@ -128,7 +134,7 @@ try
          phase_txt = ['[ ',num2str(i),'/', num2str(numel(delays_Ct_Bg)), ' phase ] '];
         % recovery from depression or make circuit same condition: 
         % Global motion (10s)
-        vbl = diff_Grating_Screen(vbl, w, screenRect, waitframes, ifi, white, black, ...
+        vbl = diff_Grating_Screen(vbl, w, screen.rect, waitframes, ifi, white, black, ...
            BG_visiblesize, Ct_visiblesize, gratingtexBg, gratingtexCt, masktex, ...
            barWidthPixels, shift_Ct, shift_Bg, speed, ...
            phase_init_ct, 0, ... % shift for center and BG.
@@ -138,7 +144,7 @@ try
      
        
         % stimulus: phase delay
-        vbl = diff_Grating_Screen(vbl, w, screenRect, waitframes, ifi, white, black, ...
+        vbl = diff_Grating_Screen(vbl, w, screen.rect, waitframes, ifi, white, black, ...
            BG_visiblesize, Ct_visiblesize, gratingtexBg, gratingtexCt, masktex, ...
            barWidthPixels, shift_Ct, shift_Bg, speed, ...
            phase_init_ct, delays_Ct_Bg(i), ... % shift for center and BG.

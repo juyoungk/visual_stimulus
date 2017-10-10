@@ -54,36 +54,34 @@ TexCtSize_Half = Pixel_for_Micron(StimSize_Ct/2.); % Half-Size of the Center gra
 f=1/Pixel_for_Micron(2*HalfPeriod);
 
 try
-    AssertOpenGL; 
-    
-    % Get the list of screens and choose the one with the highest screen number.
-    screenNumber=max(Screen('Screens'));
-    % Find the color values which correspond to white and black.
-    white=WhiteIndex(screenNumber);
-    black=BlackIndex(screenNumber);
-    
-    % Round gray to integral number, to avoid roundoff artifacts with some
-    % graphics cards:
-    gray=round((white+black)/2);
-    % This makes sure that on floating point framebuffers we still get a
-    % well defined gray. It isn't strictly neccessary in this demo:
-    if gray == white
-      gray=white / 2;
-    end
+    screen = InitScreen(0, 'bg_color', [0 0 0]);
+    white = screen.white;
+    black = screen.black;
+    gray = screen.gray;
     inc=white-gray;
+    w = screen.w;
+    ifi = screen.ifi;
     
-    % Open a double buffered fullscreen window with a gray background:
-    rate = Screen('NominalFrameRate', screenNumber);
-    if rate == 0
-        Screen('Preference', 'SkipSyncTests',1);
-        [w, screenRect]=Screen('OpenWindow',screenNumber, gray, [10 10 1010 1160]);
-        oldtxtsize = Screen('TextSize', w, 17);
-    else
-        Screen('Resolution', screenNumber, 800, 600, 60);
-        [w, screenRect]=Screen('OpenWindow',screenNumber, gray);
-        oldtxtsize = Screen('TextSize', w, 9);
-        HideCursor(screenNumber);
-    end
+%     AssertOpenGL; 
+%     
+%     % Get the list of screens and choose the one with the highest screen number.
+%     screenNumber=max(Screen('Screens'));
+%     % Find the color values which correspond to white and black.
+%     white=WhiteIndex(screenNumber);
+%     black=BlackIndex(screenNumber);
+
+%     % Open a double buffered fullscreen window with a gray background:
+%     rate = Screen('NominalFrameRate', screenNumber);
+%     if rate == 0
+%         Screen('Preference', 'SkipSyncTests',1);
+%         [w, screenRect]=Screen('OpenWindow',screenNumber, gray, [10 10 1010 1160]);
+%         oldtxtsize = Screen('TextSize', w, 17);
+%     else
+%         Screen('Resolution', screenNumber, 800, 600, 60);
+%         [w, screenRect]=Screen('OpenWindow',screenNumber, gray);
+%         oldtxtsize = Screen('TextSize', w, 9);
+%         HideCursor(screenNumber);
+%     end
 
     % Calculate parameters of the grating:
     p=ceil(1/f); % pixels/one cycle (= wavelength), rounded up.~2*Bipolar cell RF
@@ -122,15 +120,15 @@ try
     % Definition of the drawn rectangle on the screen:
 %     dstRect=[0 0 visiblesize visiblesize];
 %     dstRect=CenterRect(dstRect, screenRect);
-    dstRect=CenterRect([0 0 BG_visiblesize BG_visiblesize], screenRect);
+    dstRect=CenterRect([0 0 BG_visiblesize BG_visiblesize], screen.rect);
 
     % Definition of the drawn rectangle on the screen:
 %     dst2Rect=[0 0 visible2size visible2size]; % half size rect.
 %     dst2Rect=CenterRect(dst2Rect, screenRect);    
-    dst2Rect=CenterRect([0 0 Ct_visiblesize Ct_visiblesize], screenRect);
+    dst2Rect=CenterRect([0 0 Ct_visiblesize Ct_visiblesize], screen.rect);
     
     % Annulus for boundary between center and BG
-    rectAnnul = CenterRect([0 0 Ct_visiblesize+2*w_Annulus Ct_visiblesize+2*w_Annulus], screenRect);
+    rectAnnul = CenterRect([0 0 Ct_visiblesize+2*w_Annulus Ct_visiblesize+2*w_Annulus], screen.rect);
 
     % Query duration of monitor refresh interval:
     ifi=Screen('GetFlipInterval', w)
@@ -140,8 +138,10 @@ try
     p=1/f; % pixels/cycle
     %
     
-    pd = DefinePD_shift(w);
+    [pd, pd_color_max] = DefinePD_shift(w);
     Screen('FillOval', w, black, pd); % first PD: black
+    % background: black
+    Screen('FillRect', w, screen.bg_color);
     % Perform initial Flip to sync us to the VBL and for getting an initial
     % VBL-Timestamp for our "WaitBlanking" emulation:
     vbl=Screen('Flip', w);
@@ -175,7 +175,11 @@ try
         FLAG_Global_Motion = rem(i,2);
         
         % photodiode at the first frame of the sequence
-        Screen('FillOval', w, white, pd);
+        if mod(i ,2) == 1
+            Screen('FillOval', w, pd_color_max, pd);
+        else
+            Screen('FillOval', w, pd_color_max/2., pd);
+        end
         
         cur_frame = 0;
         while (cur_frame < seq_framesN)
@@ -227,10 +231,7 @@ try
             Screen('DrawTexture', w, gratingtexCt, src2Rect, dst2Rect, angleCenter);
 
             % Restore alpha blending mode for next draw iteration:
-            Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            %
-            
+            Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
             % Flip 'waitframes' monitor refresh intervals after last redraw.
             vbl = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
@@ -320,7 +321,7 @@ function p =  ParseInput(varargin)
     
     p  = inputParser;   % Create an instance of the inputParser class.
     
-    addParamValue(p,'sDuration', 10, @(x)x>=0);
+    addParamValue(p,'sDuration', 2, @(x)x>=0);
     addParamValue(p,'N_repeats', 3, @(x)x>=0);
     addParamValue(p,'seed', 1, @(x) isnumeric(x));
      

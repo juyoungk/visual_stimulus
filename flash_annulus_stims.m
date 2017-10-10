@@ -16,10 +16,11 @@ try
     % monitor setting: 
     screen = InitScreen(0);
     % BG
-    Screen('FillRect', screen.w, screen.gray);
+    Screen('FillRect', screen.w, screen.bg_color);
     %
-    OnColor = screen.white; OffColor = screen.black; 
-    bgColor = screen.gray;
+    OnColor = screen.white; 
+    OffColor = screen.black; 
+    bgColor = screen.black;
  
     % flash stimulus
     r = p.Results.radius; % in microns
@@ -42,11 +43,13 @@ try
     Nphase = 4;
     %
     % stimulus 1: Simple dot flash with increasing radius (Measure the surround inhibition)
-    WaitStartKeyTrigger(screen, 'TEXT', 'Dot stimulus', 'posX', 0.75*screen.sizeX);
+    %WaitStartKeyTrigger(screen, 'TEXT', 'Dot stimulus', 'posX', 0.75*screen.sizeX);
+    WaitStartKey(screen.w, 'expName', 'Dot stimulus');
     [vbl, log] = DotFlashStim(screen, vbl, halfperiod, Ncycle, centerX, centerY, radiusDot, OnColor, OffColor);    
  
     % stimulus 4: Nonlinear spatial summation (X)
-    WaitStartKeyTrigger(screen, 'TEXT', 'Periodic Checkers (X)', 'posX', 0.75*screen.sizeX);
+    %WaitStartKeyTrigger(screen, 'TEXT', 'Periodic Checkers (X)', 'posX', 0.75*screen.sizeX);
+    WaitStartKey(screen.w, 'expName', 'Periodic Checkers (X)');
     [vbl, log] = CheckerPeriodicStim(screen, vbl+pause, contrast, halfperiodGrating, Ncycle, centerX, centerY, ...
                                 StimSizeX, StimSizeY, Checker_X, Checker_Y, 0, Nphase, 'log', log);
        
@@ -67,7 +70,8 @@ function [vbl, log] = CheckerPeriodicStim(screen, vbl, contrast, halfperiod, Ncy
                                 StimSizeX, StimSizeY, CheckerSizeX, CheckerSizeY, maskRadius, Nphase, varargin)
 %
   p = ParseInput(varargin{:});
- pd = DefinePD_shift(screen.w);
+ %pd = DefinePD_shift(screen.w);
+ [pd, pd_color_max] = DefinePD_shift(screen.w);
 log = addLog(p.Results.log);
 vbl0 = vbl;
 stopFLAG =0; cur_frame = 0;
@@ -99,18 +103,20 @@ for j=1:length(CheckerSizeX)
             % color? matrix, a texture pointer
             if mod(i,2)
                 color = a1;
+                pd_color =  j/length(CheckerSizeX)/2.*pd_color_max;
             else 
                 color = a2;
+                pd_color = screen.black;
             end
             % Obtain an index of OpenGL texture which may be passed to 'DrawTexture'
             objTex  = Screen('MakeTexture', screen.w, color);
             % display last texture
             Screen('DrawTexture', screen.w, objTex, [], objRect, rotation, 0);
             % PD
-            Screen('FillOval', screen.w, j/length(CheckerSizeX)*color(1,1)/2., pd);
+            Screen('FillOval', screen.w, pd_color, pd);
             % PD is max white for the 1st frame for triggering
             if cur_frame==0
-                Screen('FillOval', screen.w, screen.white, pd);
+                Screen('FillOval', screen.w, pd_color_max, pd);
             end
             cur_frame = cur_frame + 1;
             %
@@ -135,7 +141,7 @@ function [vbl, log] = DotFlashStim(screen, vbl, halfperiod, Ncycle, centerX, cen
 % CenterX = 0 means at the center of the screen.
   p = ParseInput(varargin{:});
 log = addLog(p.Results.log);
- pd = DefinePD_shift(screen.w);
+[pd, pd_color_max] = DefinePD_shift(screen.w);
 vbl0 = vbl;
 stopFLAG = 0;
 cur_frame = 0;    %current frame number
@@ -144,14 +150,23 @@ MyKbQueueInit(); pressed = 0;
 for j=1:length(radius)
     rect = RectForScreen(screen, 2*radius(j), 2*radius(j), centerX, centerY);
     for i=1:2*round(Ncycle)
-        if mod(i,2)==1, color=OnColor; else color=OffColor; end;
+        if mod(i,2)==1, 
+            color =OnColor;
+            pd_color = pd_color_max*j/length(radius)/2.; 
+        else
+            color=OffColor; 
+            pd_color = screen.black;
+        end;
+        
+        % bg color setting
+        Screen('FillRect', screen.w, screen.bg_color);
         % Draw Dot
         Screen('FillOval', screen.w, color, rect);
         % PD: intensity coding. Cut the max white at half to avoid false
         % triggering
-        Screen('FillOval', screen.w, color*j/length(radius)/2, pd);
+        Screen('FillOval', screen.w, pd_color, pd);
         if cur_frame==0
-            Screen('FillOval', screen.w, screen.white, pd);
+            Screen('FillOval', screen.w, pd_color_max, pd);
         end
         cur_frame = cur_frame + 1;
         % Flip

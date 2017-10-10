@@ -10,13 +10,14 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     % this function initializes the screen.
     
     p = ParseInput(varargin{:});
-    backColor = p.Results.backColor;
+    bg_color = p.Results.bg_color;
 
     AssertOpenGL;
 
     % Get the list of screens and choose the one with the highest screen number.
     % screen.screenNumber = 2;
     n = max(Screen('Screens'));
+    %
     resolutions = cell(1, n);
     cur_display_Res_width = 100000000;
     for i = 1:n
@@ -35,18 +36,20 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     % don't care about those problems when running in my laptop. Experiment
     % would never be run under those conditions. Force it to start anyway
     screen.rate = Screen('NominalFrameRate', screen.screenNumber);
+    %featureLevel = 2;
+    %PsychDefaultSetup(featureLevel);
     if any([screen.rate == 0, screen.screenNumber ==0])
         Screen('Preference', 'SkipSyncTests',1);
         Screen('Preference', 'VisualDebugLevel', 3);
         screen.rate = 100; % why 100??
         screen.ifi=(0.03322955)/2.;
         %[screen.w screen.rect] = Screen('OpenWindow',screen.screenNumber, backColor, [10 10 1000 1000]);
-        [screen.w screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, backColor, [10 10 1024 778]);
+        [screen.w screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, bg_color, [10 10 1024 778]);
     elseif debugging ==1
         Screen('Preference', 'SkipSyncTests',1);
         Screen('Preference', 'VisualDebugLevel', 3);
         %[screen.w screen.rect]=Screen('OpenWindow',screen.screenNumber, backColor, [10 10 1000 1000]);
-        [screen.w screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, backColor, [0 10 1024 778]);
+        [screen.w screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, bg_color, [0 10 1024 778]);
         screen.ifi=Screen('GetFlipInterval', screen.w);
         Priority(1);
     else
@@ -58,30 +61,34 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
         PsychImaging('AddTask', 'General', 'UseFastOffscreenWindows');
         PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
         % Open the window, fullscreen is default
-        [screen.w screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, backColor);
+        [screen.w screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, bg_color);
 
         screen.ifi=Screen('GetFlipInterval', screen.w);
-        HideCursor();
+        %HideCursor();
         Priority(1);
     end
     % refresh interval of the monitor
     %screen.waitframes = round(.033*screen.rate);
     
     % Find the color values which correspond to white and black.
-    screen.white=WhiteIndex(screen.screenNumber)
-    screen.black=BlackIndex(screen.screenNumber)
+    screen.white=WhiteIndex(screen.screenNumber);
+    screen.black=BlackIndex(screen.screenNumber);
+    screen.gray=GrayIndex(screen.screenNumber);
 
+    % background?
+    screen.backColor = bg_color;
+    screen.bg_color = bg_color;
     % Round gray to integral number, to avoid roundoff artifacts with some
     % graphics cards:
-	screen.gray=floor((screen.white+screen.black)/2);
-    screen.backColor = backColor;
+	screen.gray = floor((screen.white+screen.black)/2);
     
+         
     % This makes sure that on floating point framebuffers we still get a
     % well defined gray. It isn't strictly neccessary in this demo:
     if screen.gray == screen.white
-		screen.gray=round(screen.white/2.);
+      screen.gray = screen.white/2;
     end
-    
+
     [screen.center(1,1) screen.center(2,1)] = WindowCenter(screen.w);%[screenX screenY]/2;
     % pixel number along X & Y
     [screen.size(1) screen.size(2)] = Screen('WindowSize', max(Screen('Screens')));
@@ -113,7 +120,7 @@ function p = ParseInput(varargin)
     p  = inputParser;   % Create an instance of the inputParser class.
 
     % Gabor parameters
-    p.addParamValue('backColor', 127, @(x) x>=0 && x<=255); %gray
+    p.addParamValue('bg_color', 0, @(x) x>=0 && x<=255); %gray
     p.addParameter('stimFrameInterval', 0.033, @(x)x>=0);
     % 
     p.parse(varargin{:});

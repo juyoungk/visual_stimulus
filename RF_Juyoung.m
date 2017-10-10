@@ -1,4 +1,5 @@
 function stim = RF_Juyoung(varargin)
+    % !!! current checkerboard size is fixed at power of 2: 64
     % if you want to change a parameter from its default value you have to
     % type 'paramToChange', newValue, ...
     % List of possible params is:
@@ -7,6 +8,7 @@ function stim = RF_Juyoung(varargin)
     % movieDurationSecs, pdStim, debugging, barsWidth, waitframes, vbl
      p = ParseInput(varargin{:});
    
+    debug = p.Results.debug;
     objContrast = p.Results.objContrast;
     seed  = p.Results.seed;
     DurationSecs = p.Results.movieDurationSecs;
@@ -29,7 +31,7 @@ try
     checkersN_V = ceil(p.Results.stimSizeXYum(2)/p.Results.checkerSizeYum);
   
     %screen = InitScreen(0, dispRes(1), dispRes(2), dispRate);
-    screen = InitScreen(0);
+    screen = InitScreen(debug);
     % whiteFrames = round(screen.rate/waitframes); % # of stim flip for 1s
     % (defined by Pablo)
     % screen.rate = NominalFrameRate (Hz)
@@ -43,7 +45,8 @@ try
     % init random seed generator
     randomStream = RandStream('mcg16807', 'Seed', seed);
     % DefinePD returns the Rect dimension matrix; pd=newRect=[left,top,right,bottom];
-    pd = DefinePD_shift(screen.w);
+    [pd, pd_color_max] = DefinePD_shift(screen.w);
+    
     
     if strcmp(p.Results.recreation, 'yes')
         stim = RandomCheckersRecreate(framesN, checkersN_V, checkersN_H, objContrast, randomStream, noise);
@@ -54,9 +57,11 @@ try
         objRect = CenterRect(objRect, screen.rect);
         objRect = OffsetRect(objRect, objCenterXY(1), objCenterXY(2));
         %
-        WaitStartKeyTrigger(screen, 'posX', 0.60*screen.sizeX);
+        %WaitStartKeyTrigger(screen, 'TEXT', 'white noise checkerboard', 'posX', 0.60*screen.sizeX);
+        WaitStartKey(screen.w, 'expName', 'White Noise Checkerboard');
         % Animationloop: draws Checker and PD and flip   
-        [vbl, log] = RandomCheckers(screen, framesN, framesPerFlip, checkersN_V, checkersN_H, objContrast, randomStream, pd, objRect, noise, array_type);
+        %[vbl, log] = RandomCheckers(screen, framesN, framesPerFlip, checkersN_V, checkersN_H, objContrast, randomStream, pd, pd_color, objRect, noise, array_type);
+        [vbl, log] = RandomCheckers(screen, framesN, framesPerFlip, 64, 64, objContrast, randomStream, pd, pd_color_max, objRect, noise, array_type);
     end
     
     % gray screen
@@ -92,11 +97,13 @@ end %try..catch..
 end
 
 function [vbls, log] = RandomCheckers(screen, framesN, waitframes, checkersV, checkersH, ...
-    objContrast, randomStream, pd, objRect, noise, array_type)
+    objContrast, randomStream, pd, pd_color_max, objRect, noise, array_type)
     
 log = addLog([]);
 cur_frame = 0;    %current frame number
 screen.vbl = GetSecs();
+
+imgMat = zeros(checkersV, checkersH, 3);
     
     for frame = 0:framesN-1
         % background
@@ -112,7 +119,11 @@ screen.vbl = GetSecs();
             objColor = randn(randomStream, checkersV, checkersH)*screen.gray*.15 ...
                 + screen.gray;
         end
-        objTex  = Screen('MakeTexture', screen.w, objColor);
+        % assign white noise texture to color channels.
+        imgMat(:,:,3) = objColor;
+        
+        %objTex  = Screen('MakeTexture', screen.w, imgMat);
+        objTex  = Screen('MakeTexture', screen.w, imgMat, [] ,1);
         
         % display last texture
         Screen('DrawTexture', screen.w, objTex, [], objRect, 0, 0);
@@ -121,10 +132,10 @@ screen.vbl = GetSecs();
         Screen('Close', objTex);
         
         % Draw the PD box
-        color = objColor(1,1)/2;%+screen.gray/2;
+        color = objColor(1,1)/2*pd_color_max;%+screen.gray/2;
         Screen('FillOval', screen.w, color, pd);
         if cur_frame==0
-            Screen('FillOval', screen.w, screen.white, pd);
+            Screen('FillOval', screen.w, pd_color_max, pd);
         end
         cur_frame = cur_frame + 1;
         % uncomment this line to check the coordinates of the 1st checker
@@ -141,6 +152,9 @@ screen.vbl = GetSecs();
     end
     vbls(2) = screen.vbl;
 end
+
+
+
 
 % Juyoung added for recreation as bin file.
 function [stim] = RandomCheckersRecreate(framesN, checkersV, checkersH, ...
@@ -192,13 +206,14 @@ function p =  ParseInput(varargin)
     
     %addParamValue(p,'DisplayRes', [1024,768], @(x) length(x)==2);
     %addParamValue(p,'DisplayRate', 85, @(x) x>=30);
+    addParamValue(p,'debug', 0, @(x) x>=0 && x<=1);
     addParamValue(p,'objContrast', 1, @(x) x>=0 && x<=1);
     addParamValue(p,'seed', 1, @(x) isnumeric(x));
     %
-    addParamValue(p,'movieDurationSecs', 60*30, @(x)x>0); % 30 min
+    addParamValue(p,'movieDurationSecs', 60*20, @(x)x>0); % 30 min
     % Checker Size = 50 um (= 25 px in 2P rig with 25x Leica)
-    addParamValue(p,'checkerSizeXum', 50, @(x) x>0); % um
-    addParamValue(p,'checkerSizeYum', 50, @(x) x>0); % um
+    addParamValue(p,'checkerSizeXum', 60, @(x) x>0); % um
+    addParamValue(p,'checkerSizeYum', 60, @(x) x>0); % um
     % Stim Size = 1.0 mm (= 20 checkers)
     addParamValue(p,'stimSizeXYum', 2400*[1 1], @(x) all(size(x)==[1 2]) && all(x>0));
     %

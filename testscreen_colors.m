@@ -26,7 +26,7 @@ disp(['screen.black = ',num2str(screen.black)]);
     boxL_um = 60; %unit: um
     boxL = Pixel_for_Micron(boxL_um);  %um to pixels
     
-    N = 10; % determines the stim size
+    N = 20; % determines the stim size
     pd_shift_from_center = 2.5; % mm
     stimsize = Pixel_for_Micron(boxL_um*N);
     
@@ -36,25 +36,31 @@ disp(['screen.black = ',num2str(screen.black)]);
     
 % Define the obj Destination Rectangle
 objRect = RectForScreen(screen,stimsize,stimsize,0,0);
+box     = RectForScreen(screen,stimsize,stimsize,0,0);
 % pd rect
 pd = DefinePD_shift(screen.w, 'shift', pd_shift_from_center*1000);
+pd_color = [screen.white, 0, 0];
+randomStream = RandStream('mcg16807', 'Seed', 0);
+vbl =0;
+ifi = screen.ifi;
 
  for i=1:1
     % 1. Stim area (0 intensity outside of the stim area)
-    box =  RectForScreen(screen,stimsize,stimsize, 0, 0);
+    
     % color change @ white intensity
         for j=1:n_colors
             % bright stim area on dark
             Screen('FillRect', screen.w, 0);
             Screen('FillRect', screen.w, color_sequence{j}, box);
-            Screen('FillOval', screen.w, screen.white, pd);
-            Screen('Flip', screen.w, 0);
+            Screen('FillOval', screen.w, color_sequence{j}, pd);
+            vbl = Screen('Flip', screen.w, vbl+ifi*0.5);
             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
             if YorN==27, break; end
         end
+        
     % 2. texture (Is there a chromatic abberation ?)
     [x, y] = meshgrid(1:N, 1:N);
-    texMatrix = mod(x+y,2)*2*screen.gray;
+    texMatrix = max(min(mod(x+y,2)*2*screen.gray, 255), 0);
     objTex  = Screen('MakeTexture', screen.w, texMatrix);
     angle = 0;
     % color change @ white intensity
@@ -62,12 +68,26 @@ pd = DefinePD_shift(screen.w, 'shift', pd_shift_from_center*1000);
             % bright stim area on dark
             Screen('FillRect', screen.w, 0);
             Screen('DrawTexture', screen.w, objTex, [], objRect, angle, 0, 1, color_sequence{j});
-            Screen('FillOval', screen.w, screen.white, pd);
-            Screen('Flip', screen.w, 0);
+            Screen('FillOval', screen.w, pd_color, pd);
+            vbl = Screen('Flip', screen.w, vbl+ifi*0.5);
             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
             if YorN==27, break; end
         end
         
+%     % 2-2. White noise texture
+%     for j=1:3
+%             texWhiteNoise = (rand(randomStream, N, N)>.5)*screen.white;
+%             imgMat = zeros(N, N, 3);
+%             imgMat(:,:,3) = texWhiteNoise;
+%             objTex  = Screen('MakeTexture', screen.w, texMatrix);
+%             Screen('FillRect', screen.w, 0);
+%             Screen('DrawTexture', screen.w, objTex, [], objRect, angle, 0, 1, color_sequence{j});
+%             Screen('FillOval', screen.w, pd_color, pd);
+%             Screen('Flip', screen.w, 0);
+%             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
+%             if YorN==27, break; end
+%     end
+%         
         
         % intensity scan @ specific color
         brightness = [32, 64, 128, 255];
@@ -91,7 +111,7 @@ Screen('TextSize', screen.w, 48);
             Screen('DrawText', w, text, 0.5*screen.sizeX, 0.4*screen.sizeY, color_sequence{j});
             Screen('DrawText', w, text, 0.5*screen.sizeX, 0.5*screen.sizeY, color_sequence{j}/2);
             Screen('DrawText', w, text, 0.5*screen.sizeX, 0.6*screen.sizeY, color_sequence{j}/4);
-            Screen('FillOval', screen.w, color_sequence{j}, pd);
+            Screen('FillOval', screen.w, pd_color, pd);
             Screen('Flip', screen.w, 0);
             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
             if YorN==27, break; end

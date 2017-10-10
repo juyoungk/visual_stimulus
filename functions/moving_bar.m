@@ -12,33 +12,42 @@ bar_color = p.Results.barColor;
 N_repeats = p.Results.N_repeat;
 
 % bar sweep size
-visiblesize = 256;        % Size of the grating image. Needs to be a power of two.
+visiblesize = 128;        % Size of the grating image. Needs to be a power of two.
 %
 bar_width = Pixel_for_Micron(bar_width);
 speed_in_Pixels = Pixel_for_Micron(bar_speed*1000);
 
+screen = InitScreen(0);
+w = screen.w;
+white = screen.white;
+black = screen.black;
+%         % This script calls Psychtoolbox commands available only in OpenGL-based 
+%         % versions of the Psychtoolbox. The Psychtoolbox command AssertPsychOpenGL will issue
+%         % an error message if someone tries to execute this script on a computer without
+%         % an OpenGL Psychtoolbox.
+%         AssertOpenGL;
+% 
+%         % Get the list of screens and choose the one with the highest screen number.
+%         % Screen 0 is, by definition, the display with the menu bar. Often when 
+%         % two monitors are connected the one without the menu bar is used as 
+%         % the stimulus display.  Chosing the display with the highest dislay number is 
+%         % a best guess about where you want the stimulus displayed.  
+%         screens=Screen('Screens');
+%         screenNumber=max(screens);
+% 
+%         % Find the color values which correspond to white and black: Usually
+%         % black is always 0 and white 255, but this rule is not true if one of
+%         % the high precision framebuffer modes is enabled via the
+%         % PsychImaging() commmand, so we query the true values via the
+%         % functions WhiteIndex and BlackIndex:
+%         white=WhiteIndex(screenNumber)
+%         black=BlackIndex(screenNumber);
 
-% This script calls Psychtoolbox commands available only in OpenGL-based 
-% versions of the Psychtoolbox. The Psychtoolbox command AssertPsychOpenGL will issue
-% an error message if someone tries to execute this script on a computer without
-% an OpenGL Psychtoolbox.
-AssertOpenGL;
+%         % Open a double buffered fullscreen window and draw a gray background 
+%         % to front and back buffers as background clear color:
+%         [w, w_rect] = Screen('OpenWindow',screenNumber, gray);
 
-% Get the list of screens and choose the one with the highest screen number.
-% Screen 0 is, by definition, the display with the menu bar. Often when 
-% two monitors are connected the one without the menu bar is used as 
-% the stimulus display.  Chosing the display with the highest dislay number is 
-% a best guess about where you want the stimulus displayed.  
-screens=Screen('Screens');
-screenNumber=max(screens);
 
-% Find the color values which correspond to white and black: Usually
-% black is always 0 and white 255, but this rule is not true if one of
-% the high precision framebuffer modes is enabled via the
-% PsychImaging() commmand, so we query the true values via the
-% functions WhiteIndex and BlackIndex:
-white=WhiteIndex(screenNumber)
-black=BlackIndex(screenNumber);
 
 % Round gray to integral number, to avoid roundoff artifacts with some
 % graphics cards:
@@ -52,10 +61,6 @@ end
 
 % Contrast 'inc'rement range for given white and gray values:
 inc=white-gray;
-
-% Open a double buffered fullscreen window and draw a gray background 
-% to front and back buffers as background clear color:
-[w, w_rect] = Screen('OpenWindow',screenNumber, gray);
 
 % Create one single static 1-D grating image.
 % We only need a texture with a single row of pixels(i.e. 1 pixel in height) to
@@ -72,7 +77,7 @@ dark_bar = gray*(1:visiblesize > bar_width);
 
 switch bar_color
     case 'white'
-        bartex=Screen('MakeTexture', w, white_bar, [], 1);
+        bartex=Screen('MakeTexture', w, white_bar, [], 1); % specialFlag =1 means size should be power of 2.
     case 'dark'
         bartex=Screen('MakeTexture', w, dark_bar, [], 1);
     otherwise
@@ -93,14 +98,14 @@ vbl=Screen('Flip', w);
 % We run at most 'movieDurationSecs' seconds if user doesn't abort via keypress.
 %vblendtime = vbl + movieDurationSecs;
 xoffset=0;
-pd = DefinePD_shift(w);
+[pd, pd_color] = DefinePD_shift(w);
 
 %
 WaitStartKey(w, 'expName', ['Moving bar (', bar_color, ')']);
 
 % first cycle
 i_cycle = 1;
-Screen('FillOval', w, white, pd);
+Screen('FillOval', w, pd_color, pd);
 
 % Animationloop:
 while(i_cycle <= N_repeats)   
@@ -127,7 +132,7 @@ while(i_cycle <= N_repeats)
    if xoffset < -(visiblesize-bar_width)
        
        xoffset = 0; % set to same position
-       Screen('FillOval', w, white, pd);
+       Screen('FillOval', w, pd_color, pd);
        
        i_cycle = i_cycle +1;
    end

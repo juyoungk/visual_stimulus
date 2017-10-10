@@ -20,14 +20,14 @@ end
 
 %
 %pd = DefinePD(w);
-pd = DefinePD_shift(w);
+[pd, pd_color] = DefinePD_shift(w);
 
 text = ['Press any key to start'];
 expName = [date, ' ', p.Results.expName];
 
 Screen('FillOval', w, black, pd); % first PD: black
-Screen('DrawText', w, text, 0.5*windowSizeX, 0.5*windowSizeY, white);
-Screen('DrawText', w, expName, 0.5*windowSizeX, 0.4*windowSizeY, white);
+Screen('DrawText', w, text, 0.45*windowSizeX, 0.42*windowSizeY, white);
+Screen('DrawText', w, expName, 0.3*windowSizeX, 0.38*windowSizeY, white);
 
 Screen('Flip', w, 0);
 

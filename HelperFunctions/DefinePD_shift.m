@@ -1,4 +1,4 @@
-function pd = DefinePD_shift(w, varargin)
+function [pd, pd_color] = DefinePD_shift(w, varargin)
     
     % upright scope PD (0928 2017 Juyoung)
 
@@ -6,6 +6,7 @@ function pd = DefinePD_shift(w, varargin)
 
     pd_shift = p.Results.shift; 
     pd_size = p.Results.size;
+    pd_color = p.Results.color;
     [x_window, y_window] = Screen('WindowSize', w);
     
     x = Pixel_for_Micron(pd_shift);
@@ -21,8 +22,9 @@ function p =  ParseInput(varargin)
     
     p  = inputParser;   % Create an instance of the inputParser class.
     
-    addParamValue(p,'shift', 2000, @(x)x>=0); % um
-    addParamValue(p,'size', 800, @(x)x>=0); % um
+    addParamValue(p,'shift', 2500, @(x)x>=0); % um
+    addParamValue(p,'size', 1200, @(x)x>=0); % um
+    addParamValue(p,'color', [254, 0, 0]);
     
     % Call the parse method of the object to read and validate each argument in the schema:
     p.parse(varargin{:});
