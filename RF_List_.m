@@ -13,7 +13,7 @@ debug = 0;
 
 % Stimulus List
 % flash & grating
-flash_annulus_stims('radius', 3000, 'halfPeriodSecs', 2, 'Ncycle', 10);
+flash_annulus_stims('radius', 2000, 'halfPeriodSecs', 2, 'Ncycle', 10);
 
 % Moving Bar
 % a bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). 
@@ -39,7 +39,7 @@ stimRF_60 = RF_Juyoung( 'movieDurationSecs', (60*20), ... % 20 min
 % identification OMS g-cells and PA a-cells?
 % differential step stimulus
 % Bar width = 100 um
-OMS_diff_Grating_Phase_Scan; % Arrow? next session (e.g. phase)
+%OMS_diff_Grating_Phase_Scan; % Arrow? next session (e.g. phase)
                              % Esc throws an error.
 
                 

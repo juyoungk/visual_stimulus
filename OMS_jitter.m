@@ -42,7 +42,7 @@ weight_Ct_step = 1; % 1 means 1 px
 weight_Bg_step = 1;
 angleBG = 0;
 %
-HalfPeriod = 50; % um; (~RF size of BP)
+HalfPeriod = 60; % um; (~RF size of BP)
 StimSize_Ct = 750; % um
 StimSize_BG = 2.4; % mm
 
@@ -175,6 +175,7 @@ try
         FLAG_Global_Motion = rem(i,2);
         
         % photodiode at the first frame of the sequence
+         Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, [1 0 0 0]); % blue channel only
         if mod(i ,2) == 1
             Screen('FillOval', w, pd_color_max, pd);
         else
@@ -198,7 +199,9 @@ try
 
             % Draw grating texture, rotated by "angle":
             if FLAG_BG_TEXTURE
+                Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, [0 1 1 1]); % blue channel only
                 Screen('DrawTexture', w, gratingtexBg, srcRect, dstRect, angleBG);
+                %Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             end
 
             if drawmask_BG==1
@@ -217,14 +220,15 @@ try
             % Fill circular 'dstRect' region with an alpha value of 255:
             Screen('FillOval', w, [0 0 0 255], dst2Rect);
 
-            % Enable DeSTination alpha blending and reenable drawing to all
+            % Enable "DeSTination alpha blending" and reenable drawing to all
             % color channels. Following drawing commands will only draw there
             % the alpha value in the framebuffer is greater than zero, ie., in
             % our case, inside the circular 'dst2Rect' aperture where alpha has
             % been set to 255 by our 'FillOval' command:
             % Screen('Blendfunction', windowindex, [souce or new], [dest or
             % old], [colorMaskNew])
-            Screen('Blendfunction', w, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
+            %Screen('Blendfunction', w, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
+            Screen('Blendfunction', w, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [0 1 1 1]); %blue channel only
 
             % Draw 2nd grating texture, but only inside alpha == 255 circular
             % aperture, and at an angle of 90 degrees: Now the angle is 0

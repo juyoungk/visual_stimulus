@@ -69,20 +69,27 @@ inc=white-gray;
 % automatically replicate pixel rows. This 1 pixel height saves memory
 % and memory bandwith, ie. it is potentially faster on some GPUs.
 
-white_bar = gray + inc*(1:visiblesize <= bar_width);
-dark_bar = gray*(1:visiblesize > bar_width);
+x = meshgrid(1:visiblesize, 1:visiblesize);
+white_bar = gray + inc*(x <= bar_width);
+dark_bar = gray*(x > bar_width);
+
 
 % Store grating in texture: Set the 'enforcepot' flag to 1 to signal
 % Psychtoolbox that we want a special scrollable power-of-two texture:
 
 switch bar_color
     case 'white'
-        bartex=Screen('MakeTexture', w, white_bar, [], 1); % specialFlag =1 means size should be power of 2.
+        bar = white_bar;
+        %bartex=Screen('MakeTexture', w, white_bar, [], 1); % specialFlag =1 means size should be power of 2.
     case 'dark'
-        bartex=Screen('MakeTexture', w, dark_bar, [], 1);
+        bar = dark_bar;
+        %bartex=Screen('MakeTexture', w, dark_bar, [], 1);
     otherwise
-        
 end
+
+imgMat = zeros(visiblesize, visiblesize, 3);
+imgMat(:,:,3) = bar; 
+bartex=Screen('MakeTexture', w, imgMat, [], 1);
 
 % Query duration of monitor refresh interval:
 ifi=Screen('GetFlipInterval', w);

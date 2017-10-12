@@ -18,9 +18,9 @@ try
     % BG
     Screen('FillRect', screen.w, screen.bg_color);
     %
-    OnColor = screen.white; 
-    OffColor = screen.black; 
-    bgColor = screen.black;
+    OnColor = [0, 1, 1] * screen.gray; 
+    OffColor = [0, 1, 1] * screen.black; 
+    bgColor = [0, 1, 1] * screen.black;
  
     % flash stimulus
     r = p.Results.radius; % in microns
@@ -49,9 +49,10 @@ try
  
     % stimulus 4: Nonlinear spatial summation (X)
     %WaitStartKeyTrigger(screen, 'TEXT', 'Periodic Checkers (X)', 'posX', 0.75*screen.sizeX);
-    WaitStartKey(screen.w, 'expName', 'Periodic Checkers (X)');
-    [vbl, log] = CheckerPeriodicStim(screen, vbl+pause, contrast, halfperiodGrating, Ncycle, centerX, centerY, ...
-                                StimSizeX, StimSizeY, Checker_X, Checker_Y, 0, Nphase, 'log', log);
+    
+    %WaitStartKey(screen.w, 'expName', 'Periodic Checkers (X)');
+    %[vbl, log] = CheckerPeriodicStim(screen, vbl+pause, contrast, halfperiodGrating, Ncycle, centerX, centerY, ...
+    %                            StimSizeX, StimSizeY, Checker_X, Checker_Y, 0, Nphase, 'log', log);
        
     disp log;
     Screen('CloseAll');
@@ -388,12 +389,12 @@ function p =  ParseInput(varargin)
 
     addParamValue(p,'centerX', 0, @(x) isnumeric(x));
     addParamValue(p,'centerY', 0, @(x) isnumeric(x));
-    addParamValue(p,'radius', 2500, @(x) isnumeric(x)); % um
+    addParamValue(p,'radius', 1200, @(x) isnumeric(x)); % um
     addParamValue(p,'rotationAngle', 0, @(x) x>=0 && x <=360);
     addParamValue(p,'objContrast', 1, @(x) x>=0 && x <=1);
     addParamValue(p,'centerDot', 'Yes', @(x) ischar(x));
     % 
-    addParamValue(p,'DurationSecs', 15, @(x)x>0);
+    addParamValue(p,'DurationSecs', 2, @(x)x>0);
     addParamValue(p,'Ncycle', 10, @(x)x>0);
     addParamValue(p,'halfPeriodSecs', 1.5, @(x)x>0);
     %
