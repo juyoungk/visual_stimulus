@@ -13,7 +13,7 @@ debug = 0;
 
 % Stimulus List
 % flash & grating
-flash_annulus_stims('radius', 2000, 'halfPeriodSecs', 2, 'Ncycle', 10);
+%flash_annulus_stims('radius', 2000, 'halfPeriodSecs', 2, 'Ncycle', 10);
 
 % Moving Bar
 % a bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). 

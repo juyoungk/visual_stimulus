@@ -18,6 +18,7 @@ n_colors = length(color_sequence);
                
 commandwindow;
 addpath('HelperFunctions/')
+% don't care the sync test for color test
 Screen('Preference', 'SkipSyncTests',1);
 
 screen = InitScreen(debug);

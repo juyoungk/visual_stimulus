@@ -88,7 +88,7 @@ switch bar_color
 end
 
 imgMat = zeros(visiblesize, visiblesize, 3);
-imgMat(:,:,3) = bar; 
+imgMat(:,:,2) = bar; 
 bartex=Screen('MakeTexture', w, imgMat, [], 1);
 
 % Query duration of monitor refresh interval:

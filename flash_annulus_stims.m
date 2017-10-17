@@ -18,7 +18,7 @@ try
     % BG
     Screen('FillRect', screen.w, screen.bg_color);
     %
-    OnColor = [0, 1, 1] * screen.gray; 
+    OnColor = [0, 1, 0] * screen.gray;
     OffColor = [0, 1, 1] * screen.black; 
     bgColor = [0, 1, 1] * screen.black;
  
@@ -396,7 +396,7 @@ function p =  ParseInput(varargin)
     % 
     addParamValue(p,'DurationSecs', 2, @(x)x>0);
     addParamValue(p,'Ncycle', 10, @(x)x>0);
-    addParamValue(p,'halfPeriodSecs', 1.5, @(x)x>0);
+    addParamValue(p,'halfPeriodSecs', 2, @(x)x>0);
     %
     addParamValue(p,'seed', 1, @(x) isnumeric(x));
     addParamValue(p,'debugging', 0, @(x) x>=0 && x <=1);

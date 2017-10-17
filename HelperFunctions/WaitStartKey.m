@@ -22,12 +22,15 @@ end
 %pd = DefinePD(w);
 [pd, pd_color] = DefinePD_shift(w);
 
+% text color
+t_color = [1 0 0]*white;
+
 text = ['Press any key to start'];
 expName = [date, ' ', p.Results.expName];
 
 Screen('FillOval', w, black, pd); % first PD: black
-Screen('DrawText', w, text, 0.45*windowSizeX, 0.42*windowSizeY, white);
-Screen('DrawText', w, expName, 0.3*windowSizeX, 0.38*windowSizeY, white);
+Screen('DrawText', w, text, 0.45*windowSizeX, 0.42*windowSizeY, t_color);
+Screen('DrawText', w, expName, 0.3*windowSizeX, 0.38*windowSizeY, t_color);
 
 Screen('Flip', w, 0);
 
