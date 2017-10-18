@@ -120,7 +120,7 @@ imgMat = zeros(checkersV, checkersH, 3);
                 + screen.gray;
         end
         % assign white noise texture to color channels.
-        imgMat(:,:,3) = objColor;
+        imgMat(:,:,2) = objColor;
         
         %objTex  = Screen('MakeTexture', screen.w, imgMat);
         objTex  = Screen('MakeTexture', screen.w, imgMat, [] ,1);

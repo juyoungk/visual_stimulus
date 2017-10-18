@@ -19,8 +19,8 @@ try
     Screen('FillRect', screen.w, screen.bg_color);
     %
     OnColor = [0, 1, 0] * screen.gray;
-    OffColor = [0, 1, 1] * screen.black; 
-    bgColor = [0, 1, 1] * screen.black;
+    OffColor = [0, 1, 0] * screen.black; 
+    bgColor = [0, 1, 0] * screen.black;
  
     % flash stimulus
     r = p.Results.radius; % in microns

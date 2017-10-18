@@ -175,7 +175,7 @@ try
         FLAG_Global_Motion = rem(i,2);
         
         % photodiode at the first frame of the sequence
-         Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, [1 0 0 0]); % blue channel only
+         Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, [1 1 1 1]); % red channel only
         if mod(i ,2) == 1
             Screen('FillOval', w, pd_color_max, pd);
         else
@@ -199,7 +199,7 @@ try
 
             % Draw grating texture, rotated by "angle":
             if FLAG_BG_TEXTURE
-                Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, [0 1 1 1]); % blue channel only
+                Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, [0 1 0 1]); % gree (or UV) channel only
                 Screen('DrawTexture', w, gratingtexBg, srcRect, dstRect, angleBG);
                 %Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             end
@@ -228,7 +228,7 @@ try
             % Screen('Blendfunction', windowindex, [souce or new], [dest or
             % old], [colorMaskNew])
             %Screen('Blendfunction', w, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
-            Screen('Blendfunction', w, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [0 1 1 1]); %blue channel only
+            Screen('Blendfunction', w, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [0 1 0 1]); %blue channel only
 
             % Draw 2nd grating texture, but only inside alpha == 255 circular
             % aperture, and at an angle of 90 degrees: Now the angle is 0
@@ -325,7 +325,7 @@ function p =  ParseInput(varargin)
     
     p  = inputParser;   % Create an instance of the inputParser class.
     
-    addParamValue(p,'sDuration', 2, @(x)x>=0);
+    addParamValue(p,'sDuration', 3, @(x)x>=0);
     addParamValue(p,'N_repeats', 3, @(x)x>=0);
     addParamValue(p,'seed', 1, @(x) isnumeric(x));
      
