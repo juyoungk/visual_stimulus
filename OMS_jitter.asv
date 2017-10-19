@@ -42,7 +42,7 @@ weight_Ct_step = 1; % 1 means 1 px
 weight_Bg_step = 1;
 angleBG = 0;
 %
-HalfPeriod = 60; % um; (~RF size of BP)
+HalfPeriod = 120; % um; (~RF size of BP)
 StimSize_Ct = 750; % um
 StimSize_BG = 2.4; % mm
 
@@ -54,7 +54,7 @@ TexCtSize_Half = Pixel_for_Micron(StimSize_Ct/2.); % Half-Size of the Center gra
 f=1/Pixel_for_Micron(2*HalfPeriod);
 
 try
-    screen = InitScreen(0, 'bg_color', [0 0 0]);
+    screen = InitScreen(1, 'bg_color', [0 0 0]);
     white = screen.white;
     black = screen.black;
     gray = screen.gray;
@@ -84,8 +84,8 @@ try
 %     end
 
     % Calculate parameters of the grating:
-    p = ceil(1/f) % pixels/one cycle (= wavelength), rounded up.~2*Bipolar cell RF
-    fr = f*2*pi;   % pahse per one pixel
+    p=ceil(1/f); % pixels/one cycle (= wavelength), rounded up.~2*Bipolar cell RF
+    fr=f*2*pi;   % pahse per one pixel
     BG_visiblesize=2*TexBgSize_Half+1;
     Ct_visiblesize=2*TexCtSize_Half+1; % center texture size?
 
@@ -104,9 +104,9 @@ try
     %grating_BG = max(min(mod(x,2)*2*screen.gray, 255), 0);   
 
     [x2,~]=meshgrid(-TexCtSize_Half:TexCtSize_Half + p, 1);
-    %[x2,~]=meshgrid(1:Ct_visiblesize + p, 1);
+    [x2,~]=meshgrid(1:Ct_visiblesize + p, 1);
     grating_Ct = gray + inc*cos(fr *x2);
-    %grating_Ct = max(min(mod(x2,2)*2*screen.gray, 255), 0);
+    grating_Ct = max(min(mod(x2,2)*2*screen.gray, 255), 0);
 
     % Store grating in texture:
     gratingtexBg = Screen('MakeTexture', w, grating_BG);
@@ -181,15 +181,19 @@ try
         % photodiode at the first frame of the sequence
         %Screen('Blendfunction', w, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
         %Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, [1 1 1 1]); % red channel only
-        
-        if mod(i ,2) == 1
-                    Screen('FillOval', w, pd_color_max, pd);
-        else
-                    Screen('FillOval', w, pd_color_max/2., pd);
-        end
+        %Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, [1 1 1 1]); % red channel only
         
         cur_frame = 0;
+        
+            % pd
+            if cur_frame == 0
+                if mod(i ,2) == 1
+                    Screen('FillOval', w, pd_color_max, pd);
+                else
+                    Screen('FillOval', w, pd_color_max/2., pd);
+                end
+            end
+            
         
         while (cur_frame < seq_framesN)
             % Jitter by Juyoung: 
@@ -254,15 +258,7 @@ try
             % Restore alpha blending mode for next draw iteration:
             Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
             
-            % pd
-            if cur_frame == 0
-                if mod(i ,2) == 1
-                    Screen('FillOval', w, pd_color_max, pd);
-                else
-                    Screen('FillOval', w, pd_color_max/2., pd);
-                end
-            end
-        
+ 
 
             % Flip 'waitframes' monitor refresh intervals after last redraw.
             vbl = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);

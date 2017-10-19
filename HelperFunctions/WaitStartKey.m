@@ -50,7 +50,7 @@ end
 %if YorN==KbName('space'), WaitForRec; end;
 
 % last screen before stimulus
-Screen('FillOval', w, black, pd); % first PD: black
+Screen('FillOval', w, pd_color/8., pd); % first PD: black
 Screen('Flip', w, 0);
 pause(1);
 
