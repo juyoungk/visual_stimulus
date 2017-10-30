@@ -43,7 +43,7 @@ weight_Bg_step = 1;
 angleBG = 0;
 %
 HalfPeriod = 60; % um; (~RF size of BP)
-StimSize_Ct = 750; % um
+StimSize_Ct = 550; % um
 StimSize_BG = 2.4; % mm
 
 % 2 means 30 Hz stimulus with 60 Hz monitor
@@ -352,7 +352,7 @@ function p =  ParseInput(varargin)
     
     p  = inputParser;   % Create an instance of the inputParser class.
     
-    addParamValue(p,'sDuration', 3, @(x)x>=0);
+    addParamValue(p,'sDuration', 10, @(x)x>=0);
     addParamValue(p,'N_repeats', 3, @(x)x>=0);
     addParamValue(p,'seed', 1, @(x) isnumeric(x));
      

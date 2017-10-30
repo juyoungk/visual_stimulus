@@ -157,7 +157,7 @@ function p =  ParseInput(varargin)
     p  = inputParser;   % Create an instance of the inputParser class.
     
     addParamValue(p,'N_repeat', 20, @(x)x>=0);
-    addParamValue(p,'barWidth', 100, @(x)x>=0);
+    addParamValue(p,'barWidth', 150, @(x)x>=0);
     addParamValue(p,'barSpeed', 1.4, @(x)x>=0);
     
     addParamValue(p,'barColor', 'dark', @(x) strcmp(x,'dark') || ...

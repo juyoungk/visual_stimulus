@@ -18,9 +18,10 @@ try
     % BG
     Screen('FillRect', screen.w, screen.bg_color);
     %
-    OnColor = [0, 1, 0] * screen.gray;
-    OffColor = [0, 1, 0] * screen.black; 
-    bgColor = [0, 1, 0] * screen.black;
+    color_mask = p.Results.color;
+    OnColor = color_mask * screen.white;
+    OffColor = color_mask * screen.black; 
+    bgColor = color_mask * screen.black;
  
     % flash stimulus
     r = p.Results.radius; % in microns
@@ -389,13 +390,14 @@ function p =  ParseInput(varargin)
 
     addParamValue(p,'centerX', 0, @(x) isnumeric(x));
     addParamValue(p,'centerY', 0, @(x) isnumeric(x));
-    addParamValue(p,'radius', 1200, @(x) isnumeric(x)); % um
+    addParamValue(p,'radius', 2000, @(x) isnumeric(x)); % um
+    addParamValue(p,'color', [0 1 0], @(x) isnumeric(x)); % um
     addParamValue(p,'rotationAngle', 0, @(x) x>=0 && x <=360);
     addParamValue(p,'objContrast', 1, @(x) x>=0 && x <=1);
     addParamValue(p,'centerDot', 'Yes', @(x) ischar(x));
     % 
     addParamValue(p,'DurationSecs', 2, @(x)x>0);
-    addParamValue(p,'Ncycle', 10, @(x)x>0);
+    addParamValue(p,'Ncycle', 20, @(x)x>0);
     addParamValue(p,'halfPeriodSecs', 2, @(x)x>0);
     %
     addParamValue(p,'seed', 1, @(x) isnumeric(x));

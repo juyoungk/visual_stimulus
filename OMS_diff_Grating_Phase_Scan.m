@@ -13,11 +13,11 @@ w_Annulus = BarWidth;
 %
     waitframes = 1;   % 1 means 60 Hz refresh rate ~ 16.6 ms
 delay_interval = 2;   % stimulus frames for delay interval.
-maxDelay = 180; % ms
+maxDelay = 160; % ms
 % parameters for periodic move (constant speed)
 shift_Ct = 0.5; % 1 is shift of 1 bar width
 shift_Bg = 0.5; 
-shift_speed = 1000; % um/s
+shift_speed = 1400; % um/s
 period_Secs = 1; % secs
   N_periods = 8; % periods of steps
 % parameters for recovery stage
