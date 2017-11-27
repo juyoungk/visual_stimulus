@@ -23,10 +23,10 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     for i = 1:n
         resolutions{i} = Screen('resolution', i);
         if resolutions{i}.width < cur_display_Res_width
-            cur_display_Res_width = resolutions{i}.width
+            cur_display_Res_width = resolutions{i}.width;
             % pick screen number whose resolution is the lowest among
             % others.
-            screen.screenNumber = i
+            screen.screenNumber = i;
         end
     end
     %screen.screenNumber = n;

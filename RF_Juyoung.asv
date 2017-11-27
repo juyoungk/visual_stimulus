@@ -22,7 +22,6 @@ function stim = RF_Juyoung(varargin)
     waitframes = p.Results.waitframes;
     objCenterXY = p.Results.objCenterXY;
     noise.type = p.Results.noiseType;
-    c_channels = p.Results.c_channels;
     array_type = p.Results.array_type;
     %dispRes = p.Results.DisplayRes;
     %dispRate = p.Results.DisplayRate;
@@ -61,7 +60,7 @@ try
         %WaitStartKeyTrigger(screen, 'TEXT', 'white noise checkerboard', 'posX', 0.60*screen.sizeX);
         WaitStartKey(screen.w, 'expName', 'White Noise Checkerboard');
         % Animationloop: draws Checker and PD and flip   
-        [vbl, log] = RandomCheckers(screen, framesN, framesPerFlip, checkersN_V, checkersN_H, objContrast, randomStream, c_channels, pd, pd_color_max, objRect, noise, array_type);
+        [vbl, log] = RandomCheckers(screen, framesN, framesPerFlip, checkersN_V, checkersN_H, objContrast, randomStream, pd, pd_color_max, objRect, noise, array_type);
         %[vbl, log] = RandomCheckers(screen, framesN, framesPerFlip, 64, 64, objContrast, randomStream, pd, pd_color_max, objRect, noise, array_type);
     end
 %     
@@ -98,7 +97,7 @@ end %try..catch..
 end
 
 function [vbls, log] = RandomCheckers(screen, framesN, waitframes, checkersV, checkersH, ...
-    objContrast, randomStream, c_channels, pd, pd_color_max, objRect, noise, array_type)
+    objContrast, randomStream, pd, pd_color_max, objRect, noise, array_type)
     
 log = addLog([]);
 cur_frame = 0;    %current frame number
@@ -111,18 +110,16 @@ imgMat = zeros(checkersV, checkersH, 3);
         Screen('FillRect', screen.w, screen.black);
         % Make a new obj texture
         % Generate random texture one frame by one frame
-        % including color channels (2017 1110 Juyoung)
-        if (strcmp(noise.type, 'binary'))
-            objColor = (rand(randomStream, checkersV, checkersH, 3)>.5)*2*screen.gray*objContrast...
+        if (strcmp(noise.type, 'binary'));
+            objColor = (rand(randomStream, checkersV, checkersH)>.5)*2*screen.gray*objContrast...
                 + screen.gray*(1-objContrast);
         elseif (strcmp(noise.type, 'gaussian'))
            %objColor = randn(randomStream, checkersV, checkersH)
-            objColor = randn(randomStream, checkersV, checkersH, 3)*screen.gray*.15 ...
+            objColor = randn(randomStream, checkersV, checkersH)*screen.gray*.15 ...
                 + screen.gray;
         end
         % assign white noise texture to color channels.
-        %imgMat(:,:,2) = objColor(:,:,2);
-        imgMat(:,:,c_channels) = objColor(:,:,c_channels);
+        imgMat(:,:,2) = objColor;
         
         %objTex  = Screen('MakeTexture', screen.w, imgMat);
         objTex  = Screen('MakeTexture', screen.w, imgMat, [] ,1);
@@ -241,7 +238,6 @@ function p =  ParseInput(varargin)
     addParamValue(p,'pdStim', 0, @(x) isnumeric(x));
     addParamValue(p,'noiseType', 'binary', @(x) strcmp(x,'binary') || ...
         strcmp(x,'gaussian'));
-    addParamValue(p,'c_channels', 2, @(x) ismatrix(x)); % index for color channesl. e.g. 2 or [2, 3]
     addParamValue(p,'array_type', 'HiDens_v3', @(x) ischar(x));   % in what units?
     addParamValue(p,'recreation', 'no', @(x) strcmp(x,'yes') || ...
         strcmp(x,'no'));

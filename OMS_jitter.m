@@ -171,6 +171,7 @@ try
     xoffset_Bg = 0; xoffset_Ct = 0; angleCenter = 0; secsPrev = 0; 
     FLAG_BG_TEXTURE = 1; 
     FLAG_debug = 0;
+    vbl=0;
     %
     %
     for i=1:2*N_repeats 
@@ -185,8 +186,10 @@ try
         
         if mod(i ,2) == 1
                     Screen('FillOval', w, pd_color_max, pd);
+                    fprintf('(OMS jitter) session %d/%d (diff)\n', i, 2*N_repeats);
         else
                     Screen('FillOval', w, pd_color_max/2., pd);
+                    fprintf('(OMS jitter) session %d/%d (global)\n', i, 2*N_repeats);
         end
         
         cur_frame = 0;
@@ -216,18 +219,18 @@ try
                 % Draw aperture (Oval) over grating:
                 Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % Juyoung add
                 Screen('DrawTexture', w, masktex, [0 0 BG_visiblesize BG_visiblesize], dstRect, angleBG);
-            end;
+            end
 
             % annulus 
             Screen('FillOval', w, gray, rectAnnul);
             % pd
-            if cur_frame == 0
-                if mod(i ,2) == 1
-                    Screen('FillOval', w, pd_color_max, pd);
-                else
-                    Screen('FillOval', w, pd_color_max/2., pd);
-                end
-            end
+%             if cur_frame == 0
+%                 if mod(i ,2) == 1
+%                     Screen('FillOval', w, pd_color_max, pd);
+%                 else
+%                     Screen('FillOval', w, pd_color_max/2., pd);
+%                 end
+%             end
             
 
             % Disable alpha-blending, restrict following drawing to alpha channel:
@@ -254,18 +257,24 @@ try
             % Restore alpha blending mode for next draw iteration:
             Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
             
-            % pd
-            if cur_frame == 0
-                if mod(i ,2) == 1
-                    Screen('FillOval', w, pd_color_max, pd);
-                else
-                    Screen('FillOval', w, pd_color_max/2., pd);
-                end
-            end
-        
+%             % pd
+%             if cur_frame == 0
+%                 if mod(i ,2) == 1
+%                     Screen('FillOval', w, pd_color_max, pd);
+%                 else
+%                     Screen('FillOval', w, pd_color_max/2., pd);
+%                 end
+%             end
 
             % Flip 'waitframes' monitor refresh intervals after last redraw.
-            vbl = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
+            [vbl, ~, ~, missed] = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
+            if (missed > 0)
+                % A negative value means that dead- lines have been satisfied.
+                % Positive values indicate a deadline-miss.
+                if (cur_frame > 0) || (i > 1)
+                    fprintf('(OMS jitter) session %d: cur_frame = %d, (flip) missed = %f\n', i, cur_frame+1, missed);
+                end
+            end
             cur_frame = cur_frame + 1;
    
             %

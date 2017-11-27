@@ -126,7 +126,14 @@ while(i_cycle <= N_repeats)
    Screen('DrawTexture', w, bartex, srcRect);
    
    % Flip 'waitframes' monitor refresh intervals after last redraw.
-   vbl = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
+   [vbl, ~, ~, missed] = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
+    if (missed > 0)
+        % A negative value means that dead- lines have been satisfied.
+        % Positive values indicate a deadline-miss.
+        if (xoffset < 0) || (i_cycle > 1)
+            fprintf('(Moving bar) repeat %d: offset = %f, (flip) missed = %f\n', i_cycle, xoffset, missed);
+        end
+    end
 
    % Abort demo if any key is pressed:
    if KbCheck
@@ -159,6 +166,7 @@ function p =  ParseInput(varargin)
     addParamValue(p,'N_repeat', 20, @(x)x>=0);
     addParamValue(p,'barWidth', 150, @(x)x>=0);
     addParamValue(p,'barSpeed', 1.4, @(x)x>=0);
+    addParamValue(p,'c_channels', 2, @(x) ismatrix(x)); % index for color channesl. e.g. 2 or [2, 3]
     
     addParamValue(p,'barColor', 'dark', @(x) strcmp(x,'dark') || ...
         strcmp(x,'white'));
