@@ -16,17 +16,17 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
 
     % Get the list of screens and choose the one with the highest screen number.
     % screen.screenNumber = 2;
-    n = max(Screen('Screens'));
+    n = length(Screen('Screens'));
     %
     resolutions = cell(1, n);
     cur_display_Res_width = 100000000;
     for i = 1:n
-        resolutions{i} = Screen('resolution', i);
+        resolutions{i} = Screen('resolution', i-1);
         if resolutions{i}.width < cur_display_Res_width
             cur_display_Res_width = resolutions{i}.width;
             % pick screen number whose resolution is the lowest among
             % others.
-            screen.screenNumber = i;
+            screen.screenNumber = i-1;
         end
     end
     %screen.screenNumber = n;

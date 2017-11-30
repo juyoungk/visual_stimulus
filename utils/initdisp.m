@@ -39,7 +39,7 @@ if any([ex.disp.nominal_frate == 0, ex.disp.screen ==0])
     [ex.disp.winptr, ex.disp.winrect] = PsychImaging('OpenWindow', ...
                         ex.disp.screen, ex.disp.bgcol,[0 10 1024 778]);
 else
-    HideCursor;
+    %HideCursor;
     Screen('Preference', 'VisualDebugLevel', 3);
     % Setup PsychImaging pipeline, allows for fast drawing
     PsychImaging('PrepareConfiguration');

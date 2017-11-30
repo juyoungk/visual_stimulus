@@ -39,4 +39,4 @@ else
 end
 
 %% hide the cursor to start the experiment
-HideCursor;
+%HideCursor;
