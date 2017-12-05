@@ -31,7 +31,7 @@ OMS_jitter('seed', 2, 'sDuration', 10, 'N_repeats', 3); % 1 min
 % % a bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). 
 % % Johnston and Lagnado 2016
 % Only UV (2) color cahnnels
-moving_bar('barColor', 'white', 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 10);
+moving_bar('barColor', 'white', 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 10); 
 %%
 moving_bar('barColor',  'dark', 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 10);
 
