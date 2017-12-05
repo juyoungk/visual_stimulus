@@ -12,6 +12,7 @@ commandwindow
 addpath('jsonlab/')
 addpath('utils/')
 addpath('functions/')
+addpath('HelperFunctions/')
 
 % turn the `debug` flag on when testing
 debug_exp = true;
