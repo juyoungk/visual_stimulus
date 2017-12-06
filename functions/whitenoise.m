@@ -93,15 +93,29 @@ function ex = whitenoise(ex, replay)
 
       % update the photodiode with the top left pixel on the first frame
       if fi == 1
-        pd = ex.disp.white;
+        pd = ex.disp.pd_color;
       else
         pd = 0;
       end
       Screen('FillOval', ex.disp.winptr, pd, ex.disp.pdrect);
 
       % flip onto the scren
+      %Screen('DrawingFinished', ex.disp.winptr);
+      %vbl = Screen('Flip', ex.disp.winptr, vbl + flipint);
+      
+      % flip onto the scren
       Screen('DrawingFinished', ex.disp.winptr);
       vbl = Screen('Flip', ex.disp.winptr, vbl + flipint);
+      [vbl, ~, ~, missed] = Screen('Flip', ex.disp.winptr, vbl + flipint);
+      if (missed > 0)
+            % A negative value means that dead- lines have been satisfied.
+            % Positive values indicate a deadline-miss.
+            if (fi > 1)
+                fprintf('(Whitenoise) frame index %d (%.2f sec): flip missed = %f\n', fi, fi/me.framerate, missed);
+                ex.disp.missed = ex.disp.missed + 1;
+            end
+      end
+
 
       % save the timestamp
       ex.stim{end}.timestamps(fi) = vbl;

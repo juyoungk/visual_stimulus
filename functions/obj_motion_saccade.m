@@ -21,7 +21,7 @@ end
 %ex.stim{end}.seed = rs.Seed;
 
 %% jumpevery and sessions
-StimSize_Ct = 500; % um
+StimSize_Ct = 600; % um
 StimSize_BG = 2.5; % mm
 w_gratingbar = me.w_gratingbar; % um; Grating Bar; 2*Bar = 1 period; ~RF size of BP
 w_Annulus = w_gratingbar;

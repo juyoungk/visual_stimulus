@@ -72,8 +72,7 @@ ex.disp.pdsize  = SetRect(0, 0, 100, 100);
 ex.disp.pdrect  = CenterRectOnPoint(ex.disp.pdsize, ...
   ex.disp.winrect(3) * ex.disp.pdctr(1), ...
   ex.disp.winrect(4) * ex.disp.pdctr(2));
-% Juyoung PD setting
-[ex.disp.pdrect, ex.disp.pd_color] = DefinePD_shift(ex.disp.winptr);
+[ex.disp.pdrect,  = DefinePD_shift(ex.disp.winptr);
 
 % Microns per pixel
 ex.disp.umperpix = 100 / 4.7;

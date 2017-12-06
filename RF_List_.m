@@ -11,7 +11,7 @@ debug = 0;
 % background
 
 %% % flash & grating
-flash_annulus_ qq  stims('radius', 2400, 'color', [0 1 0], 'halfPeriodSecs', 2, 'Ncycle', 15);
+flash_annulus_stims('radius', 2400, 'color', [0 1 0], 'halfPeriodSecs', 2, 'Ncycle', 15);
 
 %% Additional flash
 flash_annulus_stims('radius', 2400, 'color', [0 1 1], 'halfPeriodSecs', 2, 'Ncycle', 15);

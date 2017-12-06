@@ -1,5 +1,5 @@
 function draw_Bg_Ct_texture(ex, Bg_tex, Ct_tex, Bg_masktex, D_Bg, D_Ct, Bg_shift, Ct_shift, angleBG)
-%
+%%
 % All units should be as pixels.
 % Bg_tex and Ct_tex are texture indexes created by 'MakeTexture' in Screen.  
 % Shift parameters can be either [x] or [x y]. 
@@ -103,7 +103,9 @@ function draw_Bg_Ct_texture(ex, Bg_tex, Ct_tex, Bg_masktex, D_Bg, D_Ct, Bg_shift
 %         else 
 %             Screen('DrawTexture', ex.disp.winptr, Ct_tex, srcRect_Ct, dstRect_Ct, angleCenter);
 %         end
-        Screen('DrawTexture', ex.disp.winptr, Ct_tex, srcRect_Ct, dstRect_Ct, angleCenter);
+        if Ct_tex
+            Screen('DrawTexture', ex.disp.winptr, Ct_tex, srcRect_Ct, dstRect_Ct, angleCenter);
+        end
         
         % Restore alpha blending mode for next draw iteration:
         Screen('Blendfunction', ex.disp.winptr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

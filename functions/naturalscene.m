@@ -45,7 +45,7 @@ function ex = naturalscene(ex, replay)
     if me.framerate > ex.disp.frate
         error('Your monitor does not support a frame rate higher than %i Hz', ex.disp.frate);
     end
-    flipsPerFrame = round(ex.disp.frate / me.framerate);
+    flipsPerFrame = round(ex.disp.frate / me.framerate); % ~ waitframes
     ex.stim{end}.framerate = 1 / (flipsPerFrame * ex.disp.ifi);
     flipint = ex.disp.ifi * (flipsPerFrame - 0.25);
 
@@ -112,7 +112,7 @@ function ex = naturalscene(ex, replay)
 
       % update the photodiode with the top left pixel on the first frame
       if fi == 1
-        pd = ex.disp.white;
+        pd = ex.disp.pd_color;
       %elseif mod(fi, me.jumpevery) == 1
       %  pd = 0.8 * ex.disp.white;
       else
@@ -123,6 +123,15 @@ function ex = naturalscene(ex, replay)
       % flip onto the scren
       Screen('DrawingFinished', ex.disp.winptr);
       vbl = Screen('Flip', ex.disp.winptr, vbl + flipint);
+      [vbl, ~, ~, missed] = Screen('Flip', ex.disp.winptr, vbl + flipint);
+      if (missed > 0)
+            % A negative value means that dead- lines have been satisfied.
+            % Positive values indicate a deadline-miss.
+            if (fi > 1)
+                fprintf('(Naturalscene) frame index %d (%.2f sec): flip missed = %f\n', fi, fi/me.framerate, missed);
+                ex.disp.missed = ex.disp.missed + 1;
+            end
+      end
 
       % save the timestamp
       ex.stim{end}.timestamps(fi) = vbl;
