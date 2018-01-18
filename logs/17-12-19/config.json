@@ -13,7 +13,7 @@
   },
   {
       "framerate": 30,
-      "seed": 1,
+      "seed": 99,
       "jumpevery": 30,
       "imgdir": "../database/images/",
       "imgext": "*.mat",

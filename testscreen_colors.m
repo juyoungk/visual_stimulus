@@ -28,7 +28,7 @@ disp(['screen.black = ',num2str(screen.black)]);
     boxL_um = 60; %unit: um
     boxL = Pixel_for_Micron(boxL_um);  %um to pixels
     
-    N = 30; % determines the stim size
+    N = 15; % determines the stim size
     pd_shift_from_center = 2.5; % mm
     stimsize = Pixel_for_Micron(boxL_um*N);
     

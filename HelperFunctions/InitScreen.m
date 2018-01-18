@@ -29,6 +29,7 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
             screen.screenNumber = i-1;
         end
     end
+    screen.screenNumber   
     %screen.screenNumber = n;
     %screen.screenNumber = 2;
     % if Nominal rate is 0, (running from a laptop) Psychtoolbox is failing

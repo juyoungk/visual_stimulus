@@ -9,9 +9,15 @@ function ex = waitForTrigger(ex)
 %
 % (c) bnaecker@stanford.edu 24 Jan 2013 
 
+%% text location
+xsize = ex.disp.winrect(3);
+ysize = ex.disp.winrect(4);
+x = 0.45*xsize;
+y = 0.42*ysize;
+
 %% arm the trigger
 Screen('DrawText', ex.disp.winptr, 'Press spacebar to arm trigger ... ', ...
-	50, 50, ex.disp.white);
+	x, y, ex.disp.white);
 ex.disp.vbl = Screen('Flip', ex.disp.winptr);
 while ~ex.key.keycode(ex.key.space) && ~ex.key.keycode(ex.key.esc)
     % (JK comment) Assumption: keycode was initialized as zero vector. 
@@ -22,7 +28,7 @@ end
 %% wait for trigger
 if any(strcmp('m', {'m', 'manual'})) % ??? always true?
 	Screen('DrawText', ex.disp.winptr, 'Waiting for experimenter trigger (t) ... ', ...
-		50, 50, ex.disp.white);
+		x, y, ex.disp.white);
 	Screen('FillOval', ex.disp.winptr, ex.disp.black, ex.disp.pdrect);
 	Screen('Flip', ex.disp.winptr);
 	while ~ex.key.keycode(ex.key.t) % KbCheck inside a loop ! 
@@ -31,7 +37,7 @@ if any(strcmp('m', {'m', 'manual'})) % ??? always true?
 	end
 else
 	Screen('DrawText', ex.disp.winptr, 'Waiting for recording computer ... ', ...
-		50, 50);
+		x, y);
 	Screen('FillOval', ex.disp.winptr, ex.disp.black, ex.disp.pdrect);
 	Screen('Flip', ex.disp.winptr);
 	WaitForRec;

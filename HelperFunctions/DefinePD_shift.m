@@ -24,7 +24,8 @@ function p =  ParseInput(varargin)
     
     addParamValue(p,'shift', 2500, @(x)x>=0); % um
     addParamValue(p,'size', 800, @(x)x>=0); % um
-    addParamValue(p,'color', [254, 0, 0]);
+    %addParamValue(p,'color', [254, 0, 0]);
+    addParamValue(p,'color', [0, 254, 0]);
     
     % Call the parse method of the object to read and validate each argument in the schema:
     p.parse(varargin{:});
