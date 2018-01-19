@@ -8,20 +8,19 @@ debug = 0;
 % pd
 % background
 
-%% Test screen (increasing disc?)
+%% Test screen
 testscreen_colors;
 %% test flash
-flash_annulus_stims('radius', 2400, 'color', [0 1 1], 'halfPeriodSecs', 1, 'Ncycle', 30);
+flash_annulus_stims('radius', 2000, 'color', [0 1 1], 'halfPeriodSecs', 1, 'Ncycle', 30);
 
-%% flash (center only)
-flash_annulus_stims('radius', 600, 'color', [0 1 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
-%% flash (full-field)
-flash_annulus_stims('radius', 2400, 'color', [0 1 0], 'halfPeriodSecs', 2, 'Ncycle', 20);
-    %% flash (full-field)
-    flash_annulus_stims('radius', 2400, 'color', [0 1 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
+%% 
+flash_annulus_stims('radius', 2000, 'color', [0 1 0], 'halfPeriodSecs', 2, 'Ncycle', 20);
 
-%% anuulus stim?
+%% Additional flash 1
+flash_annulus_stims('radius', 2000, 'color', [0 1 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
 
+%% Additional flash 2
+flash_annulus_stims('radius', 2000, 'color', [0 0 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
 
 %% OMS jitter
 % 1 repeat has 2 sessions (global-differntial)
