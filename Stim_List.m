@@ -19,6 +19,8 @@ flash_annulus_stims('radius', 600, 'color', [0 1 1], 'halfPeriodSecs', 2, 'Ncycl
 flash_annulus_stims('radius', 2400, 'color', [0 1 0], 'halfPeriodSecs', 2, 'Ncycle', 20);
     %% flash (full-field)
     flash_annulus_stims('radius', 2400, 'color', [0 1 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
+    %% flash (full-field)
+    flash_annulus_stims('radius', 2400, 'color', [0 0 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
 
 %% anuulus stim?
 
