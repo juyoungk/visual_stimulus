@@ -6,8 +6,9 @@ function stim = RF_Juyoung(varargin)
     % objContrast, objJitterPeriod, objSeed, stimSize, objSizeH, objSizeV,
     % objCenterXY, backContrast, backJitterPeriod, presentationLength,
     % movieDurationSecs, pdStim, debugging, barsWidth, waitframes, vbl
-     p = ParseInput(varargin{:});
-   
+    commandwindow
+    
+    p = ParseInput(varargin{:});
     debug = p.Results.debug;
     objContrast = p.Results.objContrast;
     seed  = p.Results.seed;
@@ -36,7 +37,7 @@ try
     % whiteFrames = round(screen.rate/waitframes); % # of stim flip for 1s
     % (defined by Pablo)
     % screen.rate = NominalFrameRate (Hz)
-    framesPerFlip = round( stimFrameInterval/screen.ifi );
+    framesPerFlip = round( stimFrameInterval/screen.ifi ); % = waitframes
     % Nominal-rate-optimized stimulus flip interval (not rate)
     frameTime = screen.ifi * framesPerFlip;
     framesN = uint32( round( DurationSecs / frameTime ));
@@ -98,17 +99,18 @@ end %try..catch..
 end
 
 function [vbls, log] = RandomCheckers(screen, framesN, waitframes, checkersV, checkersH, ...
-    objContrast, randomStream, c_channels, pd, pd_color_max, objRect, noise, array_type)
+    objContrast, randomStream, c_mask, pd, pd_color_max, objRect, noise, array_type)
     
 log = addLog([]);
 cur_frame = 0;    %current frame number
 screen.vbl = GetSecs();
 
-imgMat = zeros(checkersV, checkersH, 3);
+%imgMat = zeros(checkersV, checkersH, 3);
     
     for frame = 0:framesN-1
-        % background
-        Screen('FillRect', screen.w, screen.black);
+        Screen('Blendfunction', screen.w, GL_ONE, GL_ZERO, [c_mask 1]);
+        %Screen('FillRect', screen.w, screen.gray);
+        %Screen('FillRect', screen.w, screen.black);
         % Make a new obj texture
         % Generate random texture one frame by one frame
         % including color channels (2017 1110 Juyoung)
@@ -121,11 +123,11 @@ imgMat = zeros(checkersV, checkersH, 3);
                 + screen.gray;
         end
         % assign white noise texture to color channels.
-        %imgMat(:,:,2) = objColor(:,:,2);
-        imgMat(:,:,c_channels) = objColor(:,:,c_channels);
-        
-        %objTex  = Screen('MakeTexture', screen.w, imgMat);
-        objTex  = Screen('MakeTexture', screen.w, imgMat, [] ,1);
+%             %imgMat(:,:,2) = objColor(:,:,2);
+%             imgMat(:,:,c_channels) = objColor(:,:,c_channels);
+
+        %objTex  = Screen('MakeTexture', screen.w, imgMat, [] , 1);
+        objTex  = Screen('MakeTexture', screen.w, objColor);
         
         % display last texture
         Screen('DrawTexture', screen.w, objTex, [], objRect, 0, 0);
@@ -133,21 +135,23 @@ imgMat = zeros(checkersV, checkersH, 3);
         % We have to discard the noise checkTexture.
         Screen('Close', objTex);
         
-        % Draw the PD box
-        color = objColor(1,1)/2*pd_color_max;%+screen.gray/2;
-        Screen('FillOval', screen.w, color, pd);
-        if cur_frame==0
-            Screen('FillOval', screen.w, pd_color_max, pd);
-        end
-        
+        % Draw the PD box (Red Channel)
+        Screen('Blendfunction', screen.w, GL_ONE, GL_ZERO, [1 0 0 1]);
+            %color = objColor(1,1)/2*pd_color_max;%+screen.gray/2;
+            %Screen('FillOval', screen.w, color, pd);
+            if cur_frame==0
+                Screen('FillOval', screen.w, pd_color_max, pd);
+            elseif mod(cur_frame, 10) == 0
+                Screen('FillOval', screen.w, pd_color_max/2, pd);
+            end
+        Screen('Blendfunction', screen.w, GL_ONE, GL_ZERO, [c_mask 1]);
         
         % uncomment this line to check the coordinates of the 1st checker
         % Flip 'waitframes' monitor refresh intervals after last redraw.
         %screen.vbl = Screen('Flip', screen.w, screen.vbl + (waitframes-.5) * screen.ifi);
         [screen.vbl, ~, ~, missed] = Screen('Flip', screen.w, screen.vbl + (waitframes - 0.5) * screen.ifi);
         if (missed > 0)
-            % A 'negative' value means that deadlines have been satisfied.
-            % (good)
+            % 'Negative' value means that deadlines have been satisfied. (good)
             % Positive values indicate a deadline-miss. (bad)
             if (cur_frame > 0)
                 fprintf('(Checker) cur_frame = %d, (flip) missed = %f\n', cur_frame, missed);
@@ -155,7 +159,6 @@ imgMat = zeros(checkersV, checkersH, 3);
         end
         
         cur_frame = cur_frame + 1;
-        
         
         if ~exist('vbls', 'var')
             vbls = screen.vbl;
@@ -167,8 +170,6 @@ imgMat = zeros(checkersV, checkersH, 3);
     end
     vbls(2) = screen.vbl;
 end
-
-
 
 
 % Juyoung added for recreation as bin file.
@@ -241,7 +242,7 @@ function p =  ParseInput(varargin)
     addParamValue(p,'pdStim', 0, @(x) isnumeric(x));
     addParamValue(p,'noiseType', 'binary', @(x) strcmp(x,'binary') || ...
         strcmp(x,'gaussian'));
-    addParamValue(p,'c_channels', 2, @(x) ismatrix(x)); % index for color channesl. e.g. 2 or [2, 3]
+    addParamValue(p,'c_channels', [0 1 1], @(x) ismatrix(x)); % index for color channesl. e.g. 2 or [2, 3]
     addParamValue(p,'array_type', 'HiDens_v3', @(x) ischar(x));   % in what units?
     addParamValue(p,'recreation', 'no', @(x) strcmp(x,'yes') || ...
         strcmp(x,'no'));

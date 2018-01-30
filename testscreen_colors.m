@@ -47,8 +47,15 @@ vbl =0;
 ifi = screen.ifi;
 
  for i=1:1
-    % 1. Stim area (0 intensity outside of the stim area)
-    
+    % blendfunction test at the inital frame
+            % Screen('Blendfunction', screen.w, GL_ONE, GL_ZERO, [1 0 0 1]);
+            % Screen('FillOval', screen.w, 255, pd);
+            % %Screen('Blendfunction', screen.w, GL_ONE, GL_ZERO, [1 1 1 1]);
+            % vbl = Screen('Flip', screen.w, vbl+ifi*0.5);
+            % KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
+            % if YorN==27, break; end
+
+    % 1. Stim area (0 intensity outside of the stim area)     
     % color change @ white intensity
         for j=1:n_colors
             % bright stim area on dark
@@ -94,31 +101,31 @@ ifi = screen.ifi;
         % intensity scan @ specific color
         brightness = [32, 64, 128, 255];
         color = [0 0 1];
-        for j=1:length(brightness)
-            Screen('FillRect', screen.w, 0);
-            Screen('FillRect', screen.w, brightness(j)*color, box);
-            Screen('Flip', screen.w, 0);
-            KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-            if YorN==27, break; end
-        end
+%         for j=1:length(brightness)
+%             Screen('FillRect', screen.w, 0);
+%             Screen('FillRect', screen.w, brightness(j)*color, box);
+%             Screen('Flip', screen.w, 0);
+%             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
+%             if YorN==27, break; end
+%         end
  end
 
 % Text for getting focusing?
 text = 'screen test...';
 w = screen.w;
 Screen('TextSize', screen.w, 48);
-        for j=1:n_colors            
-            % bright stim area on dark
-            Screen('FillRect', screen.w, 0);
-            Screen('DrawText', w, text, 0.5*screen.sizeX, 0.4*screen.sizeY, color_sequence{j});
-            Screen('DrawText', w, text, 0.5*screen.sizeX, 0.5*screen.sizeY, color_sequence{j}/2);
-            Screen('DrawText', w, text, 0.5*screen.sizeX, 0.6*screen.sizeY, color_sequence{j}/4);
-            Screen('FillOval', screen.w, pd_color, pd);
-            Screen('Flip', screen.w, 0);
-            KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-            if YorN==27, break; end
-        end
- 
+%         for j=1:n_colors            
+%             % bright stim area on dark
+%             Screen('FillRect', screen.w, 0);
+%             Screen('DrawText', w, text, 0.5*screen.sizeX, 0.4*screen.sizeY, color_sequence{j});
+%             Screen('DrawText', w, text, 0.5*screen.sizeX, 0.5*screen.sizeY, color_sequence{j}/2);
+%             Screen('DrawText', w, text, 0.5*screen.sizeX, 0.6*screen.sizeY, color_sequence{j}/4);
+%             Screen('FillOval', screen.w, pd_color, pd);
+%             Screen('Flip', screen.w, 0);
+%             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
+%             if YorN==27, break; end
+%         end
+%  
 Screen('CloseAll');
 
 end

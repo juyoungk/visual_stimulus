@@ -1,57 +1,36 @@
 function OMS_jitter_color_mask(varargin)
-% function DriftDemo5(angle, cyclespersecond, f, drawmask)
-% ___________________________________________________________________
-%
-% Display animated gratings using the new Screen('DrawTexture') command.
-%
-% The demo shows two drifting sine gratings through circular apertures. The
-% 1st drifting grating is surrounded by an annulus (a ring) that shows a
-% second drifting grating with a different orientation.
-%
-% The demo ends after a key press or after 20 seconds have elapsed.
-%
-% The demo uses alpha-blending and color buffer masking for masking the
-% gratings with circular apertures.
-%
-% Parameters:
-%
-% angle = Angle of the grating with respect to the vertical direction.
-% cyclespersecond = Speed of grating in cycles per second. f = Frequency of
-% grating in cycles per pixel.
-% drawmask = If set to 1, then an aperture is drawn over the grating
-% _________________________________________________________________________
-%
-% see also: PsychDemos, MovieDemo
+% Derived from function DriftDemo5(angle, cyclespersecond, f, drawmask)
+% (4/1/09 mk Adapted from Allen Ingling's DriftDemo.m)
+% 
+% Global/differential jitter for probing OMS
+% Color mask for choosing limiting color channels.
 
-% HISTORY
-% 4/1/09 mk Adapted from Allen Ingling's DriftDemo.m
+% 01/29/2018 (JK) Center sequence is repeated. Bg sequence will be identical during global motion
+% 01/29/2018 (JK) Color independent jittering
+
 addpath('HelperFunctions/');
 commandwindow % Change focus to command window
 drawmask_BG=0; % if it is 0, BG would become square. 
 
-% color mask
-c_mask = [0 1 1];
-
-
-p = ParseInput(varargin{:});
+HalfPeriod = 60; % um; (~RF size of BP)
+StimSize_Ct = 650; % um
+StimSize_BG = 2.4; % mm
 %
-seq_duration = p.Results.sDuration;
-N_repeats = p.Results.N_repeats;
-seed = p.Results.seed;
+pd_shift = 2.5; % mm
+COLOR_MUTE_2 = false;
+COLOR_MUTE_3 = false;
 
-FLAG_Global_Motion = 1;
-    
 waitframes = 1;
 weight_Ct_step = 1; % 1 means 1 px
 weight_Bg_step = 1;
 angleBG = 0;
-%
-HalfPeriod = 60; % um; (~RF size of BP)
-StimSize_Ct = 650; % um
-StimSize_BG = 1.0; % mm
 
-% 2 means 30 Hz stimulus with 60 Hz monitor
-%
+p = ParseInput(varargin{:});
+seq_duration = p.Results.sDuration;
+N_repeats = p.Results.N_repeats;
+seed = p.Results.seed;
+c_mask = p.Results.color_Mask;
+
 w_grating = Pixel_for_Micron(HalfPeriod);
 w_Annulus = Pixel_for_Micron(HalfPeriod);
 TexBgSize_Half = Pixel_for_Micron(StimSize_BG*1000/2.); % Half-Size of the Backgr grating 
@@ -63,30 +42,7 @@ try
     white = screen.white;
     black = screen.black;
     gray = screen.gray;
-    inc=white-gray;
     w = screen.w;
-    ifi = screen.ifi;
-    
-%     AssertOpenGL; 
-%     
-%     % Get the list of screens and choose the one with the highest screen number.
-%     screenNumber=max(Screen('Screens'));
-%     % Find the color values which correspond to white and black.
-%     white=WhiteIndex(screenNumber);
-%     black=BlackIndex(screenNumber);
-
-%     % Open a double buffered fullscreen window with a gray background:
-%     rate = Screen('NominalFrameRate', screenNumber);
-%     if rate == 0
-%         Screen('Preference', 'SkipSyncTests',1);
-%         [w, screenRect]=Screen('OpenWindow',screenNumber, gray, [10 10 1010 1160]);
-%         oldtxtsize = Screen('TextSize', w, 17);
-%     else
-%         Screen('Resolution', screenNumber, 800, 600, 60);
-%         [w, screenRect]=Screen('OpenWindow',screenNumber, gray);
-%         oldtxtsize = Screen('TextSize', w, 9);
-%         HideCursor(screenNumber);
-%     end
 
     % Calculate parameters of the grating:
     p = ceil(1/f) % pixels/one cycle (= wavelength), rounded up.~2*Bipolar cell RF
@@ -135,9 +91,10 @@ try
     % Recompute p, this time without the ceil() operation from above.
     % Otherwise we will get wrong drift speed due to rounding!
     p=1/f; % pixels/cycle
-    %
+    p=2*w_grating;
     
-    [pd, pd_color_max] = DefinePD_shift(w);
+    %
+    [pd, pd_color_max] = DefinePD_shift(w, 'shift', pd_shift*1000);
     Screen('FillOval', w, black, pd); % first PD: black
     % background: black
     Screen('FillRect', w, screen.bg_color);
@@ -150,22 +107,22 @@ try
     % We run at most 'movieDurationSecs' seconds if user doesn't abort via
     % keypress.
         
-    seq_framesN = round(seq_duration/(waitframes*ifi)); % Num of frames over one step period = Num of phases
-    % initial sequence of center(object) 
+    seq_framesN = round(seq_duration/(waitframes*ifi)); % Num of frames for one session
+    
     
     % Get a random sequence representing FEM (Fixational Eye Movement)
     S1 = RandStream('mcg16807', 'Seed', seed);
     FEM_Ct = randi(S1, 3, seq_framesN, 1)-2;
-    FEM_Bg = circshift(FEM_Ct, round(seq_framesN/2.));  
+    FEM_Ct = round(randn(S1, seq_framesN, 3)); % variance = 1; up to 3 color channels.
+    FEM_Bg = circshift(FEM_Ct, round(seq_framesN/2.));
     
-%     if ~FLAG_Global_Motion
-%         FEM_Bg = circshift(FEM_Ct, double(seq_framesN/2));
-%     else
-%         FEM_Bg = FEM_Ct;
-%     end  
-    xoffset_Bg = 0; xoffset_Ct = 0; angleCenter = 0; secsPrev = 0; 
+    % Identity matrix for color channel selection.
+    c_array = eye(3);
+    %
+    xoffset_Bg = zeros(1,3); xoffset_Ct = zeros(1,3); 
+    angleCenter = 0; secsPrev = 0; 
     FLAG_BG_TEXTURE = 1; 
-    FLAG_debug = 0;
+    
     vbl=0;
     %
 
@@ -175,17 +132,16 @@ try
         FLAG_Global_Motion = rem(i,2);
         
         % photodiode at the first frame of the sequence
-        %Screen('Blendfunction', w, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
-        %Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, [1 1 1 1]); % red channel only
         % disable alpha-blending, but allow updates of red channel only. 
         Screen('Blendfunction', w, GL_ONE, GL_ZERO, [1 0 0 1]);
-        
-        if mod(i ,2) == 1
+        if FLAG_Global_Motion
                     Screen('FillOval', w, min(pd_color_max, 255), pd);
-                    fprintf('(OMS jitter - differ) session %d/%d (diff)\n', i, 2*N_repeats);
+                    Screen('DrawText', w, 'Global Motion', 0.3*screen.sizeX, 0.8*screen.sizeY);
+                    fprintf('(OMS jitter - global) session %d/%d (global)\n', i, 2*N_repeats);
         else
                     Screen('FillOval', w, min(pd_color_max, 255)/2., pd);
-                    fprintf('(OMS jitter - global) session %d/%d (global)\n', i, 2*N_repeats);
+                    Screen('DrawText', w, 'Diff Motion', 0.3*screen.sizeX, 0.8*screen.sizeY);
+                    fprintf('(OMS jitter - Diff) session %d/%d (diff)\n', i, 2*N_repeats);
         end
         % disable alph-blending, turn on color mask
         Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_mask 1]);
@@ -193,72 +149,73 @@ try
         cur_frame = 0;
         
         while (cur_frame < seq_framesN)
-            % Jitter by Juyoung: 
-            % Generate random integer [-1, 0, 1] ~ 1 pixel deviation?
-            xoffset_Bg = mod( xoffset_Bg + FEM_Bg(cur_frame+1)*weight_Bg_step, p);
-            xoffset_Ct = mod( xoffset_Ct + FEM_Ct(cur_frame+1)*weight_Ct_step, p);
- 
-            if FLAG_Global_Motion
-                xoffset_Ct = xoffset_Bg;
-            end
-
-            % scrRect: 'jittered' subpart of the texture
-            srcRect=[xoffset_Bg 0 xoffset_Bg + BG_visiblesize BG_visiblesize];
-            src2Rect=[xoffset_Ct 0 xoffset_Ct + Ct_visiblesize Ct_visiblesize];
-
-            % Draw grating texture, rotated by "angle":
-            if FLAG_BG_TEXTURE
-                %Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, [0 1 0 1]); % green (or UV) channel only
-                Screen('DrawTexture', w, gratingtexBg, srcRect, dstRect, angleBG);
-                %Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            end
-
-            if drawmask_BG
-                % Draw aperture (Oval) over grating:
-                %Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % Juyoung add
-                %Screen('Blendfunction', w, GL_ONE, GL_ZERO, [0 0 0 1]);
-                Screen('DrawTexture', w, masktex, [0 0 BG_visiblesize BG_visiblesize], dstRect, angleBG);
-            end
-
-            % annulus 
-            Screen('FillOval', w, gray, rectAnnul);
-                        
-            % Disable alpha-blending, restrict following drawing to alpha channel:
-            Screen('Blendfunction', w, GL_ONE, GL_ZERO, [0 0 0 1]);
-            % Clear 'dstRect' region of framebuffers alpha channel to zero: 
-            Screen('FillRect', w, [0 0 0 0], dst2Rect); % Alpha 0 means completely clear. 
-            % Fill circular 'dstRect' region with an alpha value of 255:
-            Screen('FillOval', w, [0 0 0 255], dst2Rect);
-
-            % Enable "DeSTination alpha blending" and reenable drawing to all
-            % color channels. Following drawing commands will only draw there
-            % the alpha value in the framebuffer is greater than zero, ie., in
-            % our case, inside the circular 'dst2Rect' aperture where alpha has
-            % been set to 255 by our 'FillOval' command:
-            % Screen('Blendfunction', windowindex, [souce or new], [dest or
-            % old], [colorMaskNew])
-            % Juyoung comment: Why blending on? need to combine with the
-            % predefined mask in alpha channel. Use destination alpha - 255 at the center. 0 outside of the center. 
-            Screen('Blendfunction', w, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [c_mask 1]);
-
-            % Draw 2nd grating texture, but only inside alpha == 255 circular
-            % aperture, and at an angle of 90 degrees: Now the angle is 0
-            Screen('DrawTexture', w, gratingtexCt, src2Rect, dst2Rect, angleCenter);
-
-            % Restore alpha blending mode for next draw iteration:??
-            %Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, [c_mask 1]);
-            Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_mask 1]);
-            %Screen('FillRect', w, [0 0 0 255], dst2Rect); % recover the alpha channel for PD?
             
-%             % pd
-%             if cur_frame == 0
-%                 if mod(i ,2) == 1
-%                     Screen('FillOval', w, pd_color_max, pd);
-%                 else
-%                     Screen('FillOval', w, pd_color_max/2., pd);
-%                 end
-%             end
+            for c = find(c_mask) % draw independently jittered color grating
+                
+                if COLOR_MUTE_2
+                    if c == 2; continue; end;
+                end
+                if COLOR_MUTE_3
+                    if c == 3; continue; end;
+                end
+                
+                c_channel = c_array(c,:);
+                Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_channel 1]);
+                
+                % Jitter by Juyoung: 
+                xoffset_Bg(c) = mod( xoffset_Bg(c) + FEM_Bg(cur_frame+1,c)*weight_Bg_step, p);
+                xoffset_Ct(c) = mod( xoffset_Ct(c) + FEM_Ct(cur_frame+1,c)*weight_Ct_step, p);
 
+                if FLAG_Global_Motion
+                    xoffset_Bg(c)  = xoffset_Ct(c);
+                end
+
+                % scrRect: 'jittered' subpart of the texture
+                srcRect=[xoffset_Bg(c) 0 xoffset_Bg(c) + BG_visiblesize BG_visiblesize];
+                src2Rect=[xoffset_Ct(c) 0 xoffset_Ct(c) + Ct_visiblesize Ct_visiblesize];
+
+                % Draw grating texture, rotated by "angle":
+                if FLAG_BG_TEXTURE
+                    Screen('DrawTexture', w, gratingtexBg, srcRect, dstRect, angleBG);
+                end
+
+                if drawmask_BG
+                    % Draw aperture (Oval) over grating:
+                    %Screen('Blendfunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % Juyoung add
+                    %Screen('Blendfunction', w, GL_ONE, GL_ZERO, [0 0 0 1]);
+                    Screen('DrawTexture', w, masktex, [0 0 BG_visiblesize BG_visiblesize], dstRect, angleBG);
+                end
+
+                % annulus 
+                Screen('FillOval', w, gray, rectAnnul);
+
+                % Disable alpha-blending, restrict following drawing to alpha channel:
+                Screen('Blendfunction', w, GL_ONE, GL_ZERO, [0 0 0 1]);
+                % Clear 'dstRect' region of framebuffers alpha channel to zero: 
+                Screen('FillRect', w, [0 0 0 0], dst2Rect); % Alpha 0 means completely clear. 
+                % Fill circular 'dstRect' region with an alpha value of 255:
+                Screen('FillOval', w, [0 0 0 255], dst2Rect);
+
+                % Enable "DeSTination alpha blending" and reenable drawing to all
+                % color channels. Following drawing commands will only draw there
+                % the alpha value in the framebuffer is greater than zero, ie., in
+                % our case, inside the circular 'dst2Rect' aperture where alpha has
+                % been set to 255 by our 'FillOval' command:
+                % Screen('Blendfunction', windowindex, [souce or new], [dest or
+                % old], [colorMaskNew])
+                % Juyoung comment: Why blending on? need to combine with the
+                % predefined mask in alpha channel. Use destination alpha - 255 at the center. 0 outside of the center. 
+                Screen('Blendfunction', w, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [c_channel 1]);
+
+                % Draw 2nd grating texture, but only inside alpha == 255 circular
+                % aperture, and at an angle of 90 degrees: Now the angle is 0
+                Screen('DrawTexture', w, gratingtexCt, src2Rect, dst2Rect, angleCenter);
+
+                % Restore alpha blending mode for next draw iteration:??
+                Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_channel 1]);
+
+            end 
+            
             % Flip 'waitframes' monitor refresh intervals after last redraw.
             [vbl, ~, ~, missed] = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
             if (missed > 0)
@@ -300,18 +257,19 @@ try
                         
                     case KbName(',<')
                         
+                    case KbName('2@')
+                        COLOR_MUTE_2 = ~COLOR_MUTE_2
+                    case KbName('3#')
+                        COLOR_MUTE_3 = ~COLOR_MUTE_3
                     case KbName('space')
                         FLAG_Global_Motion = ~FLAG_Global_Motion;
-                        %bg_phase_delay = (~bg_phase_delay)*round(N_phase/2);
+                        
                     case KbName('UpArrow') 
 
                     case KbName('DownArrow')
 
                     case KbName('DELETE')
                         FLAG_BG_TEXTURE = ~FLAG_BG_TEXTURE;
-
-                    case KbName('d') % debug mode
-                        FLAG_debug = 1;
 
                     otherwise                    
                 end
@@ -356,6 +314,7 @@ function p =  ParseInput(varargin)
     
     addParamValue(p,'sDuration', 10, @(x)x>=0);
     addParamValue(p,'N_repeats', 3, @(x)x>=0);
+    addParamValue(p,'color_Mask', [0 1 1], @(x) isnumeric(x));
     addParamValue(p,'seed', 1, @(x) isnumeric(x));
      
     % Call the parse method of the object to read and validate each argument in the schema:

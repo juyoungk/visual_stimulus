@@ -94,6 +94,7 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     % pixel number along X & Y
     [screen.size(1) screen.size(2)] = Screen('WindowSize', max(Screen('Screens')));
     [screen.sizeX screen.sizeY]     = Screen('WindowSize', max(Screen('Screens')));
+    [screen.windowsizeX screen.windowsizeY]     = Screen('WindowSize', max(Screen('Screens')));
     
     %
     screen.framesPerFlip = round( screen.rate * p.Results.stimFrameInterval );
