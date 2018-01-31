@@ -3,30 +3,39 @@ function OMS_jitter_color_mask(varargin)
 % (4/1/09 mk Adapted from Allen Ingling's DriftDemo.m)
 % 
 % Global/differential jitter for probing OMS
+% 1 repeat: global & differential motions with identical jitter sequence in
+% center
 % Color mask for choosing limiting color channels.
+% jitter = randomly drawn from normal distribution. sometimes 3 px movement.
 
 % 01/29/2018 (JK) Center sequence is repeated. Bg sequence will be identical during global motion
 % 01/29/2018 (JK) Color independent jittering
+% 01/30/2018 (JK) Flag for identical/random repeats for sessions
+% 01/30/2018 (JK) Variance param for jitter statistics.
 
 addpath('HelperFunctions/');
 commandwindow % Change focus to command window
 drawmask_BG=0; % if it is 0, BG would become square. 
-
+%
 HalfPeriod = 60; % um; (~RF size of BP)
 StimSize_Ct = 650; % um
 StimSize_BG = 2.4; % mm
+% jitter parameters
+% Max speed?
+var = 0.5; % variance of the jitters or FEM (in pixels). Normal dist.
+weight_Ct_step = 1; % 1 means 1 px
+weight_Bg_step = 1;
+waitframes = 1;
+angleBG = 0;
 %
 pd_shift = 2.5; % mm
 COLOR_MUTE_2 = false;
 COLOR_MUTE_3 = false;
 
-waitframes = 1;
-weight_Ct_step = 1; % 1 means 1 px
-weight_Bg_step = 1;
-angleBG = 0;
 
 p = ParseInput(varargin{:});
 seq_duration = p.Results.sDuration;
+RANDOM_REPEAT = p.Results.random_repeat;
 N_repeats = p.Results.N_repeats;
 seed = p.Results.seed;
 c_mask = p.Results.color_Mask;
@@ -108,13 +117,13 @@ try
     % keypress.
         
     seq_framesN = round(seq_duration/(waitframes*ifi)); % Num of frames for one session
-    
+    tot_framesN = seq_framesN * N_repeats; 
     
     % Get a random sequence representing FEM (Fixational Eye Movement)
     S1 = RandStream('mcg16807', 'Seed', seed);
-    FEM_Ct = randi(S1, 3, seq_framesN, 1)-2;
-    FEM_Ct = round(randn(S1, seq_framesN, 3)); % variance = 1; up to 3 color channels.
-    FEM_Bg = circshift(FEM_Ct, round(seq_framesN/2.));
+    FEM_Ct = randi(S1, 3, tot_framesN, 3)-2;
+    FEM_Ct = round(randn(S1, tot_framesN, 3)*var); % variance = 1; up to 3 color channels.
+    FEM_Bg = circshift(FEM_Ct, round(tot_framesN/2.));
     
     % Identity matrix for color channel selection.
     c_array = eye(3);
@@ -146,10 +155,15 @@ try
         % disable alph-blending, turn on color mask
         Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_mask 1]);
         
-        cur_frame = 0;
+        if RANDOM_REPEAT
+            cur_frame = 1 + seq_framesN * floor((i-1)/2); % Increase framesN by every 2 sessions. 
+        else 
+            cur_frame = 1;
+        end
+        end_frame = cur_frame + seq_framesN - 1;
         
-        while (cur_frame < seq_framesN)
-            
+        while (cur_frame <= end_frame)
+                        
             for c = find(c_mask) % draw independently jittered color grating
                 
                 if COLOR_MUTE_2
@@ -163,8 +177,8 @@ try
                 Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_channel 1]);
                 
                 % Jitter by Juyoung: 
-                xoffset_Bg(c) = mod( xoffset_Bg(c) + FEM_Bg(cur_frame+1,c)*weight_Bg_step, p);
-                xoffset_Ct(c) = mod( xoffset_Ct(c) + FEM_Ct(cur_frame+1,c)*weight_Ct_step, p);
+                xoffset_Bg(c) = mod( xoffset_Bg(c) + FEM_Bg(cur_frame,c)*weight_Bg_step, p);
+                xoffset_Ct(c) = mod( xoffset_Ct(c) + FEM_Ct(cur_frame,c)*weight_Ct_step, p);
 
                 if FLAG_Global_Motion
                     xoffset_Bg(c)  = xoffset_Ct(c);
@@ -213,7 +227,6 @@ try
 
                 % Restore alpha blending mode for next draw iteration:??
                 Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_channel 1]);
-
             end 
             
             % Flip 'waitframes' monitor refresh intervals after last redraw.
@@ -221,8 +234,8 @@ try
             if (missed > 0)
                 % A negative value means that dead- lines have been satisfied.
                 % Positive values indicate a deadline-miss.
-                if (cur_frame > 0) || (i > 1)
-                    fprintf('(OMS jitter) session %d: cur_frame = %d, (flip) missed = %f\n', i, cur_frame+1, missed);
+                if (cur_frame > 1) || (i > 1)
+                    fprintf('(OMS jitter) session %d: cur_frame = %d, (flip) missed = %f\n', i, cur_frame, missed);
                 end
             end
             cur_frame = cur_frame + 1;
@@ -241,18 +254,16 @@ try
                         break;
                     case KbName('q')
                         break;
-                    case KbName('j') % jitter
-                        %FLAG_SimpleMove = 0;
-                    case KbName('RightArrow')
-                        disp('Right Arrow pressed');
-                        angleBG = angleBG + 45;
-                    case KbName('LeftArrow')
-                        disp('Left Arrow pressed');
-                        angleBG = angleBG - 45;
-                    case KbName('9(') % default setting
-                        angleBG = angleBG + 90;    
-                    case KbName('0)') % default setting
-                        angleBG = 0;
+%                     case KbName('RightArrow')
+%                         disp('Right Arrow pressed');
+%                         angleBG = angleBG + 45;
+%                     case KbName('LeftArrow')
+%                         disp('Left Arrow pressed');
+%                         angleBG = angleBG - 45;
+%                     case KbName('9(') % default setting
+%                         angleBG = angleBG + 90;    
+%                     case KbName('0)') % default setting
+%                         angleBG = 0;
                     case KbName('.>')
                         
                     case KbName(',<')
@@ -261,16 +272,15 @@ try
                         COLOR_MUTE_2 = ~COLOR_MUTE_2
                     case KbName('3#')
                         COLOR_MUTE_3 = ~COLOR_MUTE_3
-                    case KbName('space')
-                        FLAG_Global_Motion = ~FLAG_Global_Motion;
-                        
-                    case KbName('UpArrow') 
-
-                    case KbName('DownArrow')
-
-                    case KbName('DELETE')
-                        FLAG_BG_TEXTURE = ~FLAG_BG_TEXTURE;
-
+%                     case KbName('space')
+%                         FLAG_Global_Motion = ~FLAG_Global_Motion;
+%                         
+%                     case KbName('UpArrow') 
+% 
+%                     case KbName('DownArrow')
+% 
+%                     case KbName('DELETE')
+%                         FLAG_BG_TEXTURE = ~FLAG_BG_TEXTURE;
                     otherwise                    
                 end
                 secsPrev = secs;
@@ -283,7 +293,6 @@ try
         end
         % exp parameter update
         
-        %
     end % for loop
     
     % black screen
@@ -314,6 +323,7 @@ function p =  ParseInput(varargin)
     
     addParamValue(p,'sDuration', 10, @(x)x>=0);
     addParamValue(p,'N_repeats', 3, @(x)x>=0);
+    addParamValue(p,'random_repeat', true, @(x) islogical(x));
     addParamValue(p,'color_Mask', [0 1 1], @(x) isnumeric(x));
     addParamValue(p,'seed', 1, @(x) isnumeric(x));
      

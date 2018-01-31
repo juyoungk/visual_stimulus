@@ -26,6 +26,7 @@ function ex = whitenoise(ex, replay)
 
     % shortcut for parameters
     me = ex.stim{end}.params;
+    
 
     % initialize the VBL timestamp
     vbl = GetSecs();
@@ -57,7 +58,11 @@ function ex = whitenoise(ex, replay)
     %ex = get_hidens_mask(ex);
 
   end
-
+  
+  % write_mask
+  c_mask = me.c_mask;
+  Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [c_mask 1]);
+  
   % loop over frames
   for fi = 1:numframes
 
@@ -80,24 +85,28 @@ function ex = whitenoise(ex, replay)
       h5write(ex.filename, [ex.group '/stim'], uint8(me.gray * frame), [1, 1, fi], [me.ndims, 1]);
 
     else
-
+        
       % make the texture
       texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * frame));
-
+    
       % draw the texture, then kill it
       Screen('DrawTexture', ex.disp.winptr, texid, [], ex.disp.dstrect, 0, 0);
       Screen('Close', texid);
       
       % Draw HiDens masking texture
       %Screen('DrawTexture', ex.disp.winptr, ex.disp.hidens_mask, [], [], 90);
-
-      % update the photodiode with the top left pixel on the first frame
+      
+      % update the photodiode with the top left pixel
       if fi == 1
         pd = ex.disp.pd_color;
+      elseif mod(fi, 30) == 1
+        pd = ex.disp.pd_color * 0.5;
       else
         pd = 0;
       end
+      Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 0 0 1]);
       Screen('FillOval', ex.disp.winptr, pd, ex.disp.pdrect);
+      Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [c_mask 1]);
 
       % flip onto the scren
       %Screen('DrawingFinished', ex.disp.winptr);
@@ -105,7 +114,6 @@ function ex = whitenoise(ex, replay)
       
       % flip onto the scren
       Screen('DrawingFinished', ex.disp.winptr);
-      vbl = Screen('Flip', ex.disp.winptr, vbl + flipint);
       [vbl, ~, ~, missed] = Screen('Flip', ex.disp.winptr, vbl + flipint);
       if (missed > 0)
             % A negative value means that dead- lines have been satisfied.

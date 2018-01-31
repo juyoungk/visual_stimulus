@@ -48,12 +48,12 @@ ifi = screen.ifi;
 
  for i=1:1
     % blendfunction test at the inital frame
-            % Screen('Blendfunction', screen.w, GL_ONE, GL_ZERO, [1 0 0 1]);
-            % Screen('FillOval', screen.w, 255, pd);
-            % %Screen('Blendfunction', screen.w, GL_ONE, GL_ZERO, [1 1 1 1]);
-            % vbl = Screen('Flip', screen.w, vbl+ifi*0.5);
-            % KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-            % if YorN==27, break; end
+            Screen('Blendfunction', screen.w, GL_ONE, GL_ZERO, [0 1 0 1]);
+            Screen('FillOval', screen.w, 255);
+            Screen('Blendfunction', screen.w, GL_ONE, GL_ZERO, [1 1 1 1]);
+            vbl = Screen('Flip', screen.w, vbl+ifi*0.5);
+            KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
+            if YorN==27, break; end
 
     % 1. Stim area (0 intensity outside of the stim area)     
     % color change @ white intensity

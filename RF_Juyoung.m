@@ -108,12 +108,14 @@ screen.vbl = GetSecs();
 %imgMat = zeros(checkersV, checkersH, 3);
     
     for frame = 0:framesN-1
+        
         Screen('Blendfunction', screen.w, GL_ONE, GL_ZERO, [c_mask 1]);
-        %Screen('FillRect', screen.w, screen.gray);
-        %Screen('FillRect', screen.w, screen.black);
-        % Make a new obj texture
+        % Draw BG
+            %Screen('FillRect', screen.w, screen.gray);
+            %Screen('FillRect', screen.w, screen.black);
+            
+        % Make a new obj texture (3 color channels 2017 1110 Juyoung)
         % Generate random texture one frame by one frame
-        % including color channels (2017 1110 Juyoung)
         if (strcmp(noise.type, 'binary'))
             objColor = (rand(randomStream, checkersV, checkersH, 3)>.5)*2*screen.gray*objContrast...
                 + screen.gray*(1-objContrast);
@@ -127,21 +129,18 @@ screen.vbl = GetSecs();
 %             imgMat(:,:,c_channels) = objColor(:,:,c_channels);
 
         %objTex  = Screen('MakeTexture', screen.w, imgMat, [] , 1);
+        % Screen('MakeTexture', WindowIndex, imageMatrix [, optimizeForDrawAngle=0] [, specialFlags=0] [, floatprecision=0] [, textureOrientation=0] [, textureShader=0]);
         objTex  = Screen('MakeTexture', screen.w, objColor);
         
-        % display last texture
+        % draw texture and close.
         Screen('DrawTexture', screen.w, objTex, [], objRect, 0, 0);
-        
-        % We have to discard the noise checkTexture.
         Screen('Close', objTex);
         
         % Draw the PD box (Red Channel)
         Screen('Blendfunction', screen.w, GL_ONE, GL_ZERO, [1 0 0 1]);
-            %color = objColor(1,1)/2*pd_color_max;%+screen.gray/2;
-            %Screen('FillOval', screen.w, color, pd);
             if cur_frame==0
                 Screen('FillOval', screen.w, pd_color_max, pd);
-            elseif mod(cur_frame, 10) == 0
+            elseif mod(cur_frame, 30) == 0
                 Screen('FillOval', screen.w, pd_color_max/2, pd);
             end
         Screen('Blendfunction', screen.w, GL_ONE, GL_ZERO, [c_mask 1]);
@@ -150,6 +149,7 @@ screen.vbl = GetSecs();
         % Flip 'waitframes' monitor refresh intervals after last redraw.
         %screen.vbl = Screen('Flip', screen.w, screen.vbl + (waitframes-.5) * screen.ifi);
         [screen.vbl, ~, ~, missed] = Screen('Flip', screen.w, screen.vbl + (waitframes - 0.5) * screen.ifi);
+        
         if (missed > 0)
             % 'Negative' value means that deadlines have been satisfied. (good)
             % Positive values indicate a deadline-miss. (bad)
