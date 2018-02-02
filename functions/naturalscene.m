@@ -5,7 +5,7 @@ function ex = naturalscene(ex, replay)
 % Required parameters:
 %   length : float (length of the experiment in minutes)
 %   framerate : float (rough framerate, in Hz)
-%   ndims : [int, int] (dimensions of the stimulus)
+%   ndims : [int, int] (dimensions of the image patch, not final stim dims)
 %   imgdir: string (location of the images)
 %   imgext: string (file extension for the images)
 %   jumpevery: int (number of frames to wait before jumping to a new image)
@@ -14,7 +14,12 @@ function ex = naturalscene(ex, replay)
 % Optional parameters:
 %   seed : int (for the random number generator. Default: 0)
 %
-% Runs a receptive field mapping stimulus
+% Juyoung update 0130 2018:
+%   jitter -> jitter_var (in pixels)
+%   ndims: Image sampling (or patch size) dims. Not final stim dims. Jitter will be added here.
+%   scale: scale factor for final dimension (usually downsampling)
+%           Final image patch dimension = ndims X scale
+
 
   if replay
 
@@ -81,6 +86,13 @@ function ex = naturalscene(ex, replay)
   %c_mask = [0 1 0];
   Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [c_mask 1]);
   
+  % scale factor: larger patch, gradual jitter
+  s_factor = me.scale;
+  
+  % jitter amp
+  % variance = amp * scale_factor
+  jitter_amp = me.jitter_var/s_factor; 
+  
   % loop over frames
   for fi = 1:numframes
 
@@ -92,14 +104,14 @@ function ex = naturalscene(ex, replay)
       ystart = randi(rs, size(img,2) - 2*me.ndims(2)) + me.ndims(2);
     % jitter
     else
-      xstart = max(min(size(img,1) - me.ndims(1), xstart + round(me.jitter * randn(rs, 1))), 1); % me.jitter = variance
-      ystart = max(min(size(img,2) - me.ndims(2), ystart + round(me.jitter * randn(rs, 1))), 1);
+      xstart = max(min(size(img,1) - me.ndims(1), xstart + round(jitter_amp * randn(rs, 1))), 1); % jitter_amp: variance before down-sampling
+      ystart = max(min(size(img,2) - me.ndims(2), ystart + round(jitter_amp * randn(rs, 1))), 1);
     end
     % get the new image patch (or frame)
     frame = 2 * img(xstart:(xstart + me.ndims(1) - 1), ystart:(ystart + me.ndims(2) - 1)) * me.contrast + (1 - me.contrast);
     % downsampling (more natural fixational eye movement with same
     % variance)
-    % by imsize?
+    frame = imresize(frame, s_factor, 'bilinear');
     
     %
     if replay

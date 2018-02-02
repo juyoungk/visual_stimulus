@@ -12,6 +12,8 @@ function OMS_jitter_color_mask(varargin)
 % 01/29/2018 (JK) Color independent jittering
 % 01/30/2018 (JK) Flag for identical/random repeats for sessions
 % 01/30/2018 (JK) Variance param for jitter statistics.
+% 01/31/2018 (JK) ex struct
+% 01/31/2018 (JK) color sync option
 
 addpath('HelperFunctions/');
 commandwindow % Change focus to command window
@@ -19,7 +21,8 @@ drawmask_BG=0; % if it is 0, BG would become square.
 %
 HalfPeriod = 60; % um; (~RF size of BP)
 StimSize_Ct = 650; % um
-StimSize_BG = 2.4; % mm
+StimSize_BG = 2.5; % mm
+
 % jitter parameters
 % Max speed?
 var = 0.5; % variance of the jitters or FEM (in pixels). Normal dist.
@@ -32,13 +35,14 @@ pd_shift = 2.5; % mm
 COLOR_MUTE_2 = false;
 COLOR_MUTE_3 = false;
 
-
 p = ParseInput(varargin{:});
 seq_duration = p.Results.sDuration;
 RANDOM_REPEAT = p.Results.random_repeat;
 N_repeats = p.Results.N_repeats;
 seed = p.Results.seed;
 c_mask = p.Results.color_Mask;
+sync_ch = p.Results.sync_to_ch;
+FLAG_BG_TEXTURE = p.Results.background; 
 
 w_grating = Pixel_for_Micron(HalfPeriod);
 w_Annulus = Pixel_for_Micron(HalfPeriod);
@@ -96,7 +100,8 @@ try
 
     % Query duration of monitor refresh interval:
     ifi=Screen('GetFlipInterval', w)
-
+    ex.ifi = ifi;
+    
     % Recompute p, this time without the ceil() operation from above.
     % Otherwise we will get wrong drift speed due to rounding!
     p=1/f; % pixels/cycle
@@ -125,13 +130,14 @@ try
     FEM_Ct = round(randn(S1, tot_framesN, 3)*var); % variance = 1; up to 3 color channels.
     FEM_Bg = circshift(FEM_Ct, round(tot_framesN/2.));
     
+    FEM_Ct(1:20, 2)
+    
     % Identity matrix for color channel selection.
     c_array = eye(3);
     %
     xoffset_Bg = zeros(1,3); xoffset_Ct = zeros(1,3); 
     angleCenter = 0; secsPrev = 0; 
-    FLAG_BG_TEXTURE = 1; 
-    
+ 
     vbl=0;
     %
 
@@ -162,6 +168,7 @@ try
         end
         end_frame = cur_frame + seq_framesN - 1;
         
+        
         while (cur_frame <= end_frame)
                         
             for c = find(c_mask) % draw independently jittered color grating
@@ -175,8 +182,8 @@ try
                 
                 c_channel = c_array(c,:);
                 Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_channel 1]);
-                
-                % Jitter by Juyoung: 
+                                
+                % Jitter for each color channels
                 xoffset_Bg(c) = mod( xoffset_Bg(c) + FEM_Bg(cur_frame,c)*weight_Bg_step, p);
                 xoffset_Ct(c) = mod( xoffset_Ct(c) + FEM_Ct(cur_frame,c)*weight_Ct_step, p);
 
@@ -185,10 +192,15 @@ try
                 end
 
                 % scrRect: 'jittered' subpart of the texture
-                srcRect=[xoffset_Bg(c) 0 xoffset_Bg(c) + BG_visiblesize BG_visiblesize];
-                src2Rect=[xoffset_Ct(c) 0 xoffset_Ct(c) + Ct_visiblesize Ct_visiblesize];
+                if sync_ch
+                    srcRect=[xoffset_Bg(sync_ch) 0 xoffset_Bg(sync_ch) + BG_visiblesize BG_visiblesize];
+                    src2Rect=[xoffset_Ct(sync_ch) 0 xoffset_Ct(sync_ch) + Ct_visiblesize Ct_visiblesize]; 
+                else
+                    srcRect=[xoffset_Bg(c) 0 xoffset_Bg(c) + BG_visiblesize BG_visiblesize];
+                    src2Rect=[xoffset_Ct(c) 0 xoffset_Ct(c) + Ct_visiblesize Ct_visiblesize];
+                end
 
-                % Draw grating texture, rotated by "angle":
+                % Draw grating texture
                 if FLAG_BG_TEXTURE
                     Screen('DrawTexture', w, gratingtexBg, srcRect, dstRect, angleBG);
                 end
@@ -295,6 +307,11 @@ try
         
     end % for loop
     
+    % ex struct
+    str = datestr(tdatetime('now'), 'yyyymmdd_HHMMSS');
+    assignin(ws, ['ex_jitter_',str], ex);
+    
+    
     % black screen
     Screen('FillRect', w, 0);
     Screen('Flip', w, 0);
@@ -326,6 +343,8 @@ function p =  ParseInput(varargin)
     addParamValue(p,'random_repeat', true, @(x) islogical(x));
     addParamValue(p,'color_Mask', [0 1 1], @(x) isnumeric(x));
     addParamValue(p,'seed', 1, @(x) isnumeric(x));
+    addParamValue(p,'sync_to_ch', 2, @(x) isnumeric(x));
+    addParamValue(p,'background', true, @(x) islogical(x));
      
     % Call the parse method of the object to read and validate each argument in the schema:
     p.parse(varargin{:});

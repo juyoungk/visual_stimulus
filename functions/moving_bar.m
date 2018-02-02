@@ -3,7 +3,7 @@ function moving_bar(varargin)
 %
 % 2017 1001 Juyoung Kim
 % 
-
+commandwindow
 p = ParseInput(varargin{:});
 %
 bar_width = p.Results.barWidth;
@@ -87,9 +87,11 @@ switch bar_color
     otherwise
 end
 
-imgMat = zeros(visiblesize, visiblesize, 3);
-imgMat(:,:,2) = bar; 
-bartex=Screen('MakeTexture', w, imgMat, [], 1);
+% imgMat = zeros(visiblesize, visiblesize, 3);
+% imgMat(:,:,2) = bar; 
+% bartex=Screen('MakeTexture', w, imgMat, [], 1);
+
+bartex=Screen('MakeTexture', w, bar, [], 1);
 
 % Query duration of monitor refresh interval:
 ifi=Screen('GetFlipInterval', w);

@@ -19,7 +19,6 @@ end
 [windowSizeX, windowSizeY] = Screen('WindowSize', w);
 
 %
-%pd = DefinePD(w);
 [pd, pd_color] = DefinePD_shift(w);
 
 % text color
@@ -38,10 +37,11 @@ KbName('UnifyKeyNames');
 % Keyboard start or wait for an external trigger
 KbWait(-1, 2); 
 % 'deviceNumber' = -1 --> all keyboards
-%      'forwhat' = 2 --> wait until all keys are released, 
+%      'forwhat' =  2 --> wait until all keys are released, 
 %                       then for the first keypress, then it will return.
 [~, ~, c]=KbCheck;
 YorN=find(c); keybuffer = max(vec(c));
+
 % flush the buffer
 while ( keybuffer )
     [~, ~, c]=KbCheck;
