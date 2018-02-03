@@ -14,17 +14,17 @@ debug = 0;
 %% Test screen (increasing disc?)
 testscreen_colors;
 %% test flash
-flash_annulus_stims('radius', 2400, 'color', [0 1 1], 'halfPeriodSecs', 1, 'Ncycle', 30);
+flash_annulus_stims('radius', 1250, 'color', [0 1 1], 'halfPeriodSecs', 1, 'Ncycle', 30);
 
 %% flash (center only)
-flash_annulus_stims('radius', 600, 'color', [0 1 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
+flash_annulus_stims('radius', 300, 'color', [0 1 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
 %% flash (full-field)
-flash_annulus_stims('radius', 2400, 'color', [0 1 0], 'halfPeriodSecs', 2, 'Ncycle', 20);
+flash_annulus_stims('radius', 2200, 'color', [0 1 0], 'halfPeriodSecs', 2, 'Ncycle', 20);
 
     %% flash (full-field)
-    flash_annulus_stims('radius', 2400, 'color', [0 1 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
+    flash_annulus_stims('radius', 1200, 'color', [0 1 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
     %% flash (full-field)
-    flash_annulus_stims('radius', 2400, 'color', [0 0 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
+    flash_annulus_stims('radius', 1200, 'color', [0 0 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
 
     
 %% Global/Differential motion to compute avg motion feature (UV or Blue)

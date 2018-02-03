@@ -20,7 +20,7 @@ debug_exp = true;
 try
 
   % Construct an experimental structure array
-  ex = initexptstruct();
+  ex = initexptstruct(debug);
 
   % Initialize the keyboard
   ex = initkb(ex);

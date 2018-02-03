@@ -31,7 +31,7 @@ InitializeMatlabOpenGL;
 
 % Juyoung option 
 ex.disp.nominal_frate = Screen('NominalFrameRate', ex.disp.screen);
-if any([ex.disp.nominal_frate == 0, ex.disp.screen ==0])
+if any([ex.disp.nominal_frate == 0, ex.disp.screen ==0, ex.debug==1])
     Screen('Preference', 'SkipSyncTests',1);
     Screen('Preference', 'VisualDebugLevel', 3);
     ex.disp.ifi=0.01176568031;

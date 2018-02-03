@@ -1,4 +1,4 @@
-function ex = initexptstruct()
+function ex = initexptstruct(debug)
 %
 % FUNCTION ex = initexptstruct()
 %
@@ -12,3 +12,6 @@ ex = struct('stim', {[]}, 'disp', {[]}, 'key', {[]}, 'me', {[]});
 
 % store the date
 ex.today = datestr(now, 'yy-mm-dd');
+
+% debug state
+ex.debug = debug;

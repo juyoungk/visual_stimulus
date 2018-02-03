@@ -41,7 +41,7 @@ function [pixelsX] = PIXELS_PER_100_MICRONS(varargin)
             pixelsX = 20;
         case '2P_new_rig_Olympus_10x'
             pixelsX = 11.7; % 1 px ~ 8.485 um
-            pixelsX = 20; % 1 px ~ 8.485 um
+            %pixelsX = 20; % 1 px ~ 8.485 um
         case '2P_new_rig_Olympus_4x'
             pixelsX = 4.7; % 1 px ~ 21.2 um
         case 'test'    
