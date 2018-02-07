@@ -11,11 +11,11 @@ function ex = initdisp(ex, x0, y0, varargin)
 % 28 Apr 2015 - removed check for alternate display
 
 % Feb 07 2018 - input arguments for offset position
+%               Screen number search for lowest resolution
 
 if nargin <2
     x0 = 0;
     y0 = 0;
-    
 elseif nargin <3
     y0 = 0;
     disp(['Stim Rect is offset by x0 = ', num2str(x0), ' um. No offset for y.']);
@@ -29,7 +29,20 @@ ex.disp.offset_y_um = y0;
 AssertOpenGL;
 
 % Get the screen numer
-ex.disp.screen = max(Screen('Screens'));
+%ex.disp.screen = max(Screen('Screens'));
+n = length(Screen('Screens'));
+resolutions = cell(1, n);
+cur_display_Res_width = 100000000;
+for i = 1:n
+    resolutions{i} = Screen('resolution', i-1);
+    if resolutions{i}.width < cur_display_Res_width
+        cur_display_Res_width = resolutions{i}.width;
+        % pick screen number whose resolution is the lowest among
+        % others.
+        ex.disp.screen = i-1;
+    end
+end
+disp(['Screen number = ', num2str(ex.disp.screen)]);
 
 % Colors
 ex.disp.white = WhiteIndex(ex.disp.screen);

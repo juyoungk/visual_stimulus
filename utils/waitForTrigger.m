@@ -16,7 +16,8 @@ x = 0.45*xsize;
 y = 0.42*ysize;
 
 %% arm the trigger
-Screen('DrawText', ex.disp.winptr, 'Press spacebar to arm trigger ... ', ...
+Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 0 0 1]);
+Screen('DrawText', ex.disp.winptr, 'Press ''spacebar'' to arm trigger ... ', ...
 	x, y, ex.disp.white);
 ex.disp.vbl = Screen('Flip', ex.disp.winptr);
 while ~ex.key.keycode(ex.key.space) && ~ex.key.keycode(ex.key.esc)
@@ -27,7 +28,7 @@ end
 
 %% wait for trigger
 if any(strcmp('m', {'m', 'manual'})) % ??? always true?
-	Screen('DrawText', ex.disp.winptr, 'Waiting for experimenter trigger (t) ... ', ...
+	Screen('DrawText', ex.disp.winptr, 'Press ''t'' for experimenter trigger  ... ', ...
 		x, y, ex.disp.white);
 	Screen('FillOval', ex.disp.winptr, ex.disp.black, ex.disp.pdrect);
 	Screen('Flip', ex.disp.winptr);
@@ -46,3 +47,4 @@ end
 
 %% hide the cursor to start the experiment
 %HideCursor;
+Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 1 1 1]);

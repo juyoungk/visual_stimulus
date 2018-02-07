@@ -10,6 +10,7 @@ bar_width = p.Results.barWidth;
 bar_speed = p.Results.barSpeed;
 bar_color = p.Results.barColor;
 N_repeats = p.Results.N_repeat;
+c_mask = p.Results.c_mask;
 
 % bar sweep size
 visiblesize = 128;        % Size of the grating image. Needs to be a power of two.
@@ -125,6 +126,7 @@ while(i_cycle <= N_repeats)
    % Draw grating texture: Only show subarea 'srcRect', center texture in
    % the onscreen window automatically:
    %Screen('DrawTexture', w, gratingtex, srcRect);
+   Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_mask 1]);
    Screen('DrawTexture', w, bartex, srcRect);
    
    % Flip 'waitframes' monitor refresh intervals after last redraw.
@@ -140,20 +142,21 @@ while(i_cycle <= N_repeats)
    % Abort demo if any key is pressed:
    if KbCheck
       break;
-   end;
+   end
    
    % Shift the grating by "shiftperframe" pixels per frame:
    xoffset = xoffset - shiftperframe;
    
    if xoffset < -(visiblesize-bar_width)
        
+       Screen('Blendfunction', w, GL_ONE, GL_ZERO, [1 0 0 1]);
        xoffset = 0; % set to same position
        Screen('FillOval', w, pd_color, pd);
        
        i_cycle = i_cycle +1;
    end
    
-end;
+end
 
 % The same commands wich close onscreen and offscreen windows also close
 % textures.
@@ -169,7 +172,7 @@ function p =  ParseInput(varargin)
     addParamValue(p,'barWidth', 150, @(x)x>=0);
     addParamValue(p,'barSpeed', 1.4, @(x)x>=0);
     addParamValue(p,'c_channels', 2, @(x) ismatrix(x)); % index for color channesl. e.g. 2 or [2, 3]
-    
+    addParamValue(p,'c_mask', [0 1 1], @(x) isvector(x));
     addParamValue(p,'barColor', 'dark', @(x) strcmp(x,'dark') || ...
         strcmp(x,'white'));
      

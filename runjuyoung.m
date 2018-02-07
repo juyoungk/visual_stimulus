@@ -27,7 +27,7 @@ try
 
   % Initalize the visual display
   ex.disp.bgcol = 0; % specify bg color here
-  ex = initdisp(ex, 1000, 0);
+  ex = initdisp(ex, 1000, 300);
   
   % wait for trigger
   ex = waitForTrigger(ex);
