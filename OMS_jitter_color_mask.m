@@ -58,7 +58,7 @@ try
     w = screen.w;
 
     % Calculate parameters of the grating:
-    p = ceil(1/f) % pixels/one cycle (= wavelength), rounded up.~2*Bipolar cell RF
+    p = ceil(1/f); % pixels/one cycle (= wavelength), rounded up.~2*Bipolar cell RF
     fr = f*2*pi;   % pahse per one pixel
     
     BG_visiblesize=2*TexBgSize_Half+1;
@@ -129,8 +129,6 @@ try
     FEM_Ct = randi(S1, 3, tot_framesN, 3)-2;
     FEM_Ct = round(randn(S1, tot_framesN, 3)*var); % variance = 1; up to 3 color channels.
     FEM_Bg = circshift(FEM_Ct, round(tot_framesN/2.));
-    
-    FEM_Ct(1:20, 2)
     
     % Identity matrix for color channel selection.
     c_array = eye(3);

@@ -83,7 +83,6 @@ function ex = naturalscene(ex, replay)
   
   % write_mask
   c_mask = me.c_mask
-  %c_mask = [0 1 0];
   Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [c_mask 1]);
   
   % scale factor: larger patch, gradual jitter
@@ -99,7 +98,7 @@ function ex = naturalscene(ex, replay)
     % pick a new image and a new start point (x0, y0)
     if mod(fi, me.jumpevery) == 1
       i = randi(rs, numimages);
-      img = rescale(images{i});
+         img = rescale(images{i});
       xstart = randi(rs, size(img,1) - 2*me.ndims(1)) + me.ndims(1);
       ystart = randi(rs, size(img,2) - 2*me.ndims(2)) + me.ndims(2);
     % jitter
@@ -109,8 +108,7 @@ function ex = naturalscene(ex, replay)
     end
     % get the new image patch (or frame)
     frame = 2 * img(xstart:(xstart + me.ndims(1) - 1), ystart:(ystart + me.ndims(2) - 1)) * me.contrast + (1 - me.contrast);
-    % downsampling (more natural fixational eye movement with same
-    % variance)
+    % downsampling (more natural fixational eye movement with same variance)
     frame = imresize(frame, s_factor, 'bilinear');
     
     %

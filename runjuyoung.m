@@ -15,19 +15,19 @@ addpath('functions/')
 addpath('HelperFunctions/')
 
 % turn the `debug` flag on when testing
-debug_exp = true;
+debug_exp = false;
 
 try
 
   % Construct an experimental structure array
-  ex = initexptstruct(debug);
+  ex = initexptstruct(debug_exp);
 
   % Initialize the keyboard
   ex = initkb(ex);
 
   % Initalize the visual display
   ex.disp.bgcol = 0; % specify bg color here
-  ex = initdisp(ex);
+  ex = initdisp(ex, 1000, 0);
   
   % wait for trigger
   ex = waitForTrigger(ex);

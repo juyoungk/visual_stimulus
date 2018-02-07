@@ -1,4 +1,4 @@
-function ex = initdisp(ex)
+function ex = initdisp(ex, x0, y0, varargin)
 %
 % FUNCTION ex = initdisp(ex)
 %
@@ -9,6 +9,21 @@ function ex = initdisp(ex)
 %
 % 27 Feb 2015 - added check for background color in 'ex' struct
 % 28 Apr 2015 - removed check for alternate display
+
+% Feb 07 2018 - input arguments for offset position
+
+if nargin <2
+    x0 = 0;
+    y0 = 0;
+    
+elseif nargin <3
+    y0 = 0;
+    disp(['Stim Rect is offset by x0 = ', num2str(x0), ' um. No offset for y.']);
+else
+    disp(['Stim Rect is offset by x0 = ', num2str(x0), ' um, y0 = ', num2str(y0), ' um']);
+end
+ex.disp.offset_x_um = x0;
+ex.disp.offset_y_um = y0;
 
 % Make sure PTB is working, hide the on screen cursor
 AssertOpenGL;
@@ -79,12 +94,14 @@ ex.disp.pdrect  = CenterRectOnPoint(ex.disp.pdsize, ...
 ex.disp.umperpix = 100 / 4.7;
 ex.disp.pix_per_100um = PIXELS_PER_100_MICRONS;
 
-% the destination rectangle
+% the destination rectangle: size and offset
 aperturesize = 2.5 % mm
 ex.disp.aperturesize = aperturesize*10*PIXELS_PER_100_MICRONS;                 	% Size of stimulus aperture
+ex.disp.offset_x = (x0/100) * PIXELS_PER_100_MICRONS;
+ex.disp.offset_y = (y0/100) * PIXELS_PER_100_MICRONS;
 ex.disp.dstrect      = CenterRectOnPoint(...	% Stimulus destination rectangle
   [0 0 ex.disp.aperturesize ex.disp.aperturesize], ...
-  ex.disp.winctr(1), ex.disp.winctr(2));
+  ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
 
 % missed flips
 ex.disp.missedflips = [];

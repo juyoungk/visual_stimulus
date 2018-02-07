@@ -1,0 +1,16 @@
+[
+  {
+  "function": "naturalmovie",
+  "moviedir": "../database/matfiles/fish_2xds/",  
+  "movext": "*.mat",
+  "seed": 9,
+  "length": 20,
+  "framerate": 30,
+  "contrast": 1,
+  "ndims": [200,200],
+  "scale": 0.5,
+  "jitter_var": 0.5,   
+  "jumpevery": 90,
+  "c_mask": [0, 1, 1]
+  }
+]

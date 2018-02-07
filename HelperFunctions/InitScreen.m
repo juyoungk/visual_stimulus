@@ -1,4 +1,4 @@
-function screen = InitScreen(debugging, width, height, rate, varargin)
+function screen = InitScreen(debugging, varargin)
     % Initializes the Screen.
     % Return 'screen' variable which contains various infos.
     % debugging 1 = test mode. Ignore timing and resolution setting.
@@ -45,12 +45,12 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
         screen.rate = 100; % why 100??
         screen.ifi=(0.03322955)/2.;
         %[screen.w screen.rect] = Screen('OpenWindow',screen.screenNumber, backColor, [10 10 1000 1000]);
-        [screen.w screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, bg_color, [10 10 1024 778]);
+        [screen.w, screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, bg_color, [10 10 1024 778]);
     elseif debugging ==1
         Screen('Preference', 'SkipSyncTests',1);
         Screen('Preference', 'VisualDebugLevel', 3);
         %[screen.w screen.rect]=Screen('OpenWindow',screen.screenNumber, backColor, [10 10 1000 1000]);
-        [screen.w screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, bg_color, [0 10 1024 778]);
+        [screen.w, screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, bg_color, [0 10 1024 778]);
         screen.ifi=Screen('GetFlipInterval', screen.w);
         Priority(1);
     else
@@ -62,12 +62,18 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
         PsychImaging('AddTask', 'General', 'UseFastOffscreenWindows');
         PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
         % Open the window, fullscreen is default
-        [screen.w screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, bg_color);
+        [screen.w, screen.rect] = PsychImaging('OpenWindow', screen.screenNumber, bg_color);
 
         screen.ifi=Screen('GetFlipInterval', screen.w);
         %HideCursor();
         Priority(1);
     end
+    screen.winctr = screen.rect(3:4) ./ 2;
+    % offset x, y
+    x0 = (p.Results.x_offset/100)*PIXELS_PER_100_MICRONS
+    y0 = (p.Results.y_offset/100)*PIXELS_PER_100_MICRONS
+    screen.rect = OffsetRect(screen.rect, x0, y0);
+    
     % refresh interval of the monitor
     %screen.waitframes = round(.033*screen.rate);
     
@@ -101,7 +107,6 @@ function screen = InitScreen(debugging, width, height, rate, varargin)
     % Nominal-rate-optimized stimulus flip interval (not rate)
     screen.frameTime = screen.ifi * screen.framesPerFlip;
     
-    
     %if mod(screen.rate,2)
     %    answer = questdlg(['Screen Rate is a non (', num2str(screen.rate), ...
     %        'Hz). Do you want to continue or abort?'], 'Frame Rate', 'Abort', 'Continue', 'Abort');
@@ -122,7 +127,9 @@ function p = ParseInput(varargin)
     p  = inputParser;   % Create an instance of the inputParser class.
 
     % Gabor parameters
-    p.addParamValue('bg_color', 0, @(x) x>=0 && x<=255); %gray
+    p.addParamValue('bg_color', 0, @(x) isvector(x)); %gray
+    p.addParamValue('x_offset', 800, @(x) isnumeric(x));
+    p.addParamValue('y_offset', 300, @(x) isnumeric(x));
     p.addParameter('stimFrameInterval', 0.033, @(x)x>=0);
     % 
     p.parse(varargin{:});

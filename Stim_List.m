@@ -7,9 +7,9 @@ debug = 0;
 % screen initialization -> bg color and pd setting
 % pd
 % background
-
-
-
+% offset location? 
+    % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen
+    
 
 %% Test screen (increasing disc?)
 testscreen_colors;
@@ -31,7 +31,6 @@ flash_annulus_stims('radius', 2200, 'color', [0 1 0], 'halfPeriodSecs', 2, 'Ncyc
 % Normally distributed jitter sequence. (default variance = 0.5) 
 % press 'q' to jump to next session. Not Arrows (rotation)
 OMS_jitter_color_mask('seed', 1, 'sDuration', 10, 'N_repeats', 20, 'random_repeat', true, 'color_Mask', [0 1 0]); % 10 min (sDuration x 2 x N_repeats)
-%OMS_jitter_color_mask('seed', 1, 'sDuration', 10, 'N_repeats', 20, 'random_repeat', true, 'color_Mask', [0 0 1]); % 10 min (sDuration x 2 x N_repeats)
 %% UV and Blue
 OMS_jitter_color_mask('seed', 1, 'sDuration', 10, 'N_repeats', 20, 'random_repeat', true, 'color_Mask', [0 1 1], 'sync_to_ch', 2); % 10 min (sDuration x 2 x N_repeats)
 %%
@@ -40,11 +39,7 @@ OMS_jitter_color_mask('seed', 1, 'sDuration', 10, 'N_repeats', 20, 'random_repea
 %%
 runjuyoung;
 
-
-
 % 10x objective lens for stim?? and calibration
-
-
 %% Moving Bar
 % % a bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). 
 % % Johnston and Lagnado 2016
