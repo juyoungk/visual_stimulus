@@ -10,13 +10,13 @@
     ],
     "dist": "binary",
     "contrast": 1,
-    "c_mask": [0, 1, 1]
+    "c_mask": [0, 1, 0]
   },
   {
     "function": "naturalscene",
     "imgdir": "../database/images/",
     "imgext": "*.mat",
-    "c_mask": [0, 1, 1],
+    "c_mask": [0, 1, 0],
     "length": 30,  
     "ndims": [
         100, 
@@ -41,6 +41,6 @@
   "scale": 0.5,
   "jitter_var": 0.5,   
   "jumpevery": 90,
-  "c_mask": [0, 1, 1]
+  "c_mask": [0, 1, 0]
   }
 ]

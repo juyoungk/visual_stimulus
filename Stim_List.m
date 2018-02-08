@@ -8,12 +8,10 @@ debug = 0;
 % pd
 % background
 % offset location? 
-    % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen
-    
-
+    % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen    
 %% Test screen (increasing disc?)
 testscreen_colors;
-%% test flash
+%% Test
 flash_annulus_stims('radius', 1200, 'color', [0 1 1], 'halfPeriodSecs', 1, 'Ncycle', 30);
 
 %% flash (center only)
@@ -26,15 +24,14 @@ flash_annulus_stims('radius', 1200, 'color', [0 1 0], 'halfPeriodSecs', 2, 'Ncyc
     %% flash (full-field)
     flash_annulus_stims('radius', 1200, 'color', [0 0 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
 
-    
 %% Global/Differential motion to compute avg motion feature (UV or Blue)
 % Normally distributed jitter sequence. (default variance = 0.5) 
 % press 'q' to jump to next session. Not Arrows (rotation)
-OMS_jitter_color_mask('seed', 1, 'sDuration', 10, 'N_repeats', 20, 'random_repeat', true, 'color_Mask', [0 1 0]); % 10 min (sDuration x 2 x N_repeats)
+OMS_jitter_color_mask('seed', 1, 'sDuration', 10, 'N_repeats', 10, 'random_repeat', true, 'color_Mask', [0 1 0]); % 10 min (sDuration x 2 x N_repeats)
 %% UV and Blue
 OMS_jitter_color_mask('seed', 1, 'sDuration', 10, 'N_repeats', 20, 'random_repeat', true, 'color_Mask', [0 1 1], 'sync_to_ch', 2); % 10 min (sDuration x 2 x N_repeats)
 %%
-OMS_jitter_color_mask('seed', 1, 'sDuration', 10, 'N_repeats', 20, 'random_repeat', true, 'color_Mask', [0 1 1], 'sync_to_ch', 2, 'background', false); % 10 min (sDuration x 2 x N_repeats)
+OMS_jitter_color_mask('seed', 1, 'sDuration', 10, 'N_repeats', 20, 'random_repeat', true, 'color_Mask', [0 1 0], 'sync_to_ch', 2, 'background', false); % 10 min (sDuration x 2 x N_repeats)
 
 %%
 commandwindow
@@ -45,10 +42,9 @@ runjuyoung;
 % % a bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). 
 % % Johnston and Lagnado 2016
 % Only UV (2) color cahnnels
-moving_bar('barColor', 'white', 'c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 20); 
+moving_bar('barColor', 'white', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 20); 
 %%
-moving_bar('barColor',  'dark', 'c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 20);
-
+moving_bar('barColor',  'dark', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 20);
 
 
 %% RF 1: 60 um checkers
