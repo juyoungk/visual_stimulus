@@ -11,18 +11,29 @@ debug = 0;
     % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen    
 %% Test screen (increasing disc?)
 testscreen_colors;
+%%
+testscreen_annulus;
 %% Test
 flash_annulus_stims('radius', 1200, 'color', [0 1 1], 'halfPeriodSecs', 1, 'Ncycle', 30);
 
 %% flash (center only)
-flash_annulus_stims('radius', 300, 'color', [0 1 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
+flash_annulus_stims('radius', 300, 'color', [0 1 1], 'halfPeriodSecs', 2.5, 'Ncycle', 20);
+flash_annulus_stims('radius', 300, 'color', [0 1 0], 'halfPeriodSecs', 2.5, 'Ncycle', 20);
 %% flash (full-field)
 flash_annulus_stims('radius', 1200, 'color', [0 1 0], 'halfPeriodSecs', 2, 'Ncycle', 20);
 
-    %% flash (full-field)
+    %% flash (full-field) - all color
     flash_annulus_stims('radius', 1200, 'color', [0 1 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
-    %% flash (full-field)
+    %% flash (full-field) - blue
     flash_annulus_stims('radius', 1200, 'color', [0 0 1], 'halfPeriodSecs', 2, 'Ncycle', 20);
+
+%% Moving Bar
+% % a bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). 
+% % Johnston and Lagnado 2016
+% Only UV (2) color cahnnels
+moving_bar('barColor', 'white', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 20); 
+%%
+moving_bar('barColor',  'dark', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 20);
 
 %% Global/Differential motion to compute avg motion feature (UV or Blue)
 % Normally distributed jitter sequence. (default variance = 0.5) 
@@ -38,14 +49,6 @@ commandwindow
 runjuyoung;
 
 % 10x objective lens for stim?? and calibration
-%% Moving Bar
-% % a bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). 
-% % Johnston and Lagnado 2016
-% Only UV (2) color cahnnels
-moving_bar('barColor', 'white', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 20); 
-%%
-moving_bar('barColor',  'dark', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 20);
-
 
 %% RF 1: 60 um checkers
 stimRF_60 = RF_Juyoung('movieDurationSecs', (60*15), ... % 15 min
