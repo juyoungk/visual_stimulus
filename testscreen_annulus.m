@@ -1,6 +1,9 @@
 function screen = testscreen_annulus(debug, intensity_factor)
 % intensity calibration? max duty rate (= max intensity)
 % scan intensity
+commandwindow % Change focus to command window
+addpath('HelperFunctions/')
+addpath('functions/')
 
 if nargin == 0 
     debug =0;
