@@ -25,8 +25,9 @@ try
   % Initialize the keyboard
   ex = initkb(ex);
 
-  % Initalize the visual display
-  ex.disp.bgcol = 0; % specify bg color here
+  % bg color
+  ex.disp.bgcol = 0; 
+  % Initalize the visual display w/ offset position
   ex = initdisp(ex, 1000, 300);
   
   % wait for trigger
