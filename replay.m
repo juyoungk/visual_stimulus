@@ -24,7 +24,8 @@ fname = 'stimulus.h5'; %fullfile(expanduser('~/Desktop/'), datestr(now, 'mmddyy'
 for stimidx = 1:length(expt.stim)
 
   % pull out the function and parameters
-  stim = expt.stim{stimidx};
+  %stim = expt.stim{stimidx};
+  stim = expt.stim(stimidx); % 18-02-25 JKim
   me = stim.params;
   stim.params.gray = expt.disp.gray;
   fields = fieldnames(me);

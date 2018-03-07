@@ -62,7 +62,9 @@ function ex = whitenoise(ex, replay)
   
   % write_mask
   c_mask = me.c_mask;
-  Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [c_mask 1]);
+  if ~replay
+    Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [c_mask 1]);
+  end
   
   % loop over frames
   for fi = 1:numframes
