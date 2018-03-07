@@ -20,8 +20,8 @@ commandwindow % Change focus to command window
 drawmask_BG=0; % if it is 0, BG would become square. 
 %
 HalfPeriod = 60; % um; (~RF size of BP)
-StimSize_Ct = 650; % um
-StimSize_BG = 2.5; % mm
+StimSize_Ct = 600; % um
+StimSize_BG = 1.2; % mm
 
 % jitter parameters
 % Max speed?
@@ -43,6 +43,7 @@ seed = p.Results.seed;
 c_mask = p.Results.color_Mask;
 sync_ch = p.Results.sync_to_ch;
 FLAG_BG_TEXTURE = p.Results.background; 
+c_intensity = p.Results.c_intensity;
 
 w_grating = Pixel_for_Micron(HalfPeriod);
 w_Annulus = Pixel_for_Micron(HalfPeriod);
@@ -52,9 +53,9 @@ f=1/Pixel_for_Micron(2*HalfPeriod); % spatial frequency in px
 
 try
     screen = InitScreen(0, 'bg_color', [0 0 0]);
-    white = screen.white;
+    white = round(screen.white * c_intensity);
     black = screen.black;
-    gray = screen.gray;
+    gray = round((white+black)/2.);
     w = screen.w;
 
     % Calculate parameters of the grating:
@@ -306,7 +307,7 @@ try
     end % for loop
     
     % ex struct
-    str = datestr(tdatetime('now'), 'yyyymmdd_HHMMSS');
+    str = datestr(datetime('now'), 'yyyymmdd_HHMMSS');
     assignin(ws, ['ex_jitter_',str], ex);
     
     
@@ -343,6 +344,7 @@ function p =  ParseInput(varargin)
     addParamValue(p,'seed', 1, @(x) isnumeric(x));
     addParamValue(p,'sync_to_ch', 2, @(x) isnumeric(x));
     addParamValue(p,'background', true, @(x) islogical(x));
+    addParamValue(p,'c_intensity', 1, @(x) isnumeric(x));
      
     % Call the parse method of the object to read and validate each argument in the schema:
     p.parse(varargin{:});

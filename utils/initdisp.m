@@ -45,9 +45,9 @@ end
 disp(['Screen number = ', num2str(ex.disp.screen)]);
 
 % Colors
-ex.disp.white = WhiteIndex(ex.disp.screen);
-ex.disp.black = BlackIndex(ex.disp.screen);
-ex.disp.gray  = (ex.disp.white + ex.disp.black) / 2;
+ex.disp.white = round(WhiteIndex(ex.disp.screen) * 0.7)
+ex.disp.black = BlackIndex(ex.disp.screen)
+ex.disp.gray  = round((ex.disp.white + ex.disp.black) / 2);
 
 % Check 'ex' struct for background color
 if ~isfield(ex.disp, 'bgcol')
@@ -108,7 +108,7 @@ ex.disp.umperpix = 100 / 4.7;
 ex.disp.pix_per_100um = PIXELS_PER_100_MICRONS;
 
 % the destination rectangle: size and offset
-aperturesize = 2.5 % mm
+aperturesize = 1.2 % mm
 ex.disp.aperturesize = aperturesize*10*PIXELS_PER_100_MICRONS;                 	% Size of stimulus aperture
 ex.disp.offset_x = (x0/100) * PIXELS_PER_100_MICRONS;
 ex.disp.offset_y = (y0/100) * PIXELS_PER_100_MICRONS;

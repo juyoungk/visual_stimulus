@@ -13,7 +13,7 @@ N_repeats = p.Results.N_repeat;
 c_mask = p.Results.c_mask;
 
 % bar sweep size
-visiblesize = 128;        % Size of the grating image. Needs to be a power of two.
+visiblesize = 64;        % Size of the grating image. Needs to be a power of two.
 %
 bar_width = Pixel_for_Micron(bar_width);
 speed_in_Pixels = Pixel_for_Micron(bar_speed*1000);
@@ -71,7 +71,8 @@ inc=white-gray;
 % and memory bandwith, ie. it is potentially faster on some GPUs.
 
 x = meshgrid(1:visiblesize, 1:visiblesize);
-white_bar = gray + inc*(x <= bar_width);
+%white_bar = gray + inc*(x <= bar_width);
+white_bar = white*(x <= bar_width);
 dark_bar = gray*(x > bar_width);
 
 
@@ -121,13 +122,13 @@ Screen('FillOval', w, pd_color, pd);
 while(i_cycle <= N_repeats)   
    % Define shifted srcRect that cuts out the properly shifted rectangular
    % area from the texture:
-   srcRect=[xoffset 0 xoffset + visiblesize visiblesize];
-
+   srcRect = [xoffset 0 xoffset + visiblesize visiblesize];
+   dstRect = RectForScreen(screen, visiblesize, visiblesize, 0, 0);
    % Draw grating texture: Only show subarea 'srcRect', center texture in
    % the onscreen window automatically:
    %Screen('DrawTexture', w, gratingtex, srcRect);
    Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_mask 1]);
-   Screen('DrawTexture', w, bartex, srcRect);
+   Screen('DrawTexture', w, bartex, srcRect, dstRect);
    
    % Flip 'waitframes' monitor refresh intervals after last redraw.
    [vbl, ~, ~, missed] = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
@@ -148,6 +149,8 @@ while(i_cycle <= N_repeats)
    xoffset = xoffset - shiftperframe;
    
    if xoffset < -(visiblesize-bar_width)
+       
+       pause(1);
        
        Screen('Blendfunction', w, GL_ONE, GL_ZERO, [1 0 0 1]);
        xoffset = 0; % set to same position

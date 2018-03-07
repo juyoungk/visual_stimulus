@@ -28,7 +28,7 @@ disp(['screen.black = ',num2str(screen.black)]);
     boxL_um = 50; %unit: um
     boxL = Pixel_for_Micron(boxL_um);  %um to pixels
     
-    N = 10; % determines the stim size
+    N = 40; % determines the stim size
     pd_shift_from_center = 2.5; % mm
     stimsize = Pixel_for_Micron(boxL_um*N);
     
@@ -37,6 +37,7 @@ disp(['screen.black = ',num2str(screen.black)]);
     disp(['Pixel N for ', num2str(boxL_um*N), ' um =  ', num2str(stimsize), ' px']);
     
 % Define the obj Destination Rectangle
+% center the obj to screen.rect which was shifted by xo, yo
 objRect = RectForScreen(screen,stimsize,stimsize,0,0);
 box     = RectForScreen(screen,stimsize,stimsize,0,0);
 % pd rect

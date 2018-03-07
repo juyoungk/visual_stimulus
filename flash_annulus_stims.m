@@ -19,7 +19,7 @@ try
     Screen('FillRect', screen.w, screen.bg_color);
     %
     color_mask = p.Results.color;
-    OnColor = color_mask * screen.white;
+    OnColor = color_mask * screen.white/2.;
     OffColor = color_mask * screen.black; 
     bgColor = color_mask * screen.black;
  
@@ -46,6 +46,7 @@ try
     % stimulus 1: Simple dot flash with increasing radius (Measure the surround inhibition)
     %WaitStartKeyTrigger(screen, 'TEXT', 'Dot stimulus', 'posX', 0.75*screen.sizeX);
     WaitStartKey(screen.w, 'expName', 'Dot stimulus');
+    % centered at screen.rect
     [vbl, log] = DotFlashStim(screen, vbl, halfperiod, Ncycle, centerX, centerY, radiusDot, OnColor, OffColor);    
  
     % stimulus 4: Nonlinear spatial summation (X)

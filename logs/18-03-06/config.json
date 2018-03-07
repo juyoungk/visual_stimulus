@@ -1,0 +1,15 @@
+[
+  {
+    "framerate": 20,
+    "seed": 1,
+    "function": "whitenoise",
+    "length": 10,
+    "ndims": [
+      24,
+      1
+    ],
+    "dist": "binary",
+    "contrast": 1,
+    "c_mask": [0, 1, 0]
+  }
+]

@@ -9,11 +9,12 @@
 %
 % 28 Apr 2015 - initial version
 commandwindow
+%%
 addpath('jsonlab/')
 addpath('utils/')
 addpath('functions/')
 addpath('HelperFunctions/')
-
+%%
 % turn the `debug` flag on when testing
 debug_exp = false;
 

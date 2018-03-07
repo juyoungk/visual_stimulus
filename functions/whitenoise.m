@@ -43,9 +43,10 @@ function ex = whitenoise(ex, replay)
     if me.framerate > ex.disp.frate
         error('Your monitor does not support a frame rate higher than %i Hz', ex.disp.frate);
     end
-    flipsPerFrame = round(ex.disp.frate / me.framerate);
+    flipsPerFrame = round(ex.disp.frate / me.framerate)
     ex.stim{end}.framerate = 1 / (flipsPerFrame * ex.disp.ifi);
     flipint = ex.disp.ifi * (flipsPerFrame - 0.25);
+    pd_period = round(ex.stim{end}.framerate); % frames per second
 
     % store the number of frames
     numframes = ceil((me.length * 60) * ex.stim{end}.framerate);
@@ -99,9 +100,9 @@ function ex = whitenoise(ex, replay)
       % update the photodiode with the top left pixel
       if fi == 1
         pd = ex.disp.pd_color;
-      elseif mod(fi, 30) == 1
+      elseif mod(fi, pd_period) == 1
         pd = ex.disp.pd_color * 0.5;
-      else
+      else  
         pd = 0;
       end
       Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 0 0 1]);
