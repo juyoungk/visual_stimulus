@@ -28,8 +28,7 @@ moving_bar('barColor', 'dark', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1
 moving_bar('barColor',  'white', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 24);
 
 %%
-% intensity factor = 0.7 @ initdisp
-commandwindow
+% intensity factor = 0.7 @ initdisp (0306 2018)
 runjuyoung;
 
 %% Global/Differential motion to compute avg motion feature (UV or Blue)
@@ -38,9 +37,12 @@ runjuyoung;
 OMS_jitter_color_mask('seed', 1, 'sDuration', 15, 'N_repeats', 5, 'random_repeat', true, 'color_Mask', [0 1 0], 'c_intensity', 0.7); % 2.5 min (sDuration x 2 x N_repeats)
 %%
 OMS_jitter_color_mask('seed', 1, 'sDuration', 15, 'N_repeats', 5, 'random_repeat', true, 'color_Mask', [0 1 0], 'background', false, 'c_intensity', 0.7); % 2.5 min (sDuration x 2 x N_repeats)
-%% UV and Blue
 %OMS_jitter_color_mask('seed', 1, 'sDuration', 10, 'N_repeats', 20, 'random_repeat', true, 'color_Mask', [0 1 1], 'sync_to_ch', 2); % 10 min (sDuration x 2 x N_repeats)
 
+%%
+replay % for runjuyoung
+
+%%
 % 10x objective lens for stim?? and calibration
 
 %% RF 1: 60 um checkers
