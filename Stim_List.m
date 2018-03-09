@@ -4,8 +4,6 @@ addpath('functions/')
 % common parameters for all stimuli
 debug = 0;
 % screen initialization -> bg color and pd setting
-% pd
-% background
 % offset location? 
     % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen    
 %% Test screen (increasing disc?)
@@ -23,10 +21,9 @@ flash_annulus_stims('radius', 600, 'color', [0 1 0], 'halfPeriodSecs', 2.5, 'Ncy
 % % a bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). 
 % % Johnston and Lagnado 2016
 % stim size: 64 px ~ 1300 um
-moving_bar('barColor', 'dark', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 24); 
+moving_bar('barColor','dark', 'c_mask', [0 1 0], 'barWidth',150, 'barSpeed', 1.4, 'N_repeat', 24); 
 %%
-moving_bar('barColor',  'white', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 24);
-
+moving_bar('barColor','white','c_mask', [0 1 0], 'barWidth',150, 'barSpeed', 1.4, 'N_repeat', 24);
 %%
 % intensity factor = 0.7 @ initdisp (0306 2018)
 runjuyoung;
@@ -38,7 +35,6 @@ OMS_jitter_color_mask('seed', 1, 'sDuration', 15, 'N_repeats', 5, 'random_repeat
 %%
 OMS_jitter_color_mask('seed', 1, 'sDuration', 15, 'N_repeats', 5, 'random_repeat', true, 'color_Mask', [0 1 0], 'background', false, 'c_intensity', 0.7); % 2.5 min (sDuration x 2 x N_repeats)
 %OMS_jitter_color_mask('seed', 1, 'sDuration', 10, 'N_repeats', 20, 'random_repeat', true, 'color_Mask', [0 1 1], 'sync_to_ch', 2); % 10 min (sDuration x 2 x N_repeats)
-
 %%
 replay % for runjuyoung
 

@@ -308,7 +308,7 @@ try
     
     % ex struct
     str = datestr(datetime('now'), 'yyyymmdd_HHMMSS');
-    assignin(ws, ['ex_jitter_',str], ex);
+    assignin(WS, ['ex_jitter_',str], ex);
     
     
     % black screen

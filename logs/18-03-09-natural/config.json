@@ -1,0 +1,32 @@
+[
+   {
+    "framerate": 20,    
+    "function": "naturalscene",
+    "imgdir": "../database/images/",
+    "imgext": "*.mat",
+    "c_mask": [0, 1, 0],
+    "length": 10,  
+    "ndims": [
+        100, 
+        100
+    ],
+    "scale": 0.5,
+    "jitter_var": 0.5,
+    "jumpevery": 40,
+    "seed": 100,  
+    "contrast": 1
+  },
+  {
+    "framerate": 20,
+    "seed": 1,
+    "function": "whitenoise",
+    "length": 10,
+    "ndims": [
+      24,
+      1
+    ],
+    "dist": "binary",
+    "contrast": 1,
+    "c_mask": [0, 1, 0]
+  }
+]
