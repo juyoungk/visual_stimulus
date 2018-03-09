@@ -83,9 +83,11 @@ switch bar_color
     case 'white'
         bar = white_bar;
         %bartex=Screen('MakeTexture', w, white_bar, [], 1); % specialFlag =1 means size should be power of 2.
+        bgtex = Screen('MakeTexture', w, black, [], 1);
     case 'dark'
         bar = dark_bar;
         %bartex=Screen('MakeTexture', w, dark_bar, [], 1);
+        bgtex = Screen('MakeTexture', w, gray, [], 1);
     otherwise
 end
 
@@ -94,6 +96,7 @@ end
 % bartex=Screen('MakeTexture', w, imgMat, [], 1);
 
 bartex=Screen('MakeTexture', w, bar, [], 1);
+
 
 % Query duration of monitor refresh interval:
 ifi=Screen('GetFlipInterval', w);
@@ -118,6 +121,10 @@ WaitStartKey(w, 'expName', ['Moving bar (', bar_color, ')']);
 i_cycle = 1;
 Screen('FillOval', w, pd_color, pd);
 
+%
+rot_angle=0;
+inc_angle=90;
+
 % Animationloop:
 while(i_cycle <= N_repeats)   
    % Define shifted srcRect that cuts out the properly shifted rectangular
@@ -128,7 +135,7 @@ while(i_cycle <= N_repeats)
    % the onscreen window automatically:
    %Screen('DrawTexture', w, gratingtex, srcRect);
    Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_mask 1]);
-   Screen('DrawTexture', w, bartex, srcRect, dstRect);
+   Screen('DrawTexture', w, bartex, srcRect, dstRect, rot_angle);
    
    % Flip 'waitframes' monitor refresh intervals after last redraw.
    [vbl, ~, ~, missed] = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
@@ -149,14 +156,22 @@ while(i_cycle <= N_repeats)
    xoffset = xoffset - shiftperframe;
    
    if xoffset < -(visiblesize-bar_width)
+        % blank gray frame
+        Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_mask 1]);
+        Screen('DrawTexture', w, bgtex, srcRect, dstRect, rot_angle);
+        vbl = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
+   
+        % prepare next cycle    
+        xoffset = 0; % set to same position
+        rot_angle = rot_angle + inc_angle;
+        
+        % pd draw
+        Screen('Blendfunction', w, GL_ONE, GL_ZERO, [1 0 0 1]);
+        Screen('FillOval', w, pd_color, pd);
+
+        i_cycle = i_cycle +1; % increase cycle number.
        
        pause(1);
-       
-       Screen('Blendfunction', w, GL_ONE, GL_ZERO, [1 0 0 1]);
-       xoffset = 0; % set to same position
-       Screen('FillOval', w, pd_color, pd);
-       
-       i_cycle = i_cycle +1;
    end
    
 end

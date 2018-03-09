@@ -23,9 +23,9 @@ flash_annulus_stims('radius', 600, 'color', [0 1 0], 'halfPeriodSecs', 2.5, 'Ncy
 % % a bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). 
 % % Johnston and Lagnado 2016
 % stim size: 64 px ~ 1300 um
-moving_bar('barColor', 'dark', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 20); 
+moving_bar('barColor', 'dark', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 24); 
 %%
-moving_bar('barColor',  'white', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 20);
+moving_bar('barColor',  'white', 'c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'N_repeat', 24);
 
 %%
 % intensity factor = 0.7 @ initdisp
