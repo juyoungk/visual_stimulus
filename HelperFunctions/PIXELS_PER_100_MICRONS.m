@@ -1,4 +1,4 @@
-function [pixelsX] = PIXELS_PER_100_MICRONS(varargin)
+function [pixelsX] = PIXELS_PER_100_MICRONS(rig_Name)
     % -- Pablo
     % Return how many pixels are equivalent to 100 microns on the retina.
     % This is done by measuring the square size that matches a known object
@@ -12,11 +12,16 @@ function [pixelsX] = PIXELS_PER_100_MICRONS(varargin)
     % magnification.
     % Add the imaging parameter.
 
-    p=ParseInput(varargin{:});
+    %p=ParseInput(varargin{:});
+    
+    if nargin < 1
+        rig_Name = '2P_new_rig_Olympus_4x';
+    end
+    
     % 
     [width height] = Screen('WindowSize', max(Screen('Screens')));
     
-    switch p.Results.imaging
+    switch rig_Name
         case 'D239rig'
             switch width
                 case 640
@@ -47,18 +52,18 @@ function [pixelsX] = PIXELS_PER_100_MICRONS(varargin)
         case 'test'    
             pixelsX = 20;
     end
-    fprintf('screen size [width]: %d, imaged by %s, 100 um = %d pixels\n', width, p.Results.imaging, pixelsX);       
+    fprintf('screen size [width]: %d, imaged by %s, 100 um = %d pixels\n', width, rig_Name, pixelsX);       
 end
 
-function p =  ParseInput(varargin)
-    p  = inputParser;   % Create an instance of the inputParser class.
-    
-    p.addParameter('imaging', '2P_new_rig_Olympus_4x', @(x) strcmp(x,'D239rig') || ...
-        strcmp(x,'2P_rig_Nikon_10x') || strcmp(x,'2P_rig_Leica_25x') || ...
-        strcmp(x,'2P_new_rig_Olympus_10x') || strcmp(x,'2P_new_rig_Olympus_4x') || ...
-        strcmp(x,'test'));
-    
-    % p.addParameter('objective', '2P_rig_Leica_25x', @(x) ischar(x));
-    %
-    p.parse(varargin{:});
-end
+% function p =  ParseInput(varargin)
+%     p  = inputParser;   % Create an instance of the inputParser class.
+%     
+%     p.addParameter('imaging', '2P_new_rig_Olympus_4x', @(x) strcmp(x,'D239rig') || ...
+%         strcmp(x,'2P_rig_Nikon_10x') || strcmp(x,'2P_rig_Leica_25x') || ...
+%         strcmp(x,'2P_new_rig_Olympus_10x') || strcmp(x,'2P_new_rig_Olympus_4x') || ...
+%         strcmp(x,'test'));
+%     
+%     % p.addParameter('objective', '2P_rig_Leica_25x', @(x) ischar(x));
+%     %
+%     p.parse(varargin{:});
+% end

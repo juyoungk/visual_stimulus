@@ -107,6 +107,7 @@ function ex = naturalscene(ex, replay)
       ystart = max(min(size(img,2) - me.ndims(2), ystart + round(jitter_amp * randn(rs, 1))), 1);
     end
     % get the new image patch (or frame)
+    % * gray at MakeTexture
     frame = 2 * img(xstart:(xstart + me.ndims(1) - 1), ystart:(ystart + me.ndims(2) - 1)) * me.contrast + (1 - me.contrast);
     % downsampling (more natural fixational eye movement with same variance)
     frame = imresize(frame, s_factor, 'bilinear');

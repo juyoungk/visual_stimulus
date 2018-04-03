@@ -19,4 +19,4 @@ key.t     = KbName('t');
 % Initialize KbCheck and return
 [key.keydown, key.secs, key.keycode] = KbCheck(-1);
 key.keydown = 0;
-ex.key      = key
+ex.key      = key;

@@ -45,8 +45,8 @@ end
 disp(['Screen number = ', num2str(ex.disp.screen)]);
 
 % Colors
-ex.disp.white = round(WhiteIndex(ex.disp.screen) * 0.7)
-ex.disp.black = BlackIndex(ex.disp.screen)
+ex.disp.white = round(WhiteIndex(ex.disp.screen));
+ex.disp.black = BlackIndex(ex.disp.screen);
 ex.disp.gray  = round((ex.disp.white + ex.disp.black) / 2);
 
 % Check 'ex' struct for background color
@@ -66,6 +66,8 @@ if any([ex.disp.nominal_frate == 0, ex.disp.screen ==0, ex.debug==1])
     %[ex.disp.w ex.disp.rect]=Screen('OpenWindow', ex.disp.screen, backColor, [10 10 1000 1000]);
     [ex.disp.winptr, ex.disp.winrect] = PsychImaging('OpenWindow', ...
                         ex.disp.screen, ex.disp.bgcol,[0 10 1024 778]);
+    rig_Name = 'test';                
+     
 else
     %HideCursor;
     Screen('Preference', 'VisualDebugLevel', 3);
@@ -76,6 +78,7 @@ else
     % Open the window, fullscreen is default
     [ex.disp.winptr, ex.disp.winrect] = PsychImaging('OpenWindow', ...
   ex.disp.screen, ex.disp.bgcol);
+    rig_Name = '2P_new_rig_Olympus_4x';
 end
 oldtxtsize = Screen('TextSize', ex.disp.winptr, 10);
 
@@ -105,14 +108,14 @@ ex.disp.pdrect  = CenterRectOnPoint(ex.disp.pdsize, ...
 
 % Microns per pixel
 ex.disp.umperpix = 100 / 4.7;
-ex.disp.pix_per_100um = PIXELS_PER_100_MICRONS;
+ex.disp.pix_per_100um = PIXELS_PER_100_MICRONS(rig_Name);
 
 % the destination rectangle: size and offset
-aperturesize = 1.2 % mm
+aperturesize = 2.4 % mm
 ex.disp.aperturesize_mm = aperturesize;                 	% Size of stimulus aperture
-ex.disp.aperturesize    = aperturesize*10*PIXELS_PER_100_MICRONS;                 	% Size of stimulus aperture
-ex.disp.offset_x = (x0/100) * PIXELS_PER_100_MICRONS;
-ex.disp.offset_y = (y0/100) * PIXELS_PER_100_MICRONS;
+ex.disp.aperturesize    = aperturesize*10*PIXELS_PER_100_MICRONS(rig_Name);                 	% Size of stimulus aperture
+ex.disp.offset_x = (x0/100) * PIXELS_PER_100_MICRONS(rig_Name);
+ex.disp.offset_y = (y0/100) * PIXELS_PER_100_MICRONS(rig_Name);
 ex.disp.dstrect      = CenterRectOnPoint(...	% Stimulus destination rectangle
   [0 0 ex.disp.aperturesize ex.disp.aperturesize], ...
   ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
@@ -120,3 +123,22 @@ ex.disp.dstrect      = CenterRectOnPoint(...	% Stimulus destination rectangle
 % missed flips
 ex.disp.missedflips = [];
 ex.disp.missed = 0;
+end
+
+
+function p =  ParseInput(varargin)
+    
+    p  = inputParser;   % Create an instance of the inputParser class.
+    
+    addParamValue(p,'N_repeat', 20, @(x)x>=0);
+    addParamValue(p,'barWidth', 150, @(x)x>=0);
+    addParamValue(p,'barSpeed', 1.4, @(x)x>=0);
+    addParamValue(p,'c_channels', 2, @(x) ismatrix(x)); % index for color channesl. e.g. 2 or [2, 3]
+    addParamValue(p,'c_mask', [0 1 1], @(x) isvector(x));
+    addParamValue(p,'barColor', 'dark', @(x) strcmp(x,'dark') || ...
+        strcmp(x,'white'));
+     
+    % Call the parse method of the object to read and validate each argument in the schema:
+    p.parse(varargin{:});
+    
+end

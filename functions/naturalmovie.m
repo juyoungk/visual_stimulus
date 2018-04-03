@@ -86,42 +86,50 @@ function ex = naturalmovie(ex, replay)
   % jitter amp
   jitter_amp = me.jitter_var/s_factor; 
   
+  
+  % movie index
+  i_mov = 1;
+  
   % loop over frames
   for fi = 1:numframes
     
-    % pick a new image
     if mod(fi, me.jumpevery) == 1
-      mov = movies{randi(rs, nummovies)};
-      % start frame somewhere in the movie, but so late that clip ends prematurely
-      current_frame = randi(rs, size(mov,1)-me.jumpevery);
-      % keep one movie frame
-      img = squeeze(mov(current_frame,:,:));
-        % img = mov(current_frame).cdata;
-        
-      %img = mov(current_frame,:,:);
-      size(img)
-      % select just a part of the frame
-      xstart = randi(rs, size(img,1) - me.ndims(1));
-      ystart = randi(rs, size(img,2) - me.ndims(2));
-      % increase frame by one
-      current_frame = current_frame + 1;
-    % jitter
-    else
-      % keep one movie frame
-      img = squeeze(mov(current_frame,:,:));
-      %img = mov(current_frame,:,:);
-      % select just a part of the frame
-      xstart = max(min(size(img,1) - me.ndims(1), xstart + round(jitter_amp * randn(rs, 1))), 1);
-      ystart = max(min(size(img,2) - me.ndims(2), ystart + round(jitter_amp * randn(rs, 1))), 1);
-      % increase frame by one
-      current_frame = current_frame + 1;
+    %% Saccade: pick a new image
+          
+          mov = movies{randi(rs, nummovies)};
+          %mov = movies{i};
+          
+          % start frame somewhere in the movie, but so late that clip ends prematurely
+          current_frame = randi(rs, size(mov,1)-me.jumpevery);
+          % keep one movie frame
+          img = squeeze(mov(current_frame,:,:));
+            % img = mov(current_frame).cdata;
+
+          %img = mov(current_frame,:,:);
+          
+          % select just a part of the frame
+          xstart = randi(rs, size(img,1) - me.ndims(1));
+          ystart = randi(rs, size(img,2) - me.ndims(2));
+          % increase frame by one
+          current_frame = current_frame + 1;
+          
+    else 
+    %% Next frame (with jitter)
+          % keep one movie frame
+          img = squeeze(mov(current_frame,:,:));
+          %img = mov(current_frame,:,:);
+          % select just a part of the frame
+          xstart = max(min(size(img,1) - me.ndims(1), xstart + round(jitter_amp * randn(rs, 1))), 1);
+          ystart = max(min(size(img,2) - me.ndims(2), ystart + round(jitter_amp * randn(rs, 1))), 1);
+          % increase frame by one
+          current_frame = current_frame + 1;
     end
     
     % get the new frame
     frame = img(xstart:(xstart + me.ndims(1) - 1), ystart:(ystart + me.ndims(2) - 1)) * me.contrast + (1 - me.contrast) * ex.disp.gray;
     % downsampling (more natural fixational eye movement with same variance)
     frame = imresize(frame, s_factor, 'bilinear');
-    assignin('base','frameFromMovie',frame)
+    %assignin('base','frameFromMovie',frame)
     
     if replay
       % write the frame to the hdf5 file
