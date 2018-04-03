@@ -109,7 +109,8 @@ ex.disp.pix_per_100um = PIXELS_PER_100_MICRONS;
 
 % the destination rectangle: size and offset
 aperturesize = 1.2 % mm
-ex.disp.aperturesize = aperturesize*10*PIXELS_PER_100_MICRONS;                 	% Size of stimulus aperture
+ex.disp.aperturesize_mm = aperturesize;                 	% Size of stimulus aperture
+ex.disp.aperturesize    = aperturesize*10*PIXELS_PER_100_MICRONS;                 	% Size of stimulus aperture
 ex.disp.offset_x = (x0/100) * PIXELS_PER_100_MICRONS;
 ex.disp.offset_y = (y0/100) * PIXELS_PER_100_MICRONS;
 ex.disp.dstrect      = CenterRectOnPoint(...	% Stimulus destination rectangle

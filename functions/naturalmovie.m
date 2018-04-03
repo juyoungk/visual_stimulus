@@ -55,7 +55,7 @@ function ex = naturalmovie(ex, replay)
     Screen('FillOval', ex.disp.winptr, 0, ex.disp.pdrect);
     vbl = Screen('Flip', ex.disp.winptr, vbl + flipint);
 
-    % store the number of frames
+    % store the number of frames (set by duraion)
     numframes = ceil((me.length * 60) * ex.stim{end}.framerate);
     ex.stim{end}.numframes = numframes;
     
@@ -96,6 +96,8 @@ function ex = naturalmovie(ex, replay)
       current_frame = randi(rs, size(mov,1)-me.jumpevery);
       % keep one movie frame
       img = squeeze(mov(current_frame,:,:));
+        % img = mov(current_frame).cdata;
+        
       %img = mov(current_frame,:,:);
       size(img)
       % select just a part of the frame
@@ -128,7 +130,8 @@ function ex = naturalmovie(ex, replay)
       % make the texture
       texid = Screen('MakeTexture', ex.disp.winptr, frame);
       % draw the texture, then kill it
-      Screen('DrawTexture', ex.disp.winptr, texid, [], ex.disp.dstrect, 0, 0);
+      % winptr: win pointer. dstrect can define the actual size.
+      Screen('DrawTexture', ex.disp.winptr, texid, [], ex.disp.dstrect, 0, 0); 
       Screen('Close', texid);
       
       % update the photodiode with the top left pixel on the first frame
