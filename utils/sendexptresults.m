@@ -37,16 +37,18 @@ else
       %frametime = 1 / (ex.disp.ifi*ex.stim{stimidx}.params.waitframes); % 1001 Juyoung
       
       % fraction of missed flips
-      mu = mean(abs(diff(ex.stim{stimidx}.timestamps) - frametime) > tol);
-      
-      if mu > 0
-          flipStr = [flipStr, '\n', ...
-                     sprintf('(%i) %s \t\t %.2f of flips were missed.\n', ...
-                              stimidx, ex.stim{stimidx}.function, mu)];
-      else
-          flipStr = [flipStr, '\n', ...
-                     sprintf('(%i) %s\t\tNo flips missed.\n', ...
-                              stimidx, ex.stim{stimidx}.function)];
+      if isfield(ex.stim{stimidx}, 'timestamps')
+              mu = mean(abs(diff(ex.stim{stimidx}.timestamps) - frametime) > tol);
+
+              if mu > 0
+                  flipStr = [flipStr, '\n', ...
+                             sprintf('(%i) %s \t\t %.2f of flips were missed.\n', ...
+                                      stimidx, ex.stim{stimidx}.function, mu)];
+              else
+                  flipStr = [flipStr, '\n', ...
+                             sprintf('(%i) %s\t\tNo flips missed.\n', ...
+                                      stimidx, ex.stim{stimidx}.function)];
+              end
       end
   end
 

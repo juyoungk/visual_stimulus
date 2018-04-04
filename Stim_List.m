@@ -19,25 +19,28 @@ testscreen_annulus;
 % BG mode: 0 - No t BG, 1 - Checkers (same pattern as center)
 % BG size = aperture size.
 stim =[];
-stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 0], 'half_period', 1., 'cycle', 1, 'phase', 0, 'delay', 0);
-stim(2) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 1], 'half_period', 1., 'cycle', 1, 'phase', 0, 'delay', 0);
-stim(3) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', 1., 'cycle', 1, 'phase', 0, 'delay', 0);
-% RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
-stim(4) = struct('ndims',[12, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', 1., 'cycle', 2, 'phase', 0, 'delay', 0);
-stim(5) = struct('ndims',[25, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', 1., 'cycle', 2, 'phase', 0, 'delay', 0);
-% global and diff step stimulus
-%stim(6) = struct('ndims',[1,25], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', 2., 'cycle', 2, 'phase', 0, 'delay', 0);
-%stim(7) = struct('ndims',[1,25], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', 2., 'cycle', 2, 'phase', 0, 'delay', 0.5);
-%stim(2) = struct('ndims', [10,10], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 1], 'half_period', 0.5, 'cycle', 2, 'phase', 0);
-%stim(9) = struct('ndims', [10,10], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 0], 'half_period', 0.5, 'cycle', 2, 'phase', 0);
+    % half period
+      hp_flash = 1.;
+    hp_grating = 1.;
+stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 0], 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
+stim(2) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 1], 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
+stim(3) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
+% % RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
+stim(4) = struct('ndims',[24, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(5) = struct('ndims',[12, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(6) = struct('ndims',[12, 1], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+% diff motion
+stim(7) = struct('ndims',[12, 1], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
+%stim(8) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
+
 %
 n_repeats = 1;
 %
-ex_fov = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
+ex_typing = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
  
 %%
 i = i + 1; % FOV (or ex) index
-ex_fov(i) = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
+ex_typing(i) = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
 
 
 %% Whitenoise and natural movie stimulus

@@ -4,9 +4,10 @@ function ex = stims_repeat(stim, n_repeats)
         n_repeats = 5;
     end
     debug_exp = false;
+    % default conditions
     gray_margin = 0.2;
-    
-    numStim = numel(stim);
+    framerate = 30;
+    stim_ifi = 1/framerate;
     
     commandwindow
     try
@@ -24,7 +25,12 @@ function ex = stims_repeat(stim, n_repeats)
           ex = waitForTrigger(ex);
           
           % save stim info
-          ex.stim = stim;
+          numStim = numel(stim);
+          ex.stim = cell(1,numStim);
+          for e=1:numStim
+            ex.stim{e} = stim(e);
+            ex.stim{e}.framerate = framerate;
+          end
          
           % initialize the VBL timestamp
           vbl = GetSecs();
@@ -34,6 +40,9 @@ function ex = stims_repeat(stim, n_repeats)
                 for k = 1:numStim
                     % current stim
                     s = stim(k);
+                    if isempty(s.ndims)
+                        continue;
+                    end
                     % dims
                     L = s.sizeCenter * 1000 * ex.disp.pix_per_um;
                     L_gray = (s.sizeCenter + gray_margin)*1000*ex.disp.pix_per_um;
@@ -80,21 +89,20 @@ function ex = stims_repeat(stim, n_repeats)
 %                           end
                     for kk =1:s.cycle
                         
-                        N = 16; % phase step;
-                        shift_ct = 1:N < (round(N/2.));
-                        shift_bg = circshift(shift_ct, round(s.delay*N));
+                        frames_per_period = round(framerate * s.half_period * 2); % phase step;
+                        shift_ct = 1:frames_per_period > (round(frames_per_period/2.));
+                        shift_bg = circshift(shift_ct, round(s.delay*frames_per_period));
                         
-                        for i_phase = 1:N 
+                        for fi = 1:frames_per_period 
                               
                               if nx > 1
-                                  src_rect_bg = [shift_bg(i_phase) 0 nx_bg + shift_bg(i_phase)  ny_bg];
-                                  src_rect_ct = [shift_ct(i_phase) 0    nx + shift_ct(i_phase)  ny   ];
+                                  src_rect_bg = [shift_bg(fi) 0 nx_bg + shift_bg(fi)  ny_bg];
+                                  src_rect_ct = [shift_ct(fi) 0    nx + shift_ct(fi)  ny   ];
                               else
-                                  src_rect_bg = [1 shift_bg(i_phase) 1+nx_bg  ny_bg + shift_bg(i_phase)];
-                                  src_rect_ct = [1 shift_ct(i_phase) 1+nx     ny    + shift_ct(i_phase)];
+                                  src_rect_bg = [0 shift_bg(fi) nx_bg  ny_bg + shift_bg(fi)];
+                                  src_rect_ct = [0 shift_ct(fi) nx     ny    + shift_ct(fi)];
                               end
                               
-%                               src_rect_ct = [];
                               % draw the texture, then kill it
                               if s.BG
                                   Screen('DrawTexture', ex.disp.winptr, bg_texid, src_rect_bg, ex.disp.dstrect, 0, 0);
@@ -104,7 +112,7 @@ function ex = stims_repeat(stim, n_repeats)
                               %Screen('DrawTexture', ex.disp.winptr, ct_texid, [], ct_dst_rect, 0, 0);
 
                               % photodiode
-                              if i_phase == 1
+                              if fi == 1
                                   pd = ex.disp.pd_color;
                               else
                                   pd = 0;
@@ -115,7 +123,7 @@ function ex = stims_repeat(stim, n_repeats)
 
                               % flip onto the scren
                               Screen('DrawingFinished', ex.disp.winptr);
-                              [vbl, ~, ~, missed] = Screen('Flip', ex.disp.winptr, vbl + s.half_period*2/N - ex.disp.ifi/2.);
+                              [vbl, ~, ~, missed] = Screen('Flip', ex.disp.winptr, vbl + stim_ifi - ex.disp.ifi/2.);
                               
                               if (missed > 0)
                                     % A negative value means that dead- lines have been satisfied.
@@ -134,7 +142,7 @@ function ex = stims_repeat(stim, n_repeats)
                                 error('ESC pressed. Quitting.')
                                 break;
                               end
-                              fi = fi + 1;
+                              
                         end
                     end
                     
@@ -145,6 +153,8 @@ function ex = stims_repeat(stim, n_repeats)
                 
             end
             ex.end = datestr(now, 'HH:MM:SS');
+            ex.duration = ex.end - ex.start
+            %disp(['Total duration of stimulus was ', num2str(ex.duration), ' secs']);
             
           % Check for ESC keypress during the experiment
           ex = checkesc(ex);
@@ -157,7 +167,7 @@ function ex = stims_repeat(stim, n_repeats)
 %         save(fullfile(basedir, 'exlog.mat'), 'ex');
 
         % Send results via Pushover
-        %sendexptresults(ex);
+        sendexptresults(ex);
 
               
     % catch errors
