@@ -13,5 +13,8 @@ ex = struct('stim', {[]}, 'disp', {[]}, 'key', {[]}, 'me', {[]});
 % store the date
 ex.today = datestr(now, 'yy-mm-dd');
 
+% time
+ex.start = datestr(now, 'HH:MM:SS');
+
 % debug state
 ex.debug = debug;

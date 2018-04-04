@@ -132,14 +132,13 @@ function ex = naturalmovie2(ex, replay)
               i_row = max(min(size(img,1) - me.ndims(1), i_row + round(jitter_amp * randn(rs, 1))), 1);
               i_col = max(min(size(img,2) - me.ndims(2), i_col + round(jitter_amp * randn(rs, 1))), 1);
         end
+        % check the end points.
         i_row_end = min(i_row + me.ndims(1) - 1, rows);
         i_col_end = min(i_col + me.ndims(2) - 1, cols);
-        % subpart of the image
         
-        %frame = img(xstart:(xstart + me.ndims(1) - 1), ystart:(ystart + me.ndims(2) - 1)) * me.contrast + (1 - me.contrast) * ex.disp.gray;
-            
+        % subpart of the image
+            %frame = img(xstart:(xstart + me.ndims(1) - 1), ystart:(ystart + me.ndims(2) - 1)) * me.contrast + (1 - me.contrast) * ex.disp.gray;
         % no contrast option.
-       
         frame = img(i_row:i_row_end, i_col:i_col_end,   :);
             
         % downsampling (more natural fixational eye movement with same variance)

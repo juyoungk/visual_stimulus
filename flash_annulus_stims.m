@@ -153,7 +153,7 @@ MyKbQueueInit(); pressed = 0;
 for j=1:length(radius)
     rect = RectForScreen(screen, 2*radius(j), 2*radius(j), centerX, centerY);
     for i=1:2*round(Ncycle)
-        if mod(i,2)==1, 
+        if mod(i,2)==1
             color =OnColor;
             pd_color = pd_color_max*j/length(radius)/2.; 
         else

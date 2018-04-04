@@ -50,7 +50,7 @@ function [pixelsX] = PIXELS_PER_100_MICRONS(rig_Name)
         case '2P_new_rig_Olympus_4x'
             pixelsX = 4.7; % 1 px ~ 21.2 um
         case 'test'    
-            pixelsX = 20;
+            pixelsX = 15;
     end
     fprintf('screen size [width]: %d, imaged by %s, 100 um = %d pixels\n', width, rig_Name, pixelsX);       
 end

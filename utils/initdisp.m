@@ -66,7 +66,7 @@ if any([ex.disp.nominal_frate == 0, ex.disp.screen ==0, ex.debug==1])
     %[ex.disp.w ex.disp.rect]=Screen('OpenWindow', ex.disp.screen, backColor, [10 10 1000 1000]);
     [ex.disp.winptr, ex.disp.winrect] = PsychImaging('OpenWindow', ...
                         ex.disp.screen, ex.disp.bgcol,[0 10 1024 778]);
-    rig_Name = 'test';                
+    ex.rig_Name = 'test';                
      
 else
     %HideCursor;
@@ -77,8 +77,8 @@ else
     PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
     % Open the window, fullscreen is default
     [ex.disp.winptr, ex.disp.winrect] = PsychImaging('OpenWindow', ...
-  ex.disp.screen, ex.disp.bgcol);
-    rig_Name = '2P_new_rig_Olympus_4x';
+        ex.disp.screen, ex.disp.bgcol);
+    ex.rig_Name = '2P_new_rig_Olympus_4x';
 end
 oldtxtsize = Screen('TextSize', ex.disp.winptr, 10);
 
@@ -96,6 +96,12 @@ ex.disp.info   		= Screen('GetWindowInfo', ex.disp.winptr);
 Screen('TextFont', ex.disp.winptr, 'Helvetica');
 Screen('TextSize', ex.disp.winptr, 24);
 
+% Microns per pixel
+%ex.disp.umperpix = 100 / 4.7;
+ex.disp.pix_per_100um = PIXELS_PER_100_MICRONS(ex.rig_Name);
+ex.disp.pix_per_um = ex.disp.pix_per_100um/100.;
+ex.disp.umperpix = 1./ex.disp.pix_per_um;
+
 % Describe photodiode
 ex.disp.pdscale = 0.9;					% Scale factor for the photodiode signal
 ex.disp.pdctr   = [0.93 0.15];
@@ -104,18 +110,15 @@ ex.disp.pdrect  = CenterRectOnPoint(ex.disp.pdsize, ...
   ex.disp.winrect(3) * ex.disp.pdctr(1), ...
   ex.disp.winrect(4) * ex.disp.pdctr(2));
 % Juyoung PD setting
-[ex.disp.pdrect, ex.disp.pd_color] = DefinePD_shift(ex.disp.winptr);
-
-% Microns per pixel
-ex.disp.umperpix = 100 / 4.7;
-ex.disp.pix_per_100um = PIXELS_PER_100_MICRONS(rig_Name);
+%[ex.disp.pdrect, ex.disp.pd_color] = DefinePD_shift(ex.disp.winptr);
+[ex.disp.pdrect, ex.disp.pd_color] = DefinePD_shift_ex(ex);
 
 % the destination rectangle: size and offset
-aperturesize = 2.4 % mm
+aperturesize = 1.2 % mm
 ex.disp.aperturesize_mm = aperturesize;                 	% Size of stimulus aperture
-ex.disp.aperturesize    = aperturesize*10*PIXELS_PER_100_MICRONS(rig_Name);                 	% Size of stimulus aperture
-ex.disp.offset_x = (x0/100) * PIXELS_PER_100_MICRONS(rig_Name);
-ex.disp.offset_y = (y0/100) * PIXELS_PER_100_MICRONS(rig_Name);
+ex.disp.aperturesize    = aperturesize*10*PIXELS_PER_100_MICRONS(ex.rig_Name);                 	% Size of stimulus aperture
+ex.disp.offset_x = (x0/100) * PIXELS_PER_100_MICRONS(ex.rig_Name);
+ex.disp.offset_y = (y0/100) * PIXELS_PER_100_MICRONS(ex.rig_Name);
 ex.disp.dstrect      = CenterRectOnPoint(...	% Stimulus destination rectangle
   [0 0 ex.disp.aperturesize ex.disp.aperturesize], ...
   ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);

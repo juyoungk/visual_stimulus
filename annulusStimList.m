@@ -21,7 +21,7 @@ try
     bgColor = screen.gray;
     
     % time & duration parameters
-    pause = 2;
+    pause = 1;
     
     % pause between differnet stimuli
     halfperiod = 0.5 ; % in secs
@@ -50,27 +50,27 @@ try
     Nphase = 4;
     %
     % stimulus 1: Simple dot flash with increasing radius (Measure the surround inhibition)
-    WaitStartKeyTrigger(screen, 'TEXT', 'Dot stimulus', 'posX', 0.7*screen.sizeX);
-    [vbl, log] = DotFlashStim(screen, vbl, halfperiod, Ncycle, centerX, centerY, radiusDot, OnColor, OffColor);    
- 
-    % stimulus 2: Annulus flash with varying radius
-    WaitStartKeyTrigger(screen, 'TEXT', 'Annulus flashes w/o Dot', 'posX', 0.7*screen.sizeX);
-    [vbl, log] = AnnulusFlashStim(screen, vbl+pause, halfperiod, Ncycle, centerX, centerY, radiusAnn, width, OnColor, OffColor, bgColor, 'log', log, ...
-                                'centerDot','No');
-    
-    % stimulus 2-2: Annulus flash with varying radius
-    WaitStartKeyTrigger(screen, 'TEXT', 'Annulus flashes w/ Dot', 'posX', 0.7*screen.sizeX);
-    [vbl, log] = AnnulusFlashStim(screen, vbl+pause, halfperiod, Ncycle, centerX, centerY, radiusAnn, width, OnColor, OffColor, bgColor, 'log', log, ...
-                                'centerDot','Yes');
-    
-    % stimulus 3: Temporal filter for each annulus (peak time vs radius)
-    WaitStartKeyTrigger(screen, 'TEXT', 'Annulus white noise', 'posX', 0.7*screen.sizeX);
-    [vbl, log] = AnnulusBNoiseStim(screen, vbl+pause, contrast, NoiseDuration, stimFrameInterval, seed, centerX, centerY, radiusNoise, widthNoise, 'log', log);
-    
+%     WaitStartKeyTrigger(screen, 'TEXT', 'Dot stimulus', 'posX', 0.7*screen.sizeX);
+%     [vbl, log] = DotFlashStim(screen, vbl, halfperiod, Ncycle, centerX, centerY, radiusDot, OnColor, OffColor);    
+%  
+%     % stimulus 2: Annulus flash with varying radius
+%     WaitStartKeyTrigger(screen, 'TEXT', 'Annulus flashes w/o Dot', 'posX', 0.7*screen.sizeX);
+%     [vbl, log] = AnnulusFlashStim(screen, vbl+pause, halfperiod, Ncycle, centerX, centerY, radiusAnn, width, OnColor, OffColor, bgColor, 'log', log, ...
+%                                 'centerDot','No');
+%     
+%     % stimulus 2-2: Annulus flash with varying radius
+%     WaitStartKeyTrigger(screen, 'TEXT', 'Annulus flashes w/ Dot', 'posX', 0.7*screen.sizeX);
+%     [vbl, log] = AnnulusFlashStim(screen, vbl+pause, halfperiod, Ncycle, centerX, centerY, radiusAnn, width, OnColor, OffColor, bgColor, 'log', log, ...
+%                                 'centerDot','Yes');
+%     
+%     % stimulus 3: Temporal filter for each annulus (peak time vs radius)
+%     WaitStartKeyTrigger(screen, 'TEXT', 'Annulus white noise', 'posX', 0.7*screen.sizeX);
+%     [vbl, log] = AnnulusBNoiseStim(screen, vbl+pause, contrast, NoiseDuration, stimFrameInterval, seed, centerX, centerY, radiusNoise, widthNoise, 'log', log);
+%     
     % stimulus 4: Nonlinear spatial summation (X)
     WaitStartKeyTrigger(screen, 'TEXT', 'Periodic Checkers (X)', 'posX', 0.7*screen.sizeX);
     [vbl, log] = CheckerPeriodicStim(screen, vbl+pause, contrast, halfperiodGrating, Ncycle, centerX, centerY, ...
-                                StimSizeX, StimSizeY, Checker_X, Checker_Y, 0, Nphase, 'log', log);
+                                StimSizeX, StimSizeY, Checker_X, Checker_Y, 0, Nphase); %'log' for log
        
     % stimulus 5: Nonlinear spatial summation (Y)
     %WaitStartKeyTrigger(screen, 'TEXT', 'Periodic Checkers (Y)', 'posX', 0.7*screen.sizeX);

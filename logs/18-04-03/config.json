@@ -12,6 +12,19 @@
     "contrast": 1,
     "c_mask": [0, 1, 1]
    },
+ {
+    "framerate": 20,
+    "seed": 1,
+    "function": "whitenoise",
+    "length": 0.04,
+    "ndims": [
+      1,
+      30
+    ],
+    "dist": "binary",
+    "contrast": 1,
+    "c_mask": [0, 1, 1]
+   },
   {
     "framerate": 30,
     "jumpevery": 30,

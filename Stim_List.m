@@ -1,15 +1,49 @@
-commandwindow % Change focus to command window
+%commandwindow % Change focus to command window
 addpath('HelperFunctions/')
 addpath('functions/')
 % common parameters for all stimuli
 debug = 0;
 % screen initialization -> bg color and pd setting
 % offset location? 
-    % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen    
+    % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen
+% ex_today = datestr(now, 'yy-mm-dd');
+% basedir = fullfile('logs/', ex.today);
+i = 1; % ex or FOV id
 %% Test screen (increasing disc?)
 testscreen_colors;
 %%
 testscreen_annulus;
+
+%% Checkerboard style stim definition (Functional typing)
+% size in mm, period in secs
+% BG mode: 0 - No t BG, 1 - Checkers (same pattern as center)
+% BG size = aperture size.
+stim =[];
+stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 0], 'half_period', 1., 'cycle', 1, 'phase', 0, 'delay', 0);
+stim(2) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 1], 'half_period', 1., 'cycle', 1, 'phase', 0, 'delay', 0);
+stim(3) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', 1., 'cycle', 1, 'phase', 0, 'delay', 0);
+% RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
+stim(4) = struct('ndims',[12, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', 1., 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(5) = struct('ndims',[25, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', 1., 'cycle', 2, 'phase', 0, 'delay', 0);
+% global and diff step stimulus
+%stim(6) = struct('ndims',[1,25], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', 2., 'cycle', 2, 'phase', 0, 'delay', 0);
+%stim(7) = struct('ndims',[1,25], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', 2., 'cycle', 2, 'phase', 0, 'delay', 0.5);
+%stim(2) = struct('ndims', [10,10], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 1], 'half_period', 0.5, 'cycle', 2, 'phase', 0);
+%stim(9) = struct('ndims', [10,10], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 0], 'half_period', 0.5, 'cycle', 2, 'phase', 0);
+%
+n_repeats = 1;
+%
+ex_fov = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
+ 
+%%
+i = i + 1; % FOV (or ex) index
+ex_fov(i) = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
+
+
+%% Whitenoise and natural movie stimulus
+% intensity factor = 0.7 @ initdisp (0306 2018)
+runjuyoung;
+
 
 %% flash (center only)
 flash_annulus_stims('radius', 300, 'color', [0 1 0], 'halfPeriodSecs', 2.5, 'Ncycle', 20);
@@ -24,9 +58,6 @@ flash_annulus_stims('radius', 600, 'color', [0 1 0], 'halfPeriodSecs', 2.5, 'Ncy
 moving_bar('barColor','dark', 'c_mask', [0 1 0], 'barWidth',150, 'barSpeed', 1.4, 'N_repeat', 24); 
 %%
 moving_bar('barColor','white','c_mask', [0 1 0], 'barWidth',150, 'barSpeed', 1.4, 'N_repeat', 24);
-%%
-% intensity factor = 0.7 @ initdisp (0306 2018)
-runjuyoung;
 
 %% Global/Differential motion to compute avg motion feature (UV or Blue)
 % Normally distributed jitter sequence. (default variance = 0.5) 
@@ -41,13 +72,6 @@ replay % for runjuyoung
 %%
 % 10x objective lens for stim?? and calibration
 
-%% RF 1: 60 um checkers
-stimRF_60 = RF_Juyoung('movieDurationSecs', (60*15), ... % 15 min
-                    'checkerSizeXum', 60, ...
-                    'checkerSizeYum', 60, ...
-                    'stimSizeXYum', 2400*[1 1], ...
-                    'c_channels', [0 1 0], ...
-                    'recreation', 'no');
                 
 %% identification OMS g-cells and PA a-cells?
 % differential step stimulus

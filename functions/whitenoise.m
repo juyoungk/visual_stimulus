@@ -78,6 +78,8 @@ function ex = whitenoise(ex, replay)
     elseif strcmp(me.dist, 'binary')
       % true binary would be
       frame = floor(2 * rand(rs, me.ndims)) * me.contrast + (1 - me.contrast);
+    elseif strcmp(me.dist, 'flash')
+     
     else
       error(['Distribution ' me.dist ' not recognized! Must be gaussian or binary.']);
     end
