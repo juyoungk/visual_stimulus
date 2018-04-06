@@ -14,19 +14,35 @@ B = cmf(:, 3);
 R_proj_B = R.'*B/norm(R)/norm(B);
 R_proj_G = R.'*G/norm(R)/norm(G);
 
-%% Open Movie file
-mpath = '/Users/peterfish/Movies';
-vid = VideoReader('Bee_Honet.mp4');
-%vid = VideoReader('Falcon_catch.mp4');
+%% mp4 File list in Movie folder
+moviedir = '/Users/peterfish/Movies/';
+movext   = '*.mp4';
+% movie from files
+files = dir(fullfile(moviedir, movext));
+nummovies = length(files);
+if nummovies < 1
+  error('no movies in designated folder');
+else 
+    for fileidx = 1:nummovies
+        disp([num2str(fileidx), ': ', files(fileidx).name]); 
+    end
+end
+%movies = cell(nummovies, 1);
 
-%%
+%% Open Movie file
+%moviedir = '/Users/peterfish/Movies/';
+%vid = VideoReader([mpath,'Bee_Honet.mp4']);
+id = 5;
+%
+vid = VideoReader([moviedir, files(id).name])
 vidHeight = vid.Height;
 vidWidth = vid.Width;
-tot_numFrame = vid.Duration * vid.FrameRate;
+tot_numFrame = ceil(vid.Duration * vid.FrameRate)
+str_mat = sprintf('mov_%s_f%d.mat', sscanf(vid.Name,'%s.mp4'), tot_numFrame)
 
+mov = [];
 % NOTE: why struct for each frame? Very convinient to append frames. No need
 % to carefully match dimensions. 
-
 mov = struct('cdata',zeros(vidHeight,vidWidth,3,'uint8'),...
 'colormap',[]);
 
@@ -34,7 +50,7 @@ mov = struct('cdata',zeros(vidHeight,vidWidth,3,'uint8'),...
 % appended object.
 
 %% 
-numFrame = 1000;
+numFrame = 10000;
 k = 1;
 while hasFrame(vid)
     mov(k).cdata = readFrame(vid);
@@ -45,21 +61,25 @@ while hasFrame(vid)
     if k == numFrame
         break;
     end
-    
     k = k+1;
 end
 
-%% Color adjust for Mouse cones.
+% Color adjust for Mouse cones.
 % My projector: R-UV-B
 numFrame = numel(mov);
-mov2 = mov;
-mm = zeros(numFrame, vidHeight, vidWidth, 3, 'uint8');
+scaling = 0.5; % 640 x 360
+mm = zeros(numFrame, vidHeight*scaling, vidWidth*scaling, 3, 'uint8');
+mov2 = struct('cdata',zeros(vidHeight*scaling, vidWidth*scaling, 3,'uint8'),...
+'colormap',[]);
 
 for k=1:numFrame
     % Convert to 16-bit integer in case that the sum can be over 255.
-    cdata = uint16(mov2(k).cdata);
-    w_color = zeros(1, 3);
-        
+    %cdata = uint16(mov2(k).cdata);
+    
+    % resize by 0.5
+    cdata = imresize(mov(k).cdata, scaling, 'bilinear');
+    cdata = uint16(cdata);
+    
     % Projection of R channel into B & G spectra
     p_blue = cdata(:,:,3) + R_proj_B * cdata(:,:,1);
     p_green = cdata(:,:,2) + R_proj_G * cdata(:,:,1);
@@ -82,11 +102,12 @@ for k=1:numFrame
     % 4-D structure?
     mm(k, :, :, :) = cdata;
 end
-%%
-save([mpath,'/mov_bee.mat'], 'mm');
+%
+save([moviedir,str_mat], 'mm');
 
 %% Play the movie (movie(M,n,fps))
-hfig = figure('Position', [950, 550, 560, 420]);
+%[rows, cols, ~] = size(mov2(1).cdata)
+hfig = figure('Position', [950, 550, 640, 360]);       
     hfig.Color = 'none';
     hfig.PaperPositionMode = 'auto';
     hfig.InvertHardcopy = 'off';   

@@ -48,7 +48,11 @@ try
     ex.stim{stimidx}.params = rmfield(stimuli{stimidx}, 'function');
     
     % run this stimulus
-    eval(['ex = ' ex.stim{stimidx}.function '(ex, false);']);
+    if strcmp(ex.stim{stimidx}.function, 'naturalmovie2')
+        eval(['ex = ' ex.stim{stimidx}.function '(ex, false, movies);']);
+    else
+        eval(['ex = ' ex.stim{stimidx}.function '(ex, false);']);
+    end
     
     % intermediate screen btw functions
     if stimidx < length(stimuli)

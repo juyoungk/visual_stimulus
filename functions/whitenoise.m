@@ -46,7 +46,7 @@ function ex = whitenoise(ex, replay)
     flipsPerFrame = round(ex.disp.frate / me.framerate)
     ex.stim{end}.framerate = 1 / (flipsPerFrame * ex.disp.ifi);
     flipint = ex.disp.ifi * (flipsPerFrame - 0.25);
-    pd_period = round(ex.stim{end}.framerate); % frames per second
+    pd_period = round(ex.stim{end}.framerate); % every second.
 
     % store the number of frames
     numframes = ceil((me.length * 60) * ex.stim{end}.framerate);
@@ -105,7 +105,7 @@ function ex = whitenoise(ex, replay)
       if fi == 1
         pd = ex.disp.pd_color;
       elseif mod(fi, pd_period) == 1
-        pd = ex.disp.pd_color * 0.5;
+        pd = ex.disp.pd_color * 0.3;
       else  
         pd = 0;
       end

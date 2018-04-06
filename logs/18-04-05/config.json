@@ -25,19 +25,22 @@
     "contrast": 1,
     "c_mask": [0, 1, 1]
    },
+
   {
     "framerate": 30,
-    "jumpevery": 30,
+    "jumpevery": 45,
+    "length": 0.5,
     "function": "naturalmovie2",
     "moviedir": "/Users/peterfish/Movies/",
-    "_moviedir": "../database/matfiles/fish_2xds/",  
+    "_moviedir": "../database/matfiles/fish_2xds/",
+    "movext": "*.mat",  
+
         "_comment1": "it will open all MAT files.",
         "_comment2": "[frames, rows, cols, channels(3)]",
-    "movext": "*.mat",
+
     "seed": 9,
-    "length": 15,
     "contrast": 1,
-    "ndims": [256,256],
+    "ndims": [128,128],
     "scale": 0.5,
     "jitter_var": 0.5,   
     "c_mask": [0, 1, 1],
