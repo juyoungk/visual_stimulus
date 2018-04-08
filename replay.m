@@ -49,7 +49,9 @@ for stimidx = 1:length(expt.stim)
       if ~isfield(me, 'ndims')
           me.ndims = [50 50];
       else
-          me.ndims = me.ndims * me.scale;
+          % scaling only for first 2 dimensions (rows & cols)
+          me.ndims(1) = me.ndims(1) * me.scale;
+          me.ndims(2) = me.ndims(2) * me.scale;
       end
 
       % store the stimulus pixel values
@@ -59,14 +61,18 @@ for stimidx = 1:length(expt.stim)
 
       % REPLAY: h5write at stim.filename.
       % pass 'stim' instead of 'ex'.
-      if strcmp(stim.function, 'naturalmovie2')
-        h5create(fname, [group '/stim'], [me.ndims, 3, stim.numframes], 'Datatype', 'uint8');
-        %h5create(fname, [group '/stim'], [me.ndims, 3, stim.numframes], 'Datatype', 'uint8');
-        eval(['ex = ' stim.function '(stim, true, movies);']);
-      else
-        h5create(fname, [group '/stim'], [me.ndims, stim.numframes], 'Datatype', 'uint8');
+      h5create(fname, [group '/stim'], [me.ndims, stim.numframes], 'Datatype', 'uint8');
         eval(['ex = ' stim.function '(stim, true);']);
-      end
+      
+% 
+%       if strcmp(stim.function, 'naturalmovie2')
+%         h5create(fname, [group '/stim'], [me.ndims, 3, stim.numframes], 'Datatype', 'uint8');
+%         %h5create(fname, [group '/stim'], [me.ndims, 3, stim.numframes], 'Datatype', 'uint8');
+%         eval(['ex = ' stim.function '(stim, true, movies);']);
+%       else
+%         h5create(fname, [group '/stim'], [me.ndims, stim.numframes], 'Datatype', 'uint8');
+%         eval(['ex = ' stim.function '(stim, true);']);
+%       end
 
       % store the timestamps
       h5create(fname, [group '/timestamps'], stim.numframes);

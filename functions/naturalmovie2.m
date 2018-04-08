@@ -115,7 +115,10 @@ function ex = naturalmovie2(ex, replay, movies)
   
   % scale factor: larger patch, gradual jitter
   s_factor = me.scale;
-  
+  ndims_scaled = me.ndims;
+  ndims_scaled(1) = me.ndims(1) * s_factor;
+  ndims_scaled(2) = me.ndims(2) * s_factor;
+  Ndims = size(me.ndims, 2);
   
   % jitter amp
   jitter_amp = me.jitter_var/s_factor; 
@@ -181,9 +184,8 @@ function ex = naturalmovie2(ex, replay, movies)
           % write the frame to the hdf5 file
           % mask effect
           frame = uint8(color_weight(frame, c_mask));
-          %h5write(ex.filename, [ex.group '/stim'], frame, [1, 1, ti], [me.ndims*s_factor, 3]); 
-          %h5write(ex.filename, [ex.group '/stim'], frame, [ti, 1, 1, 1], [me.ndims*s_factor, 3, 1]);
-          h5write(ex.filename, [ex.group '/stim'], frame, [1, 1, 1, ti], [me.ndims*s_factor, 3, 1]);
+          %h5write(ex.filename, [ex.group '/stim'], frame, [1, 1, 1, ti], [me.ndims*s_factor, 3, 1]);
+          h5write(ex.filename, [ex.group '/stim'], frame, [ones(1, Ndims), ti], [ndims_scaled, 1]);
         else
           % make the texture
           texid = Screen('MakeTexture', ex.disp.winptr, frame);

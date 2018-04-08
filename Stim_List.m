@@ -2,6 +2,8 @@
 %moviedir = '../database/matfiles/fish_2xds/';
 moviedir = '/Users/peterfish/Movies/';
 movext   = '*.mat';
+%movies = getMovFiles(moviedir, movext);
+
 % movie from files
 files = dir(fullfile(moviedir, movext));
 nummovies = length(files);
@@ -48,7 +50,6 @@ stim(6) = struct('ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 0], '
 stim(7) = struct('ndims',[12, 1], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
 stim(8) = struct('ndims',[12, 1], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
 %stim(8) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
-
 %
 n_repeats = 1;
 %
@@ -59,10 +60,11 @@ ex_typing(i) = stims_repeat(stim, n_repeats); % + options % save the stim in log
 
 %% Whitenoise and natural movie stimulus
 % intensity factor = 0.7 @ initdisp (0306 2018)
+% Aperture size??
 runjuyoung;
 
 %% flash (center only)
-flash_annulus_stims('radius', 300, 'color', [0 1 0], 'halfPeriodSecs', 2.5, 'Ncycle', 20);
+flash_annulus_stims('radius', 300, 'color', [0 1 0], 'halfPeriodSecs', 2.5, 'Ncycle', 2 );
 %% flash
 flash_annulus_stims('radius', 600, 'color', [0 1 0], 'halfPeriodSecs', 2.5, 'Ncycle', 20);
 %%
@@ -99,3 +101,6 @@ movie(m);
 % Bar width = 100 um
 %OMS_diff_Grating_Phase_Scan; % Arrow? next session (e.g. phase)
                              % Esc throws an error.
+%%                             
+
+
