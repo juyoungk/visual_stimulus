@@ -1,6 +1,7 @@
 %% Load movie files in Workspace
 %moviedir = '../database/matfiles/fish_2xds/';
 moviedir = '/Users/peterfish/Movies/';
+moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
 movext   = '*.mat';
 %movies = getMovFiles(moviedir, movext);
 
@@ -19,6 +20,7 @@ end
 %% Commandwindow % Change focus to command window
 addpath('HelperFunctions/')
 addpath('functions/')
+addpath('utils/')
 % common parameters for all stimuli
 debug = 0;
 % screen initialization -> bg color and pd setting
@@ -37,13 +39,13 @@ testscreen_annulus;
 stim =[];
     % half period
       hp_flash = 1.;
-    hp_grating = 1.;
+    hp_grating = 2.;
 stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 0], 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
 stim(2) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 1], 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
 stim(3) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
 % % RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
-stim(4) = struct('ndims',[24, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
-stim(5) = struct('ndims',[12, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(4) = struct('ndims',[20, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(5) = struct('ndims',[10, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
 % pause
 stim(6) = struct('ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 0], 'half_period', hp_grating/2., 'cycle', 1, 'phase', 0, 'delay', 0);
 % global & diff motion
@@ -51,7 +53,7 @@ stim(7) = struct('ndims',[12, 1], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 
 stim(8) = struct('ndims',[12, 1], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
 %stim(8) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
 %
-n_repeats = 1;
+n_repeats = 10;
 %
 ex_typing(i) = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
 i = i + 1; % FOV (or ex) index

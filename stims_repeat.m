@@ -9,6 +9,7 @@ function ex = stims_repeat(stim, n_repeats)
     framerate = 30;
     stim_ifi = 1/framerate;
     
+    addpath('utils/')
     commandwindow
     try
         
@@ -20,7 +21,7 @@ function ex = stims_repeat(stim, n_repeats)
           ex.disp.bgcol = 0;
           
           % Initalize the visual display w/ offset position
-          ex = initdisp(ex, 1000, 300);
+          ex = initdisp(ex, 1500, -100);
           % wait for trigger
           ex = waitForTrigger(ex);
           

@@ -128,8 +128,8 @@ function p = ParseInput(varargin)
 
     % Gabor parameters
     p.addParamValue('bg_color', 0, @(x) isvector(x)); %gray
-    p.addParamValue('x_offset', 1000, @(x) isnumeric(x));
-    p.addParamValue('y_offset', 300, @(x) isnumeric(x));
+    p.addParamValue('x_offset', 1500, @(x) isnumeric(x));
+    p.addParamValue('y_offset', -100, @(x) isnumeric(x));
     p.addParameter('stimFrameInterval', 0.033, @(x)x>=0);
     % 
     p.parse(varargin{:});

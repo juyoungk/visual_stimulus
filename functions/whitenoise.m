@@ -146,9 +146,9 @@ function ex = whitenoise(ex, replay)
         fprintf('ESC pressed. Quitting.')
         break;
       end
-
+        
     end
 
   end
-
+  pause(2);
 end

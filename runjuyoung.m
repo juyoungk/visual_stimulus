@@ -29,7 +29,7 @@ try
   % bg color
   ex.disp.bgcol = 0; 
   % Initalize the visual display w/ offset position
-  ex = initdisp(ex, 1000, 300);
+  ex = initdisp(ex, 1500, -100);
   
   % wait for trigger
   ex = waitForTrigger(ex);
@@ -63,6 +63,8 @@ try
   
   % Check for ESC keypress during the experiment
   ex = checkesc(ex)
+  ex.end = datestr(now, 'HH:MM:SS');
+  ex.duration = ex.end - ex.start;
 
   % Close windows and textures, clean up
   endexpt();
