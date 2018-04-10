@@ -12,7 +12,6 @@ function ex = stims_repeat(stim, n_repeats)
     addpath('utils/')
     commandwindow
     try
-        
           % Construct an experimental structure array
           ex = initexptstruct(debug_exp);
           % Initialize the keyboard
@@ -35,7 +34,7 @@ function ex = stims_repeat(stim, n_repeats)
          
           % initialize the VBL timestamp
           vbl = GetSecs();
-          fi =1;
+          
             for i = 1:n_repeats
 
                 for k = 1:numStim
@@ -56,6 +55,16 @@ function ex = stims_repeat(stim, n_repeats)
                     % make the texture
                     ct_texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * checkers_center));
                     
+                    % texture dst rect (integer times checkers)
+                    w_pixels_x = ceil(L/nx);
+                    w_pixels_y = ceil(L/ny);
+                    Lx = w_pixels_x * nx;
+                    Ly = w_pixels_y * ny;
+                    Lchecker = max(Lx, Ly);
+                    ct_checker_rect = CenterRectOnPoint(...	
+                              [0 0 Lchecker Lchecker], ...
+                              ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
+                    
                     % dst rect for center
                     ct_dst_rect = CenterRectOnPoint(...	
                               [0 0 L L], ...
@@ -66,23 +75,28 @@ function ex = stims_repeat(stim, n_repeats)
                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
                     
                     % BG checkers
-                    width_x = s.sizeCenter/nx;
-                    width_y = s.sizeCenter/ny;
                     if nx == 1
                         nx_bg = 1;
                     else
-                        nx_bg = ex.disp.aperturesize_mm/width_x;      
+                        nx_bg = ceil(ex.disp.aperturesize/w_pixels_x);      
+                        nx_bg = nx_bg + mod(nx_bg-nx, 2);
                     end
                     if ny == 1
                         ny_bg =1;
                     else
-                        ny_bg = ex.disp.aperturesize_mm/width_y;
+                        ny_bg = ceil(ex.disp.aperturesize/w_pixels_y);
+                        ny_bg = ny_bg + mod(ny_bg-ny, 2);
                     end
+                    Lx_bg = w_pixels_x * nx_bg;
+                    Ly_bg = w_pixels_y * ny_bg;
+                    L_bg = max(Lx_bg, Ly_bg); 
+                    bg_dst_rect = CenterRectOnPoint(...	
+                              [0 0 L_bg L_bg], ...
+                              ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
                     checkers_bg = gen_checkers(nx_bg+1, ny_bg+1);
-                    checkers_bg = color_matrix(checkers_bg, s.color);
-                    %if s.BG     
-                        bg_texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * checkers_bg));
-                    %end
+                    checkers_bg = color_matrix(checkers_bg, s.color);     
+                    bg_texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * checkers_bg));
+                    
 %                           % write_mask
 %                           c_mask = stim(k).c_mask;
 %                           if ~replay
@@ -104,13 +118,25 @@ function ex = stims_repeat(stim, n_repeats)
                                   src_rect_ct = [0 shift_ct(fi) nx     ny    + shift_ct(fi)];
                               end
                               
-                              % draw the texture, then kill it
+                              % draw the texture
                               if s.BG
-                                  Screen('DrawTexture', ex.disp.winptr, bg_texid, src_rect_bg, ex.disp.dstrect, 0, 0);
+                                  Screen('DrawTexture', ex.disp.winptr, bg_texid, src_rect_bg, bg_dst_rect, 0, 0);
                                   Screen('FillRect',    ex.disp.winptr, ex.disp.gray*s.color, gray_rect);
                               end
-                              Screen('DrawTexture', ex.disp.winptr, ct_texid, src_rect_ct, ct_dst_rect, 0, 0);
-                              %Screen('DrawTexture', ex.disp.winptr, ct_texid, [], ct_dst_rect, 0, 0);
+                              % Alpha Mask for center
+                                % Disable alpha-blending, restrict following drawing to alpha channel:
+                                Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [0 0 0 1]);
+                                % Clear 'dstRect' region of framebuffers alpha channel to zero: 
+                                Screen('FillRect', ex.disp.winptr, [0 0 0 0], ex.disp.dstrect); % Alpha 0 means completely clear. 
+                                Screen('FillRect', ex.disp.winptr, [0 0 0 ex.disp.white], ct_dst_rect);  
+                                %
+                                Screen('Blendfunction', ex.disp.winptr, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
+                                
+                              % Draw center pattern
+                              Screen('DrawTexture', ex.disp.winptr, ct_texid, src_rect_ct, ct_checker_rect, 0, 0);
+                              % Restore alpha setting
+                              Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 1 1 1]);
+                               
 
                               % photodiode
                               if fi == 1

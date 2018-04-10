@@ -1,7 +1,7 @@
 %% Load movie files in Workspace
 %moviedir = '../database/matfiles/fish_2xds/';
 moviedir = '/Users/peterfish/Movies/';
-moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
+%moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
 movext   = '*.mat';
 %movies = getMovFiles(moviedir, movext);
 
@@ -34,28 +34,30 @@ testscreen_annulus;
 
 %% Checkerboard style stim definition (Functional typing)
 % size in mm, period in secs
-% BG mode: 0 - No t BG, 1 - Checkers (same pattern as center)
+% BG mode: 0 - No BG, 1 - Checkers (same pattern as center)
 % BG size = aperture size.
-stim =[];
-    % half period
+% calibration between LEDs
+stim = [];
+w = [1 1 1]; % color weight factor
+% half period (secs)
       hp_flash = 1.;
-    hp_grating = 2.;
-stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 0], 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
-stim(2) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 1], 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
-stim(3) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
+    hp_grating = 1.5;
+stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0  1  0].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
+stim(2) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0  0  1].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
+stim(3) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 .5 .5].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
 % % RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
-stim(4) = struct('ndims',[20, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
-stim(5) = struct('ndims',[10, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(4) = struct('ndims',[20, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(5) = struct('ndims',[10, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
 % pause
-stim(6) = struct('ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 0], 'half_period', hp_grating/2., 'cycle', 1, 'phase', 0, 'delay', 0);
+stim(6) = struct('ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 0].*w, 'half_period', hp_grating/2., 'cycle', 1, 'phase', 0, 'delay', 0);
 % global & diff motion
-stim(7) = struct('ndims',[12, 1], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
-stim(8) = struct('ndims',[12, 1], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
-%stim(8) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1], 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
+stim(7) = struct('ndims',[10, 1], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(8) = struct('ndims',[10, 1], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
+%stim(8) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
 %
-n_repeats = 10;
+n_repeats = 1;
 %
-ex_typing(i) = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
+ex_typing = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
 i = i + 1; % FOV (or ex) index
 %%
 ex_typing(i) = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?

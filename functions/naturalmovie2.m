@@ -137,10 +137,22 @@ function ex = naturalmovie2(ex, replay, movies)
     if FLAG_stop
         break;
     end
-
     %mov = movies{randi(rs, nummovies)};
     mov = movies{fileidx};    
     movNumFrames = size(mov, 1);
+    
+    % # of pixels in display for 1 pixel in stimulus frame.
+    % isotropic pixel size (integer) along x and y
+    L = ex.disp.aperturesize;
+    px = min( ceil(L/ndims_scaled(2)), ceil(L/ndims_scaled(1)) );  
+    % Define dst rect as integer multiples of the frame size.
+    Lx = px * ndims_scaled(2);
+    Ly = px * ndims_scaled(1);
+    ex.disp.aperturesize_movies = [Lx Ly];
+    
+    dstrect = CenterRectOnPoint(...	
+                    [0 0 Lx Ly], ...
+                    ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
       
     for fi = 1:movNumFrames % stimulus frame id in current movie
           % frame id as total 
@@ -204,7 +216,7 @@ function ex = naturalmovie2(ex, replay, movies)
 
           % draw the texture, then kill it
           % winptr: win pointer. dstrect can define the actual size.
-          Screen('DrawTexture', ex.disp.winptr, texid, [], ex.disp.dstrect, 0, 0); 
+          Screen('DrawTexture', ex.disp.winptr, texid, [], dstrect, 0, 0); 
           Screen('Close', texid);
 
           % update the photodiode with the top left pixel on the first frame
