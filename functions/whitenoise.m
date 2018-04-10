@@ -64,6 +64,23 @@ function ex = whitenoise(ex, replay)
   %Ndims = ndims(me.ndims);
   Ndims = size(me.ndims, 2);
   
+  % Adjust dst rect to integer multiplcations of ndims
+    L = ex.disp.aperturesize;
+    % # of pixels in display for 1 pixel in stimulus frame.
+    % isotropic pixel size (integer) along x and y
+    px = min( ceil(L/me.ndims(2)), ceil(L/me.ndims(1)) );  
+    % Define dst rect as integer multiples of the frame size.
+    Lx = px * me.ndims(2);
+    Ly = px * me.ndims(1);
+    % Adjusted L
+    L_whitenoise = max(Lx, Ly)
+    ex.disp.aperturesize_whitenoise = L_whitenoise;
+    % dst rect
+    dstrect = CenterRectOnPoint(...	
+                    [0 0 L_whitenoise L_whitenoise], ...
+                    ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
+    
+  
   % write_mask
   c_mask = me.c_mask;
   if ~replay
@@ -102,7 +119,7 @@ function ex = whitenoise(ex, replay)
       texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * frame));
     
       % draw the texture, then kill it
-      Screen('DrawTexture', ex.disp.winptr, texid, [], ex.disp.dstrect, 0, 0);
+      Screen('DrawTexture', ex.disp.winptr, texid, [], dstrect, 0, 0);
       Screen('Close', texid);
       
       % Draw HiDens masking texture
