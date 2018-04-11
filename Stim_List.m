@@ -17,8 +17,11 @@ for fileidx = 1:nummovies
     movies(fileidx) = struct2cell(load(fullfile(moviedir, files(fileidx).name)));
 end
 %% gammaTable for DLP
-Screen('LoadNormalizedGammaTable', 2, gammaTable);
-% Screen('ColorRange')
+[gammaTable0, dacbits, reallutsize] =Screen('ReadNormalizedGammaTable', 2);
+gammaTable0(:,2) = gammaTable0(:,2)*0.6;
+%%
+Screen('LoadNormalizedGammaTable', 2, gammaTable0);
+% Screen('ColorRange') for color range independent of system [0 t1]
 %% Commandwindow % Change focus to command window
 addpath('HelperFunctions/')
 addpath('functions/')
@@ -50,14 +53,14 @@ stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0  1  0]
 stim(2) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0  0  1].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
 stim(3) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 .55 .45].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
 % % RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
-stim(4) = struct('ndims',[28, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
-stim(5) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(4) = struct('ndims',[28, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(5) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
 % pause
 stim(6) = struct('ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 0].*w, 'half_period', hp_grating/2., 'cycle', 1, 'phase', 0, 'delay', 0);
 % global & diff motion
-stim(7) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
-stim(8) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
-%stim(8) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
+stim(7) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(8) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
+%stim(8) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
 %
 n_repeats = 1;
 %
@@ -68,7 +71,8 @@ ex_typing(i) = stims_repeat(stim, n_repeats); % + options % save the stim in log
 
 %% Whitenoise and natural movie stimulus
 % intensity factor = 0.7 @ initdisp (0306 2018)
-% Aperture size??
+% 1.4 mm aperture : 2.7 mm [64 64] mov, 35 grid checkers  1.48 mm
+% 1.3 mm apergure : 1.36 mm [64 64] mov
 runjuyoung;
 
 %% flash (center only)

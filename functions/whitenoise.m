@@ -74,7 +74,7 @@ function ex = whitenoise(ex, replay)
     Ly = px * me.ndims(1);
     % Adjusted L
     L_whitenoise = max(Lx, Ly)
-    ex.disp.aperturesize_whitenoise = L_whitenoise;
+    ex.disp.aperturesize_whitenoise_mm = L_whitenoise * ex.disp.umperpix/1000;
     % dst rect
     dstrect = CenterRectOnPoint(...	
                     [0 0 L_whitenoise L_whitenoise], ...
@@ -116,7 +116,7 @@ function ex = whitenoise(ex, replay)
     else
         
       % make the texture
-      texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * frame));
+      texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * me.weight * frame));
     
       % draw the texture, then kill it
       Screen('DrawTexture', ex.disp.winptr, texid, [], dstrect, 0, 0);

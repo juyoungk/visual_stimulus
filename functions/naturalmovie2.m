@@ -148,7 +148,7 @@ function ex = naturalmovie2(ex, replay, movies)
     % Define dst rect as integer multiples of the frame size.
     Lx = px * ndims_scaled(2);
     Ly = px * ndims_scaled(1);
-    ex.disp.aperturesize_movies = [Lx Ly];
+    ex.disp.aperturesize_movies_mm = [Lx Ly]*ex.disp.umperpix/1000.;
     
     dstrect = CenterRectOnPoint(...	
                     [0 0 Lx Ly], ...

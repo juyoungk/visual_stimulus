@@ -114,7 +114,7 @@ ex.disp.pdrect  = CenterRectOnPoint(ex.disp.pdsize, ...
 [ex.disp.pdrect, ex.disp.pd_color] = DefinePD_shift_ex(ex);
 
 % the destination rectangle: size and offset
-aperturesize = 1.5 % mm
+aperturesize = 1.4 % mm
 ex.disp.aperturesize_mm = aperturesize;                 	% Size of stimulus aperture
 ex.disp.aperturesize    = aperturesize*10*PIXELS_PER_100_MICRONS(ex.rig_Name);                 	% Size of stimulus aperture
 ex.disp.offset_x = round( (x0/100) * PIXELS_PER_100_MICRONS(ex.rig_Name) );
