@@ -1,7 +1,7 @@
 %% Load movie files in Workspace
 %moviedir = '../database/matfiles/fish_2xds/';
-moviedir = '/Users/peterfish/Movies/';
-%moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
+%moviedir = '/Users/peterfish/Movies/';
+moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
 movext   = '*.mat';
 %movies = getMovFiles(moviedir, movext);
 
@@ -16,7 +16,9 @@ movies = cell(nummovies, 1);
 for fileidx = 1:nummovies
     movies(fileidx) = struct2cell(load(fullfile(moviedir, files(fileidx).name)));
 end
-
+%% gammaTable for DLP
+Screen('LoadNormalizedGammaTable', 2, gammaTable);
+% Screen('ColorRange')
 %% Commandwindow % Change focus to command window
 addpath('HelperFunctions/')
 addpath('functions/')
@@ -36,23 +38,25 @@ testscreen_annulus;
 % size in mm, period in secs
 % BG mode: 0 - No BG, 1 - Checkers (same pattern as center)
 % BG size = aperture size.
-% calibration between LEDs
+% calibration between LEDs: UV is ~12% brighter than Blue at 255 value.
+% Blue is brighter by ~25% in middle range color values.
+% (0410)
 stim = [];
 w = [1 1 1]; % color weight factor
 % half period (secs)
-      hp_flash = 1.;
-    hp_grating = 1.5;
+      hp_flash = 2;
+    hp_grating = 1;
 stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0  1  0].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
 stim(2) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0  0  1].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
-stim(3) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 .5 .5].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
+stim(3) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 .55 .45].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
 % % RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
-stim(4) = struct('ndims',[20, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
-stim(5) = struct('ndims',[10, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(4) = struct('ndims',[28, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(5) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
 % pause
 stim(6) = struct('ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 0].*w, 'half_period', hp_grating/2., 'cycle', 1, 'phase', 0, 'delay', 0);
 % global & diff motion
-stim(7) = struct('ndims',[10, 1], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
-stim(8) = struct('ndims',[10, 1], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
+stim(7) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
+stim(8) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
 %stim(8) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'color', [0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
 %
 n_repeats = 1;

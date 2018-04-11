@@ -25,10 +25,10 @@ screen = InitScreen(debug);
 disp(['screen.white = ',num2str(screen.white)]);
 disp(['screen.black = ',num2str(screen.black)]);
 
-    boxL_um = 50; %unit: um
+    boxL_um = 60; %unit: um
     boxL = Pixel_for_Micron(boxL_um);  %um to pixels
     
-    N = 10; % determines the stim size
+    N = 20; % determines the stim size
     pd_shift_from_center = 2.5; % mm
     stimsize = Pixel_for_Micron(boxL_um*N);
     
