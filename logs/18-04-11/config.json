@@ -25,9 +25,9 @@
 
     "seed": 7,
     "contrast": 1,
-    "ndims": [128,128,3],
+    "ndims": [100,100,3],
     "scale": 0.5,
-    "jitter_var": 1,   
+    "jitter_var": 0.5,   
     "c_mask": [0, 1, 1],
         "_NOTE": "Check whiteindex in initidsp"
   },

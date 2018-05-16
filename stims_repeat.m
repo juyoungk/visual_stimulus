@@ -46,6 +46,13 @@ function ex = stims_repeat(stim, n_repeats)
                     % dims
                     L = s.sizeCenter * 1000 * ex.disp.pix_per_um;
                     L_gray = (s.sizeCenter + gray_margin)*1000*ex.disp.pix_per_um;
+                    if isfield(s, 'Annulus')
+                        L_ann = s.Annulus(1) * 1000 * ex.disp.pix_per_um;
+                        w_ann = s.Annulus(2) * 1000 * ex.disp.pix_per_um;
+                    else
+                        L_ann = 0;
+                        w_ann = 0;
+                    end
                     %
                     nx = s.ndims(1);      
                     ny = s.ndims(2);
@@ -74,10 +81,21 @@ function ex = stims_repeat(stim, n_repeats)
                               [0 0 L_gray L_gray], ...
                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
                     
+                    % dst rect for annulus
+                    L_ann_in  = round(L_ann - w_ann/2.);
+                    L_ann_out = round(L_ann + w_ann/2.);
+                    rect_ann_in = CenterRectOnPoint(...	
+                              [0 0 L_ann_in L_ann_in], ...
+                              ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
+                    rect_ann_out = CenterRectOnPoint(...	
+                              [0 0 L_ann_out L_ann_out], ...
+                              ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
+                          
                     % BG checkers
                     if nx == 1
                         nx_bg = 1;
                     else
+                        % number of lines
                         nx_bg = ceil(ex.disp.aperturesize/w_pixels_x);      
                         nx_bg = nx_bg + mod(nx_bg-nx, 2);
                     end
@@ -107,6 +125,8 @@ function ex = stims_repeat(stim, n_repeats)
                         frames_per_period = round(framerate * s.half_period * 2); % phase step;
                         shift_ct = 1:frames_per_period > (round(frames_per_period/2.));
                         shift_bg = circshift(shift_ct, round(s.delay*frames_per_period));
+                        ann_phase = 1:frames_per_period <= (round(frames_per_period/2.)); % anti-phase with shift variable
+                        
                         
                         for fi = 1:frames_per_period 
                               
@@ -118,11 +138,17 @@ function ex = stims_repeat(stim, n_repeats)
                                   src_rect_ct = [0 shift_ct(fi) nx     ny    + shift_ct(fi)];
                               end
                               
-                              % draw the texture
-                              if s.BG
+                              % draw the BG texture & gray gap
+                              if isfield(s, 'BG') && s.BG
                                   Screen('DrawTexture', ex.disp.winptr, bg_texid, src_rect_bg, bg_dst_rect, 0, 0);
                                   Screen('FillRect',    ex.disp.winptr, ex.disp.gray*s.color, gray_rect);
                               end
+                              % Annulus
+                              if L_ann > 0
+                                  Screen('FillOval', ex.disp.winptr, s.color * ex.disp.white * ann_phase(fi), rect_ann_out);
+                                  Screen('FillOval', ex.disp.winptr, ex.disp.black, rect_ann_in);
+                              end
+                              
                               % Alpha Mask for center
                                 % Disable alpha-blending, restrict following drawing to alpha channel:
                                 Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [0 0 0 1]);
@@ -137,7 +163,6 @@ function ex = stims_repeat(stim, n_repeats)
                               % Restore alpha setting
                               Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 1 1 1]);
                                
-
                               % photodiode
                               if fi == 1
                                   pd = ex.disp.pd_color;

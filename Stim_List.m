@@ -1,7 +1,7 @@
 %% Load movie files in Workspace
 %moviedir = '../database/matfiles/fish_2xds/';
-%moviedir = '/Users/peterfish/Movies/';
-moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
+moviedir = '/Users/peterfish/Movies/';
+%moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
 movext   = '*.mat';
 %movies = getMovFiles(moviedir, movext);
 
@@ -44,25 +44,28 @@ testscreen_annulus;
 % calibration between LEDs: UV is ~12% brighter than Blue at 255 value.
 % Blue is brighter by ~25% in middle range color values.
 % (0410)
-stim = [];
+stim = []; j=1;
 w = [1 1 1]; % color weight factor
 % half period (secs)
-      hp_flash = 2;
+     n_repeats = 1;
+      hp_flash = 1;
     hp_grating = 1;
-stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0  1  0].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
-stim(2) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0  0  1].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
-stim(3) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 .55 .45].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0);
-% % RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
-stim(4) = struct('ndims',[28, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
-stim(5) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
-% pause
-stim(6) = struct('ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 0].*w, 'half_period', hp_grating/2., 'cycle', 1, 'phase', 0, 'delay', 0);
+stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.5, 0.2], 'color', [0  1  0].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [0,0], 'color', [0  0  1].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [0,0], 'color', [0 .55 .45].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+% Annulus [L, width]
+stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.2, 0.2], 'color', [0 .55 .45].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+
+% % % RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
+% stim(j) = struct('ndims',[28, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
+% stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
+% % pause
+% stim(j) = struct('ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 0].*w, 'half_period', hp_grating/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+
 % global & diff motion
-stim(7) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0);
-stim(8) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
-%stim(8) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25);
-%
-n_repeats = 1;
+% stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
+% stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
+% %stim(j) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
 %
 ex_typing = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
 i = i + 1; % FOV (or ex) index
