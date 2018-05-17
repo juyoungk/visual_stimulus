@@ -1,0 +1,47 @@
+[
+   {
+    "1_name": "Uniform-field. See temporal filter change. Where are we?",
+    "framerate": 20,
+      "fr_note": "Filter tuning from rod to cone? Look at the peak shift. should be fine with 20 Hz stim",
+      "length": 5,
+    "function": "whitenoise",
+        "dist": "gaussian",
+    "contrast": 0.35,
+      "w_mean": 0.2,
+        "seed": 0,
+    "ndims": [
+      1,1
+    ],
+    "c_mask": [0, 1, 1]
+   },
+
+   {
+    "1_name": "Uniform-field. See temporal filter change.",
+    "framerate": 20,
+       "length": 5,
+    "function": "whitenoise",
+        "dist": "gaussian",
+    "contrast": 0.35,
+      "w_mean": 1,
+        "seed": 0,
+    "ndims": [
+      1,1
+    ],
+    "c_mask": [0, 1, 1]
+   },
+ 
+  {
+    "framerate": 20,
+      "dr_note": "is it dorsal-ventral direction?",
+    "length": 12,
+    "function": "whitenoise",
+        "dist": "binary",
+    "contrast": 1,
+      "w_mean": 1,
+        "seed": 0,
+    "ndims": [
+      35,1,3
+    ],
+    "c_mask": [0, 1, 1]
+   }
+]

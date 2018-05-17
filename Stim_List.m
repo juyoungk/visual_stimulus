@@ -16,6 +16,12 @@ movies = cell(nummovies, 1);
 for fileidx = 1:nummovies
     movies(fileidx) = struct2cell(load(fullfile(moviedir, files(fileidx).name)));
 end
+%%
+Deviceindex = PsychHID('Devices')
+port = 1 % or 0 (port A)
+data = 255;
+err=DaqDOut(DeviceIndex, port, data);
+
 %% gammaTable for DLP
 [gammaTable0, dacbits, reallutsize] =Screen('ReadNormalizedGammaTable', 2);
 gammaTable0(:,2) = gammaTable0(:,2)*0.6;
@@ -50,13 +56,13 @@ blueUV = [0 .5 .5]; % white color mix ratio
      n_repeats = 1;
       hp_flash = 1;
     hp_grating = 1;
-stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [0,0], 'color', [0  1  0].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [0,0], 'color', [0  0  1].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [0,0], 'color',    blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim    = struct('ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [0,0], 'color', [0  1  0].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [0,0], 'color', [0  0  1].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [0,0], 'color',    blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 % Annulus [L, width]
-stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.0, 0.3], 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.4, 0.3], 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.8, 0.3], 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.0, 0.3], 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.4, 0.3], 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.8, 0.3], 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 
 % % % Nonlinear spatial summation: RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
 % stim(j) = struct('ndims',[28, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
@@ -69,16 +75,17 @@ stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'Annulus', [0,0],
 stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'Annulus', [0,0], 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
 %stim(j) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'Annulus', [0,0], 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
 %
-ex_typing = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
-i = i + 1; % FOV (or ex) index
+ex_typing = stims_repeat(stim, n_repeats); i = i + 1; % FOV (or ex) index % + options % save the stim in log forder?
+
 %% Full-field noise stim: aligned depol & hypol events? Functional classification
-% Not for RF since it cannot replay
+% Not for RF since it cannot replay. Binary noise would be sufficient. 
+    % contrast = STD/mean. 0.35 to 0.05 for Baccus and Meister 2002 
 j=1;
- duration = 2;
-n_repeats = 2;
+ duration = 15;
+n_repeats = 3;
 stim    = struct('ndims', [1, 1, 3], 'sizeCenter', 0.6, 'noise_contrast',   1, 'color', [0  1  1], 'half_period', duration/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 stim(j) = struct('ndims', [1, 1, 3], 'sizeCenter', 0.6, 'noise_contrast', 0.2, 'color', [0  1  1], 'half_period', duration/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-ex_typing(i) = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
+ex_typing(i) = stims_repeat(stim, n_repeats); i = i+1; 
 
 %% Whitenoise and natural movie stimulus
 % intensity factor = 0.7 @ initdisp (0306 2018)
@@ -86,15 +93,13 @@ ex_typing(i) = stims_repeat(stim, n_repeats); % + options % save the stim in log
 % 1.3 mm apergure : 1.36 mm [64 64] mov
 runjuyoung;
 
+%% Moving Bar: Probing Wide-field effect.
+% A bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). Johnston and Lagnado (2016)
+% Stim size: 128 px ~ 2600 um
+moving_bar('barColor', 'dark','c_mask', [0 1 0], 'barWidth', 150, 'barSpeed', 1.4, 'angle_every', 45, 'N_repeat', 8); 
 %%
-%flash_annulus_stims('radius', 1200, 'color', [0 1 0], 'halfPeriodSecs', 2.5, 'Ncycle', 20);
-%% Moving Bar
-% % a bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). 
-% % Johnston and Lagnado 2016
-% stim size: 64 px ~ 1300 um
-moving_bar('barColor','dark', 'c_mask', [0 1 0], 'barWidth',150, 'barSpeed', 1.4, 'N_repeat', 24); 
-%%
-moving_bar('barColor','white','c_mask', [0 1 0], 'barWidth',150, 'barSpeed', 1.4, 'N_repeat', 24);
+moving_bar('barColor','white','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'angle_every', 45, 'N_repeat', 8*10);
+
 
 %% Global/Differential motion to compute avg motion feature (UV or Blue)
 % Normally distributed jitter sequence. (default variance = 0.5) 

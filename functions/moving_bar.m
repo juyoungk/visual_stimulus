@@ -10,10 +10,11 @@ bar_width = p.Results.barWidth;
 bar_speed = p.Results.barSpeed;
 bar_color = p.Results.barColor;
 N_repeats = p.Results.N_repeat;
+ang_every = p.Results.angle_every;
 c_mask = p.Results.c_mask;
 
 % bar sweep size
-visiblesize = 64;        % Size of the grating image. Needs to be a power of two.
+visiblesize = 128;        % Size of the grating image. Needs to be a power of two.
 %
 bar_width = Pixel_for_Micron(bar_width);
 speed_in_Pixels = Pixel_for_Micron(bar_speed*1000);
@@ -123,7 +124,7 @@ Screen('FillOval', w, pd_color, pd);
 
 %
 rot_angle=0;
-inc_angle=90;
+inc_angle=ang_every;
 
 % Animationloop:
 while(i_cycle <= N_repeats)   
@@ -131,11 +132,23 @@ while(i_cycle <= N_repeats)
    % area from the texture:
    srcRect = [xoffset 0 xoffset + visiblesize visiblesize];
    dstRect = RectForScreen(screen, visiblesize, visiblesize, 0, 0);
+   
+   % Circular alpha mask
+        % Disable alpha-blending, restrict following drawing to alpha channel:
+        Screen('Blendfunction', w, GL_ONE, GL_ZERO, [0 0 0 1]);
+        % Clear 'dstRect' region of framebuffers alpha channel to zero: 
+        Screen('FillRect', w, [0 0 0 0],     screen.rect); % Alpha 0 means completely clear. 
+        Screen('FillOval', w, [0 0 0 white], dstRect);  
+        %
+        %Screen('Blendfunction', w, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
+        Screen('Blendfunction', w, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [c_mask 1]);
+
    % Draw grating texture: Only show subarea 'srcRect', center texture in
    % the onscreen window automatically:
-   %Screen('DrawTexture', w, gratingtex, srcRect);
-   Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_mask 1]);
+   
+   %Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_mask 1]);
    Screen('DrawTexture', w, bartex, srcRect, dstRect, rot_angle);
+   Screen('Blendfunction', w, GL_ONE, GL_ZERO, [1 1 1 1]);
    
    % Flip 'waitframes' monitor refresh intervals after last redraw.
    [vbl, ~, ~, missed] = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
@@ -157,21 +170,21 @@ while(i_cycle <= N_repeats)
    
    if xoffset < -(visiblesize-bar_width)
         % blank gray frame
-        Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_mask 1]);
-        Screen('DrawTexture', w, bgtex, srcRect, dstRect, rot_angle);
-        vbl = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
-   
-        % prepare next cycle    
+%         Screen('Blendfunction', w, GL_ONE, GL_ZERO, [c_mask 1]);
+%         Screen('DrawTexture', w, bgtex, srcRect, dstRect, rot_angle);
+%         vbl = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
+
+        % prepare next cycle
         xoffset = 0; % set to same position
         rot_angle = rot_angle + inc_angle;
         
         % pd draw
-        Screen('Blendfunction', w, GL_ONE, GL_ZERO, [1 0 0 1]);
+        %Screen('Blendfunction', w, GL_ONE, GL_ZERO, [1 0 0 1]);
         Screen('FillOval', w, pd_color, pd);
 
         i_cycle = i_cycle +1; % increase cycle number.
        
-       pause(1);
+       %pause(1);
    end
    
 end
@@ -186,10 +199,10 @@ function p =  ParseInput(varargin)
     
     p  = inputParser;   % Create an instance of the inputParser class.
     
-    addParamValue(p,'N_repeat', 20, @(x)x>=0);
+    addParamValue(p,'N_repeat', 8, @(x)x>=0);
+    addParamValue(p,'angle_every', 0, @(x)x>=0);
     addParamValue(p,'barWidth', 150, @(x)x>=0);
     addParamValue(p,'barSpeed', 1.4, @(x)x>=0);
-    addParamValue(p,'c_channels', 2, @(x) ismatrix(x)); % index for color channesl. e.g. 2 or [2, 3]
     addParamValue(p,'c_mask', [0 1 1], @(x) isvector(x));
     addParamValue(p,'barColor', 'dark', @(x) strcmp(x,'dark') || ...
         strcmp(x,'white'));

@@ -7,7 +7,7 @@ function ex = stims_repeat(stim, n_repeats)
     debug_exp = false;
     % default conditions
     gray_margin = 0.2;
-    framerate = 20;
+    framerate = 10;
     stim_ifi = 1/framerate;
     
     addpath('utils/')
@@ -127,10 +127,9 @@ function ex = stims_repeat(stim, n_repeats)
                           rs = getrng();
                         end
                         frames = randi(rs, 2, [s.ndims, frames_per_period]) - 1; % 0 or 1
-                        % s.noise = contrast of the noise
                         frames = s.noise_contrast * frames + (1-s.noise_contrast)/2.;
                     end
-
+                    
                     for kk =1:s.cycle
                         
                         shift_ct = 1:frames_per_period > (round(frames_per_period/2.));
@@ -170,7 +169,7 @@ function ex = stims_repeat(stim, n_repeats)
                                 Screen('Blendfunction', ex.disp.winptr, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
                               
                               if isfield(s, 'noise_contrast')
-                                  noise_frame = color_weight(frames(:,:,:,fi), s.color);     
+                                  noise_frame = color_weight(frames(:,:,:,fi), s.color);
                                   ct_texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * noise_frame));
                                   src_rect_ct = [0 0 nx ny];
                               end
