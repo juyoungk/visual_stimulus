@@ -1,4 +1,5 @@
 function ex = stims_repeat(stim, n_repeats)
+% noise: uniformly-distributed whitenoise only. ndims = 3 only.
 % gap between center and bg: 0.2mm
     if nargin < 2
         n_repeats = 5;
@@ -6,7 +7,7 @@ function ex = stims_repeat(stim, n_repeats)
     debug_exp = false;
     % default conditions
     gray_margin = 0.2;
-    framerate = 30;
+    framerate = 20;
     stim_ifi = 1/framerate;
     
     addpath('utils/')
@@ -31,7 +32,7 @@ function ex = stims_repeat(stim, n_repeats)
             ex.stim{e} = stim(e);
             ex.stim{e}.framerate = framerate;
           end
-         
+            
           % initialize the VBL timestamp
           vbl = GetSecs();
           
@@ -43,6 +44,8 @@ function ex = stims_repeat(stim, n_repeats)
                     if isempty(s.ndims)
                         continue;
                     end
+                    % frame numbers
+                    frames_per_period = round(framerate * s.half_period * 2);
                     % dims
                     L = s.sizeCenter * 1000 * ex.disp.pix_per_um;
                     L_gray = (s.sizeCenter + gray_margin)*1000*ex.disp.pix_per_um;
@@ -56,6 +59,7 @@ function ex = stims_repeat(stim, n_repeats)
                     %
                     nx = s.ndims(1);      
                     ny = s.ndims(2);
+                    % dim+1 checkers
                     checkers_center = gen_checkers(nx+1, ny+1);
                     checkers_center = color_matrix(checkers_center, s.color);
                     
@@ -115,18 +119,25 @@ function ex = stims_repeat(stim, n_repeats)
                     checkers_bg = color_matrix(checkers_bg, s.color);     
                     bg_texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * checkers_bg));
                     
-%                           % write_mask
-%                           c_mask = stim(k).c_mask;
-%                           if ~replay
-%                             Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [c_mask 1]);
-%                           end
+                    % prepare whitenoise frames
+                    if isfield(s, 'noise_contrast')
+                        if isfield(s, 'seed')
+                          rs = getrng(s.seed);
+                        else
+                          rs = getrng();
+                        end
+                        frames = randi(rs, 2, [s.ndims, frames_per_period]) - 1; % 0 or 1
+                        % s.noise = contrast of the noise
+                        frames = s.noise_contrast * frames + (1-s.noise_contrast)/2.;
+                    end
+
                     for kk =1:s.cycle
                         
-                        frames_per_period = round(framerate * s.half_period * 2); % phase step;
                         shift_ct = 1:frames_per_period > (round(frames_per_period/2.));
                         shift_bg = circshift(shift_ct, round(s.delay*frames_per_period));
                         ann_phase = 1:frames_per_period <= (round(frames_per_period/2.)); % anti-phase with shift variable
-                        
+                        ann_phase = circshift(ann_phase, round(s.delay*frames_per_period));
+
                         
                         for fi = 1:frames_per_period 
                               
@@ -157,6 +168,12 @@ function ex = stims_repeat(stim, n_repeats)
                                 Screen('FillRect', ex.disp.winptr, [0 0 0 ex.disp.white], ct_dst_rect);  
                                 %
                                 Screen('Blendfunction', ex.disp.winptr, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
+                              
+                              if isfield(s, 'noise_contrast')
+                                  noise_frame = color_weight(frames(:,:,:,fi), s.color);     
+                                  ct_texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * noise_frame));
+                                  src_rect_ct = [0 0 nx ny];
+                              end
                                 
                               % Draw center pattern
                               Screen('DrawTexture', ex.disp.winptr, ct_texid, src_rect_ct, ct_checker_rect, 0, 0);
@@ -259,3 +276,18 @@ for c = 1:n
 end
 
 end
+
+function C = color_weight(A, color)
+
+if ndims(A) ~= length(color)
+    error('Color dimension mismatch');
+end
+
+C = zeros(size(A));
+
+for c = 1:length(color)
+    C(:,:,c) = A(:,:,c) * color(c);
+end
+
+end
+

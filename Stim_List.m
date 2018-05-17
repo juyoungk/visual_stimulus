@@ -34,8 +34,7 @@ debug = 0;
 i = 1; % ex or FOV id
 %% Test screen (increasing disc?)
 testscreen_colors;
-%%
-testscreen_annulus;
+%testscreen_annulus;
 
 %% Checkerboard style stim definition (Functional typing)
 % size in mm, period in secs
@@ -46,30 +45,39 @@ testscreen_annulus;
 % (0410)
 stim = []; j=1;
 w = [1 1 1]; % color weight factor
+blueUV = [0 .5 .5]; % white color mix ratio
 % half period (secs)
      n_repeats = 1;
       hp_flash = 1;
     hp_grating = 1;
-stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.5, 0.2], 'color', [0  1  0].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim    = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [0,0], 'color', [0  1  0].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [0,0], 'color', [0  0  1].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [0,0], 'color', [0 .55 .45].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [0,0], 'color',    blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 % Annulus [L, width]
-stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.2, 0.2], 'color', [0 .55 .45].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.0, 0.3], 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.4, 0.3], 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',  [1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', [1.8, 0.3], 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 
-% % % RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
-% stim(j) = struct('ndims',[28, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
-% stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
+% % % Nonlinear spatial summation: RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
+% stim(j) = struct('ndims',[28, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
+% stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
 % % pause
 % stim(j) = struct('ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 0].*w, 'half_period', hp_grating/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 
-% global & diff motion
-% stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
-% stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
-% %stim(j) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'color', 0.5*[0 1 1].*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
+% global & diff motion: 14 bars / 640 um ~ width: 50 um
+stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'Annulus', [0,0], 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'Annulus', [0,0], 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
+%stim(j) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'Annulus', [0,0], 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
 %
 ex_typing = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
 i = i + 1; % FOV (or ex) index
-%%
+%% Full-field noise stim: aligned depol & hypol events? Functional classification
+% Not for RF since it cannot replay
+j=1;
+ duration = 2;
+n_repeats = 2;
+stim    = struct('ndims', [1, 1, 3], 'sizeCenter', 0.6, 'noise_contrast',   1, 'color', [0  1  1], 'half_period', duration/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims', [1, 1, 3], 'sizeCenter', 0.6, 'noise_contrast', 0.2, 'color', [0  1  1], 'half_period', duration/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 ex_typing(i) = stims_repeat(stim, n_repeats); % + options % save the stim in log forder?
 
 %% Whitenoise and natural movie stimulus
@@ -78,10 +86,6 @@ ex_typing(i) = stims_repeat(stim, n_repeats); % + options % save the stim in log
 % 1.3 mm apergure : 1.36 mm [64 64] mov
 runjuyoung;
 
-%% flash (center only)
-flash_annulus_stims('radius', 300, 'color', [0 1 0], 'halfPeriodSecs', 2.5, 'Ncycle', 2 );
-%% flash
-flash_annulus_stims('radius', 600, 'color', [0 1 0], 'halfPeriodSecs', 2.5, 'Ncycle', 20);
 %%
 %flash_annulus_stims('radius', 1200, 'color', [0 1 0], 'halfPeriodSecs', 2.5, 'Ncycle', 20);
 %% Moving Bar

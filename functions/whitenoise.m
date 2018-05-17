@@ -97,12 +97,12 @@ function ex = whitenoise(ex, replay)
       % this is actually uniformly distributed
       frame = 2 * rand(rs, me.ndims) * me.contrast + (1 - me.contrast);
     elseif strcmp(me.dist, 'binary')
-      % 
-      frame = floor(2 * rand(rs, me.ndims)) * me.contrast + (1 - me.contrast);
+      %frame = floor(2 * rand(rs, me.ndims)) * me.contrast + (1 - me.contrast);
+      frame = me.contrast * (randi(rs, 2, me.ndims)-1) + (1-me.contrast)/2.;
     elseif strcmp(me.dist, 'binary_color')
       frame = floor(2 * rand(rs, [me.ndims, 3])) * me.contrast + (1 - me.contrast);
     else
-      error(['Distribution ' me.dist ' not recognized! Must be gaussian or binary.']);
+      error(['Distribution ' me.dist ': not recognized! Must be gaussian or binary.']);
     end
 
     if replay
@@ -112,7 +112,7 @@ function ex = whitenoise(ex, replay)
 %       else
           % write the frame to the hdf5 file
           %h5write(ex.filename, [ex.group '/stim'], uint8(me.gray * frame), [1, 1, fi], [me.ndims, 1]);
-          h5write(ex.filename, [ex.group '/stim'], uint8(me.gray * frame), [ones(1, Ndims), fi], [me.ndims, 1]);
+          h5write(ex.filename, [ex.group '/stim'], uint8(ex.disp.white * me.weight * frame), [ones(1, Ndims), fi], [me.ndims, 1]);
     else
         
       % make the texture
