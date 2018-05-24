@@ -1,5 +1,26 @@
 [
    {
+    "framerate": 30,
+    "jumpevery": 60,
+    "length": 10,
+    "function": "naturalmovie2",
+        "moviedir": "/Users/peterfish/Movies/",
+        "_moviedir": "../database/matfiles/fish_2xds/",
+        "movext": "*.mat",  
+        "_comment1": "it will open all MAT files.",
+        "_comment2": "[frames, rows, cols, channels(3)]",
+    "repeat": 3,
+    "mov_id": 1,
+    "seed": 7,
+    "contrast": 1,
+    "ndims": [100,100,3],
+    "scale": 0.5,
+    "jitter_var": 0.5,   
+    "c_mask": [0, 1, 1],
+        "_NOTE": "Check whiteindex in initidsp"
+  },
+
+   {
     "1_name": "Uniform-field. See temporal filter change. Where are we?",
     "framerate": 20,
       "fr_note": "Filter tuning from rod to cone? Look at the peak shift. should be fine with 20 Hz stim",

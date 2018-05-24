@@ -1,13 +1,14 @@
-function ex = stims_repeat(stim, n_repeats)
+function ex = stims_repeat(stim, n_repeats, varargin)
 % noise: uniformly-distributed whitenoise only. ndims = 3 only.
 % gap between center and bg: 0.2mm
+    p = ParseInput(varargin{:});
     if nargin < 2
-        n_repeats = 5;
+        n_repeats = 3
     end
     debug_exp = false;
     % default conditions
     gray_margin = 0.2;
-    framerate = 10;
+    framerate = p.Results.framerate;
     stim_ifi = 1/framerate;
     
     addpath('utils/')
@@ -38,24 +39,29 @@ function ex = stims_repeat(stim, n_repeats)
           
             for i = 1:n_repeats
 
-                for k = 1:numStim
-                    % current stim
+                for k = 1:numStim % current stim
+                    
                     s = stim(k);
                     if isempty(s.ndims)
                         continue;
                     end
                     % frame numbers
                     frames_per_period = round(framerate * s.half_period * 2);
-                    % dims
-                    L = s.sizeCenter * 1000 * ex.disp.pix_per_um;
-                    L_gray = (s.sizeCenter + gray_margin)*1000*ex.disp.pix_per_um;
+                    
+                    % Annulus stim
                     if isfield(s, 'Annulus')
-                        L_ann = s.Annulus(1) * 1000 * ex.disp.pix_per_um;
-                        w_ann = s.Annulus(2) * 1000 * ex.disp.pix_per_um;
+                        L_ann = s.Annulus   * 1000 * ex.disp.pix_per_um;
+                        w_ann = s.w_Annulus * 1000 * ex.disp.pix_per_um;
                     else
                         L_ann = 0;
                         w_ann = 0;
                     end
+                    L_ann_frames = linspace(L_ann(1), L_ann(end), frames_per_period);
+                    
+                    % dims
+                    L = s.sizeCenter * 1000 * ex.disp.pix_per_um;
+                    L_gray = (s.sizeCenter + gray_margin)*1000*ex.disp.pix_per_um;
+                    
                     %
                     nx = s.ndims(1);      
                     ny = s.ndims(2);
@@ -83,16 +89,6 @@ function ex = stims_repeat(stim, n_repeats)
                     % gray dst rect
                     gray_rect = CenterRectOnPoint(...	
                               [0 0 L_gray L_gray], ...
-                              ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
-                    
-                    % dst rect for annulus
-                    L_ann_in  = round(L_ann - w_ann/2.);
-                    L_ann_out = round(L_ann + w_ann/2.);
-                    rect_ann_in = CenterRectOnPoint(...	
-                              [0 0 L_ann_in L_ann_in], ...
-                              ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
-                    rect_ann_out = CenterRectOnPoint(...	
-                              [0 0 L_ann_out L_ann_out], ...
                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
                           
                     % BG checkers
@@ -134,9 +130,13 @@ function ex = stims_repeat(stim, n_repeats)
                         
                         shift_ct = 1:frames_per_period > (round(frames_per_period/2.));
                         shift_bg = circshift(shift_ct, round(s.delay*frames_per_period));
-                        ann_phase = 1:frames_per_period <= (round(frames_per_period/2.)); % anti-phase with shift variable
-                        ann_phase = circshift(ann_phase, round(s.delay*frames_per_period));
-
+                        % phase of the annulus: flashing vs moving
+                        if length(L_ann) == 2 % [a, b]: moving anuulus
+                            ann_phase = ones(1, frames_per_period);
+                        else % single annulus: flashing
+                            ann_phase = 1:frames_per_period <= (round(frames_per_period/2.));   % anti-phase with shift variable
+                            ann_phase = circshift(ann_phase, round(s.delay*frames_per_period)); % flashing annulus
+                        end
                         
                         for fi = 1:frames_per_period 
                               
@@ -154,7 +154,17 @@ function ex = stims_repeat(stim, n_repeats)
                                   Screen('FillRect',    ex.disp.winptr, ex.disp.gray*s.color, gray_rect);
                               end
                               % Annulus
-                              if L_ann > 0
+                              if sum(L_ann) > 0 % L_ann is either a value or a range [a, b].
+                                    % dst rect for annulus
+                                    L_ann_in  = round(L_ann_frames(fi) - w_ann/2.);
+                                    L_ann_out = round(L_ann_frames(fi) + w_ann/2.);
+                                    rect_ann_in = CenterRectOnPoint(...	
+                                              [0 0 L_ann_in L_ann_in], ...
+                                              ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
+                                    rect_ann_out = CenterRectOnPoint(...	
+                                              [0 0 L_ann_out L_ann_out], ...
+                                              ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
+                                  %
                                   Screen('FillOval', ex.disp.winptr, s.color * ex.disp.white * ann_phase(fi), rect_ann_out);
                                   Screen('FillOval', ex.disp.winptr, ex.disp.black, rect_ann_in);
                               end
@@ -288,5 +298,19 @@ for c = 1:length(color)
     C(:,:,c) = A(:,:,c) * color(c);
 end
 
+end
+
+function p =  ParseInput(varargin)
+    
+    p  = inputParser;   % Create an instance of the inputParser class.
+    
+    addParamValue(p,'framerate', 30, @(x)x>=0);
+%     addParamValue(p,'c_mask', [0 1 1], @(x) isvector(x));
+%     addParamValue(p,'barColor', 'dark', @(x) strcmp(x,'dark') || ...
+%         strcmp(x,'white'));
+%      
+    % Call the parse method of the object to read and validate each argument in the schema:
+    p.parse(varargin{:});
+    
 end
 

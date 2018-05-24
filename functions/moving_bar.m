@@ -74,7 +74,7 @@ inc=white-gray;
 x = meshgrid(1:visiblesize, 1:visiblesize);
 %white_bar = gray + inc*(x <= bar_width);
 white_bar = white*(x <= bar_width);
-dark_bar = gray*(x > bar_width);
+dark_bar = white*(x > bar_width);
 
 
 % Store grating in texture: Set the 'enforcepot' flag to 1 to signal

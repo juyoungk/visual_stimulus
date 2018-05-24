@@ -22,7 +22,6 @@
         "movext": "*.mat",  
         "_comment1": "it will open all MAT files.",
         "_comment2": "[frames, rows, cols, channels(3)]",
-
     "seed": 7,
     "contrast": 1,
     "ndims": [100,100,3],
