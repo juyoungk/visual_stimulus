@@ -3,6 +3,7 @@
 moviedir = '/Users/peterfish/Movies/';
 %moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
 movext   = '*.mat';
+movext   = '*intensity.mat';
 %movies = getMovFiles(moviedir, movext);
 
 % movie from files
@@ -10,9 +11,14 @@ files = dir(fullfile(moviedir, movext));
 nummovies = length(files);
 if nummovies < 1
   error('no movies (mat files) in designated folder');
+else 
+    for fileidx = 1:nummovies
+        disp([num2str(fileidx), ': ', files(fileidx).name]); 
+    end
 end
+% cell array for movies
 movies = cell(nummovies, 1);
-% laod movie files
+% load movie files
 for fileidx = 1:nummovies
     movies(fileidx) = struct2cell(load(fullfile(moviedir, files(fileidx).name)));
 end
@@ -100,27 +106,59 @@ moving_bar('barColor', 'dark','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.
 moving_bar('barColor','white','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'angle_every', 45, 'N_repeat', 8 * n_repeats);
 
 %% Repeat natural movies: Cell's reproducibility to natural movies? (1 min)
-% combination of multiple movies.
+% combination of multiple 'movies' (cell array in worksapce).
+% cell array in values -> struct array
+% Field add? [S(:).newname] = deal([])
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'length', 0.2, 'repeat', 3,... 
-                'mov_id', 1, 'startframe', 600, 'seed', 7,... 
-                'ndims', [256,256,3], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]);
+                'mov_id', {3, 4}, 'startframe', {600, 200}, 'seed', 7,... 
+                'ndims', [100,100], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]);
             
-params(2) = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
-                'length', 0.2, 'repeat', 3,... 
-                'mov_id', 2, 'startframe', 200, 'seed', 7,... 
-                'ndims', [256,256,3], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]);
-%ex = run_naturalmovie(movies, params); % mov = 4-D matrix
 % script for playing stimulus. 'params' should be defined in advance.
 run_stims
 
-%% Whitenoise and natural movie stimulus
-% intensity factor = 0.7 @ initdisp (0306 2018)
+%% Main recording: Natural movie & White-noise
 % 1.4 mm aperture : 2.7 mm [64 64] mov, 35 grid checkers  1.48 mm
 % 1.3 mm apergure : 1.36 mm [64 64] mov
-runjuyoung;
+% 10-min long natural movies
+nm_params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
+                'length', 10, 'repeat', 1,... 
+                'mov_id', [1, 2], 'startframe', 1, 'seed', 7,... 
+                'ndims', [100,100], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]);
+% Full-field (2 mean level) Gaussian Whitenoise [5 min each]: temporal filter change?
+wn_params = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,... 
+                'ndims', [1,1], 'dist', 'gaussian', 'contrast', 0.35,... 
+                'length', 5, 'w_mean', {0.2, 1}, 'c_mask', [0, 1, 1]); k = length(wn_params);
+% Bar (color) whitenoise across the dorsal-ventral direction            
+wn_params(k+1) = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,... 
+                'ndims', [35,1,3], 'dist', 'binary', 'contrast', 1,... 
+                'length', 10, 'w_mean', 1, 'c_mask', [0, 1, 1]); 
+%            
+params = addStruct(nm_params, wn_params)
+%%
+run_stims
 %%
 replay % for runjuyoung
+
+
+%% Whitenoise and natural movie stimulus
+% intensity factor = 0.7 @ initdisp (0306 2018)
+runjuyoung;
+
+%% Repeat natural movies (color, 256): Cell's reproducibility to natural movies? (1 min)
+% combination of multiple movies.
+params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
+                'length', 0.2, 'repeat', 3,... 
+                'mov_id', {1, 2}, 'startframe', {600, 200}, 'seed', 7,... 
+                'ndims', [256,256,3], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]);
+%             
+% params(2) = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
+%                 'length', 0.2, 'repeat', 3,... 
+%                 'mov_id', 2, 'startframe', 200, 'seed', 7,... 
+%                 'ndims', [256,256,3], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]);
+%ex = run_naturalmovie(movies, params); % mov = 4-D matrix
+% script for playing stimulus. 'params' should be defined in advance.
+run_stims
 
 %% Global/Differential motion to compute avg motion feature (UV or Blue)
 % Normally distributed jitter sequence. (default variance = 0.5) 

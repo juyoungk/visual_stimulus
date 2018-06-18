@@ -10,7 +10,7 @@ addpath('utils/')
 addpath('functions/')
 
 % load experiment
-which_expt = input('Which experiment would you like to replay (yy-mm-dd)? ','s');
+which_expt = input(['Which experiment would you like to replay (default: ', datestr(now, 'yy-mm-dd'),')? '],'s');
 if isempty(which_expt)
     which_expt = datestr(now, 'yy-mm-dd') % today
 end

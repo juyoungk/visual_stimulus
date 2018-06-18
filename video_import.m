@@ -32,13 +32,15 @@ end
 %% Open Movie file
 %moviedir = '/Users/peterfish/Movies/';
 %vid = VideoReader([mpath,'Bee_Honet.mp4']);
-id = 5;
+id = 3;
 %
 vid = VideoReader([moviedir, files(id).name])
 vidHeight = vid.Height;
 vidWidth = vid.Width;
 tot_numFrame = ceil(vid.Duration * vid.FrameRate)
-str_mat = sprintf('mov_%s_f%d.mat', sscanf(vid.Name,'%s.mp4'), tot_numFrame)
+f_name = split(vid.Name, '.');
+str_mat = sprintf('mov_%s_f%d.mat', f_name(1), tot_numFrame)
+str_mat_int = sprintf('mov_%s_f%d_intensity.mat', f_name(1), tot_numFrame)
 
 mov = [];
 % NOTE: why struct for each frame? Very convinient to append frames. No need
@@ -49,7 +51,7 @@ mov = struct('cdata',zeros(vidHeight,vidWidth,3,'uint8'),...
 % Define the 1st struct object. Then, the field (e.g. 'colormap') will continue even for
 % appended object.
 
-%% 
+%% Construct mov struct
 numFrame = 10000;
 k = 1;
 while hasFrame(vid)
@@ -64,13 +66,46 @@ while hasFrame(vid)
     k = k+1;
 end
 
+%% Gray conversion & save
+numFrame = numel(mov);
+scaling = 0.5; % 640 x 360
+ mm_intensity = zeros(numFrame, vidHeight*scaling, vidWidth*scaling, 'uint8');
+mov2_intensity = struct('cdata',zeros(vidHeight*scaling, vidWidth*scaling, 'uint8'), 'colormap', gray(255));
+
+for k=1:numFrame
+    % Convert to 16-bit integer in case that the sum can be over 255.
+    %cdata = uint16(mov2(k).cdata);
+    
+    % resize by 0.5
+    cdata = imresize(mov(k).cdata, scaling, 'bilinear');
+    cdata = uint16(cdata);
+    
+    % intensity
+      mm_intensity(k, :, :) = uint8(mean(cdata, 3));
+    mov2_intensity(k).cdata = uint8(mean(cdata, 3));
+end
+%%
+save([moviedir,str_mat_int], 'mm_intensity');
+
+%% Play the movie (movie(M,n,fps))
+%[rows, cols, ~] = size(mov2(1).cdata)
+hfig = figure('Position', [950, 550, 640, 360]);       
+    hfig.Color = 'none';
+    hfig.PaperPositionMode = 'auto';
+    hfig.InvertHardcopy = 'off';   
+axes('Position', [0  0  1  1], 'Visible', 'off');
+movie(mov2_intensity, 1, vid.FrameRate)
+
+
+%%
 % Color adjust for Mouse cones.
 % My projector: R-UV-B
 numFrame = numel(mov);
 scaling = 0.5; % 640 x 360
+% matrix (color & gray)
 mm = zeros(numFrame, vidHeight*scaling, vidWidth*scaling, 3, 'uint8');
-mov2 = struct('cdata',zeros(vidHeight*scaling, vidWidth*scaling, 3,'uint8'),...
-'colormap',[]);
+% video structure
+mov2 = struct('cdata',zeros(vidHeight*scaling, vidWidth*scaling, 3,'uint8'), 'colormap',[]);
 
 for k=1:numFrame
     % Convert to 16-bit integer in case that the sum can be over 255.
@@ -83,7 +118,7 @@ for k=1:numFrame
     % Projection of R channel into B & G spectra
     p_blue = cdata(:,:,3) + R_proj_B * cdata(:,:,1);
     p_green = cdata(:,:,2) + R_proj_G * cdata(:,:,1);
-  
+    
     % 2nd LED ch (385 nm): Exciting S-opsin = B + 0.255*R
         % Sensitivity of S-cone to 385? ~ 50%
         % Sensitivity of M-cone to 385? ~ 20%
@@ -103,14 +138,5 @@ for k=1:numFrame
     mm(k, :, :, :) = cdata;
 end
 %
-save([moviedir,str_mat], 'mm');
+%save([moviedir,str_mat], 'mm');
 
-%% Play the movie (movie(M,n,fps))
-%[rows, cols, ~] = size(mov2(1).cdata)
-hfig = figure('Position', [950, 550, 640, 360]);       
-    hfig.Color = 'none';
-    hfig.PaperPositionMode = 'auto';
-    hfig.InvertHardcopy = 'off';   
-axes('Position', [0  0  1  1], 'Visible', 'off');
-%
-movie(mov2, 1, vid.FrameRate)

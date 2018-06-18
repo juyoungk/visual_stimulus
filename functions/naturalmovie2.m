@@ -3,6 +3,8 @@ function ex = naturalmovie2(ex, replay, movies)
 %   - Movie can contain color channels. [frames, ros, cols, channels]
 %   - Movie files will be played in order. (0403 2018 JY)
 %   - No contrast option.
+%   - Repeat option.
+%   - startframe (same for all movies)
 %
 % ex = naturalmovie2(ex, replay, movies)
 %
@@ -133,6 +135,9 @@ function ex = naturalmovie2(ex, replay, movies)
   else
       mov_ids = 1:nummovies;
   end
+  if mov_ids == 0 % 0 means all movies
+      mov_ids = 1:nummovies;
+  end    
   
   % repeat number
   if isfield(me, 'repeat')
@@ -153,16 +158,16 @@ function ex = naturalmovie2(ex, replay, movies)
       % initialization
       ti = 0; % frame index as total. increased when the frame starts. 
       FLAG_stop = false;
-      fprintf('%d/%d presentation of natural movies (%.1f secs).\n', rr, n_repeats, me.length * 60);
+      fprintf('%d/%d presentation of natural movies (%.1f secs long).\n', rr, n_repeats, me.length * 60);
       rs = getrng(rs.Seed);
       
-      if rr>1 && replay
+      if rr>1 && replay % no repeat for replay
           break;
       end
       
-      for fileidx = mov_ids  % loop over movie files
+      for fileidx = mov_ids % loop over movie files
 
-        if FLAG_stop
+        if FLAG_stop % if frames number reaches to the specified movie duration
             break;
         end
         %mov = movies{randi(rs, nummovies)};

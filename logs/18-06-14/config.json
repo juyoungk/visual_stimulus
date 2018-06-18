@@ -2,20 +2,21 @@
    {
     "framerate": 30,
     "jumpevery": 60,
-    "length": 0.1,
+    "length": 0.5,
+        "_playtime": "length x repeat#",
     "function": "naturalmovie2",
         "moviedir": "/Users/peterfish/Movies/",
-        "_moviedir": "../database/matfiles/fish_2xds/",
         "movext": "*.mat",  
         "_comment2": "[frames, rows, cols, channels(3)]",
-    "repeat": 3,
-    "mov_id": 1,
+    "repeat": 1,
+    "mov_id": [3],
+        "_mov_id_notes": "0 will play all movies",
     "seed": 7,
     "contrast": 1,
-    "ndims": [100,100,3],
+    "ndims": [100,100],
     "scale": 0.5,
     "jitter_var": 0.5,   
-    "c_mask": [0, 1, 1],
+    "c_mask": [1, 1, 1],
         "_NOTE": "Check whiteindex in initidsp"
   }
 ]

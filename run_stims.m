@@ -1,7 +1,8 @@
-% script for running stimulus from struct array 'params'
+% Script for running stimulus from struct array 'params'.
+% 
 % How is different from 'runme' or 'runjuyoung'?
 %   1. stimuli as struct array, not cell array.
-%
+%   2. create today's directory
 %
     commandwindow
     %%
@@ -14,13 +15,23 @@
     debug_exp = false;
 
     try
-
+      
       % Construct an experimental structure array
       ex = initexptstruct(debug_exp);
 
       % Initialize the keyboard
       ex = initkb(ex);
-
+      
+      % 'params' in workspace
+      stimuli = params;
+        %stimuli = loadjson(fullfile(basedir, 'config.json'));
+      
+      % today's directory. Create if it doesn't exist for ex history log.
+      basedir = fullfile('logs/', ex.today);
+      if exist(basedir,'dir') ==0
+          mkdir(basedir);
+      end
+        
       % bg color
       ex.disp.bgcol = 0; 
       % Initalize the visual display w/ offset position
@@ -29,11 +40,6 @@
       % wait for trigger
       ex = waitForTrigger(ex);
       
-      % today's directory
-      basedir = fullfile('logs/', ex.today);  
-      % params should be defined at the WORKSPACE
-      stimuli = params;
-      %stimuli = loadjson(fullfile(basedir, 'config.json'));
       
       % Run the stimuli
       for stimidx = 1:length(stimuli)
@@ -43,9 +49,6 @@
 
         % get the user-specified parameters
         ex.stim{stimidx}.params = rmfield(stimuli(stimidx), 'function');
-        
-        %
-        %ex = naturalmovie2(ex, false, mov);
         
         % run this stimulus
         if strcmp(ex.stim{stimidx}.function, 'naturalmovie2')
@@ -63,18 +66,25 @@
       end
 
       % Check for ESC keypress during the experiment
-      ex = checkesc(ex)
-      ex.end = datestr(now, 'HH:MM:SS');
-      ex.duration = ex.end - ex.start;
-
+      ex = checkesc(ex) % if ESC pressed, throws MEception. Don't save. 
+      
+      %
+      ex.t_end = datestr(now, 'HH:MM:SS');
+      ex.duration_secs = etime(clock, ex.t1);
+      
       % Close windows and textures, clean up
       endexpt();
 
       if ~debug_exp
-
+        if isfield(ex, 'name')
+            str_name = ex.name; % FOV name or ex note?
+        else
+            str_name = '';
+        end
+          
         % Save the experimental metadata
-        savejson('', ex, fullfile(basedir, 'expt.json'));
-        save(fullfile(basedir, 'exlog.mat'), 'ex');
+        savejson('', ex, fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_expt_', str_name,'.json']));
+                    save(fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_exlog', str_name,'.mat']), 'ex');
 
         % Send results via Pushover
         sendexptresults(ex);
@@ -86,21 +96,24 @@
       end
 
     % catch errors
-    catch my_error
-
+    catch my_error  
       % store the error
       ex.my_error = my_error;
-
+     
       % display the error
       disp(my_error);
       struct2table(rmfield(ex.my_error.stack,'file'))
-
+      
+      %  
+      
+      
       % Close windows and textures, clean up
       endexpt();
 
       % Send results via Pushover
       if ~debug_exp
         %sendexptresults(ex);
+        save(fullfile(basedir, ['error_', datestr(now, 'HH_MM_SS'), '_exlog.mat']), 'my_error'); % or 'ex'
       end
 
     end
