@@ -5,7 +5,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
     if nargin < 2
         n_repeats = 3
     end
-    debug_exp = false;
+    debug_exp = p.Results.debug;
     % default conditions
     gray_margin = 0.2;
     framerate = p.Results.framerate;
@@ -49,7 +49,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     frames_per_period = round(framerate * s.half_period * 2);
                     
                     % Annulus stim
-                    if isfield(s, 'Annulus')
+                    if isfield(s, 'Annulus') && ~isempty(s.Annulus)
                         L_ann = s.Annulus   * 1000 * ex.disp.pix_per_um;
                         w_ann = s.w_Annulus * 1000 * ex.disp.pix_per_um;
                     else
@@ -116,7 +116,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     bg_texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * checkers_bg));
                     
                     % prepare whitenoise frames
-                    if isfield(s, 'noise_contrast')
+                    if isfield(s, 'noise_contrast') && ~isempty(s.noise_contrast)
                         if isfield(s, 'seed')
                           rs = getrng(s.seed);
                         else
@@ -149,7 +149,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                               end
                               
                               % draw the BG texture & gray gap
-                              if isfield(s, 'BG') && s.BG
+                              if isfield(s, 'BG') && ~isempty(s.BG) && s.BG
                                   Screen('DrawTexture', ex.disp.winptr, bg_texid, src_rect_bg, bg_dst_rect, 0, 0);
                                   Screen('FillRect',    ex.disp.winptr, ex.disp.gray*s.color, gray_rect);
                               end
@@ -178,7 +178,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                 %
                                 Screen('Blendfunction', ex.disp.winptr, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
                               
-                              if isfield(s, 'noise_contrast')
+                              if isfield(s, 'noise_contrast') && ~isempty(s.noise_contrast)
                                   noise_frame = color_weight(frames(:,:,:,fi), s.color);
                                   ct_texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * noise_frame));
                                   src_rect_ct = [0 0 nx ny];
@@ -305,6 +305,7 @@ function p =  ParseInput(varargin)
     p  = inputParser;   % Create an instance of the inputParser class.
     
     addParamValue(p,'framerate', 30, @(x)x>=0);
+    addParamValue(p,'debug', false, @(x) islogical(x));
 %     addParamValue(p,'c_mask', [0 1 1], @(x) isvector(x));
 %     addParamValue(p,'barColor', 'dark', @(x) strcmp(x,'dark') || ...
 %         strcmp(x,'white'));

@@ -12,8 +12,10 @@
     addpath('HelperFunctions/')
     %%
     % turn the `debug` flag on when testing
-    debug_exp = false;
-
+    if ~exist('debug_exp', 'var') == 1
+        debug_exp = false;
+    end
+    
     try
       
       % Construct an experimental structure array
