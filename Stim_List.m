@@ -45,6 +45,7 @@ debug = 0;
 % offset location? % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen
 % basedir = fullfile('logs/', ex.today);
 i = 1; % ex or FOV id
+
 %% Test screen (increasing disc?)
 testscreen_colors;
 %testscreen_annulus;
@@ -56,6 +57,8 @@ testscreen_colors;
 % calibration between LEDs: UV is ~12% brighter than Blue at 255 value.
 % Blue is brighter by ~25% in middle range color values.
 % (0410)
+loc_id = 'loc1';
+%
 stim = []; j=1;
 w = [1 1 1]; % color weight (calibration) factor or mean level
 blueUV = [0 .5 .5]; % white color mix ratio
@@ -87,7 +90,7 @@ stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'Annulus', 0, 'w_
 %
 ex_typing = stims_repeat(stim, n_repeats, 'debug', false); i = i + 1; % FOV (or ex) index % + options % save the stim in log forder?
 
-%% Full-field noise stim: aligned depol & hypol events & adaptation/sensitization: Functional classification
+%% Typing by Full-field noise stim: aligned depol & hypol events & adaptation/sensitization: Functional classification
 % Not for RF since it cannot replay. Binary noise would be sufficient. 
     % contrast = STD/mean. 0.35 to 0.05 for Baccus and Meister 2002 
 j=1;
@@ -96,7 +99,7 @@ n_repeats = 3;
 framerate = 20;
 stim_noise    = struct('ndims', [1, 1, 3], 'sizeCenter', 0.6, 'noise_contrast',   1, 'color', [0  1  1], 'half_period', duration/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 stim_noise(j) = struct('ndims', [1, 1, 3], 'sizeCenter', 0.6, 'noise_contrast', 0.2, 'color', [0  1  1], 'half_period', duration/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-ex_typing(i) = stims_repeat(stim_noise, n_repeats, 'framerate', framerate); i = i+1; 
+ex_typing(i) = stims_repeat(stim_noise, n_repeats, 'framerate', framerate, 'debug', true); i = i+1; 
 
 %%
 % stim_typing = addStruct(stim, stim_noise);
@@ -105,7 +108,7 @@ ex_typing(i) = stims_repeat(stim_noise, n_repeats, 'framerate', framerate); i = 
 %% Moving Bar: Probing Wide-field effect.
 % A bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). Johnston and Lagnado (2016)
 % Stim size: 128 px ~ 2600 um
-n_repeats = 2;
+n_repeats = 10;
 moving_bar('barColor', 'dark','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'angle_every', 45, 'N_repeat', 8 * n_repeats); 
 %%
 moving_bar('barColor','white','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'angle_every', 45, 'N_repeat', 8 * n_repeats);
@@ -115,29 +118,34 @@ moving_bar('barColor','white','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.
 % cell array in values -> struct array
 % Field add? [S(:).newname] = deal([])
 params = struct('function', 'naturalmovie2', 'framerate', 20, 'jumpevery', 60,... 
-                'length', 0.2, 'repeat', 4,... 
+                'length', 0.2, 'repeat', 5,... 
                     'mov_id',   {1, 3},... 
                 'startframe', {910, 450}, 'seed', 7,... 
                 'ndims', [128,128], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]);
             
 % script for playing stimulus. 'params' should be defined in advance.
-debug_exp = true;
+debug_exp = false;
+[params(:).name] = deal([loc_id, '_Cells_reliability_to_nat_movies']);
 run_stims
-
-%%            
+%%
+debug_exp = false;
 % Full-field (2 mean level) Gaussian Whitenoise [5 min each]: temporal filter change?
 wn_params = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,... 
                 'ndims', [1,1], 'dist', 'gaussian', 'contrast', 0.35,... 
-                'length', 5, 'w_mean', {0.2, 1}, 'c_mask', [0, 1, 1]); k = length(wn_params);
-% Bar (color) whitenoise across the dorsal-ventral direction            
-wn_params(k+1) = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,... 
+                'length', 5, 'w_mean', {1.0, 0.2}, 'c_mask', [0, 1, 0]); k = length(wn_params);
+params = wn_params;
+[params(:).name] = deal([loc_id, 'uniform_whitenoise_UV']);
+run_stims
+%% Bar (color) whitenoise across the dorsal-ventral direction            
+wn_params = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,... 
                 'ndims', [35,1,3], 'dist', 'binary', 'contrast', 1,... 
                 'length', 10, 'w_mean', 1, 'c_mask', [0, 1, 1]); 
 %            
 %params = addStruct(nm_params, wn_params)
-parmas = wn_params;
+params = wn_params;
+[params(:).name] = deal([loc_id, 'bar1d_wn_color']);
 run_stims
-%% Main recording: Natural movie & White-noise
+%% Main recording: Natural movie
 % 1.4 mm aperture : 2.7 mm [64 64] mov, 35 grid checkers  1.48 mm
 % 1.3 mm apergure : 1.36 mm [64 64] mov
 % 10-min long natural movies
@@ -145,7 +153,9 @@ nm_params = struct('function', 'naturalmovie2', 'framerate', 20, 'jumpevery', 60
                 'length', 10, 'repeat', 1,... 
                 'mov_id', [1, 2, 3, 4], 'startframe', 1, 'seed', 7,... 
                 'ndims', [100, 100], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]);
-params= nm_parmas;
+params= nm_params;
+loc_id = 'loc1';
+[params(:).name] = deal([loc_id, 'nat_movies']);
 run_stims            
 
 %%

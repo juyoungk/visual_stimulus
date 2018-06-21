@@ -26,7 +26,13 @@
       
       % 'params' in workspace
       stimuli = params;
-        %stimuli = loadjson(fullfile(basedir, 'config.json'));
+      if isfield(params, 'name')
+          str_name = params(1).name;
+      else
+          str_name = '';
+      end
+      
+       %stimuli = loadjson(fullfile(basedir, 'config.json'));
       
       % today's directory. Create if it doesn't exist for ex history log.
       basedir = fullfile('logs/', ex.today);
@@ -78,12 +84,7 @@
       endexpt();
 
       if ~debug_exp
-        if isfield(ex, 'name')
-            str_name = ex.name; % FOV name or ex note?
-        else
-            str_name = '';
-        end
-          
+
         % Save the experimental metadata
         savejson('', ex, fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_expt_', str_name,'.json']));
                     save(fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_exlog', str_name,'.mat']), 'ex');
@@ -107,15 +108,14 @@
       struct2table(rmfield(ex.my_error.stack,'file'))
       
       %  
-      
-      
       % Close windows and textures, clean up
       endexpt();
 
       % Send results via Pushover
       if ~debug_exp
         %sendexptresults(ex);
-        save(fullfile(basedir, ['error_', datestr(now, 'HH_MM_SS'), '_exlog.mat']), 'my_error'); % or 'ex'
+        savejson('', ex, fullfile(basedir, ['stopped_', datestr(now, 'HH_MM_SS'), '_expt_', str_name,'.json']));
+        save(fullfile(basedir, ['stopped_', datestr(now, 'HH_MM_SS'), '_exlog', str_name, '.mat']), 'ex');
       end
 
     end

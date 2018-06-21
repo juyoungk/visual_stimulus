@@ -28,7 +28,7 @@ disp(['screen.black = ',num2str(screen.black)]);
     boxL_um = 60; %unit: um
     boxL = Pixel_for_Micron(boxL_um);  %um to pixels
     
-    N = 50; % determines the stim size
+    N = 5; % determines the stim size
     pd_shift_from_center = 2.5; % mm
     stimsize = Pixel_for_Micron(boxL_um*N);
     
@@ -63,11 +63,11 @@ ifi = screen.ifi;
         end
         
     % 2. texture (Is there a chromatic abberation ?)
-    [x, y] = meshgrid(1:N, 1:N);
+    [x, y] = meshgrid(1:N, 1:N);  
     texMatrix = max(min(mod(x+y,2)*2*screen.gray, 255), 0);
-    
-    % pattern 
+    % coordinate check 
     %texMatrix(1, :) = 255;
+    texMatrix(:, 1) = 255;
     
     objTex  = Screen('MakeTexture', screen.w, texMatrix);
     angle = 0;
@@ -81,6 +81,8 @@ ifi = screen.ifi;
             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
             if YorN==27, break; end
         end
+        
+        
         
 %     % 2-2. White noise texture
 %     for j=1:3

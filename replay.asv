@@ -19,7 +19,7 @@ end
 basedir = fullfile('logs/', which_expt);
 
 % file search
-files = dir(fullfile(basedir, '*.json'));
+files = dir(fullfile(basedir, '*.mat'));
 num_ex_files = length(files);
 if num_ex_files < 1
   error('no ex (mat files) in designated folder');
@@ -30,16 +30,14 @@ else
 end
 
 % File select
-which_ex = input('Which ex (json) file would you like to replay?');
-filename = files(which_ex);
-expt = loadjson(fullfile(cd, basedir, filename));
+which_ex = 
 
 %%
-% if exist(fullfile(cd, basedir, 'expt.json'), 'file') == 2
-%   expt = loadjson(fullfile(cd, basedir, 'expt.json'));
-% else
-%   error('Could not find expt.json file for today!')
-% end
+if exist(fullfile(cd, basedir, 'expt.json'), 'file') == 2
+  expt = loadjson(fullfile(cd, basedir, 'expt.json'));
+else
+  error('Could not find expt.json file for today!')
+end
 
 % filename for the hdf5 file
 fname = 'stimulus.h5'; %fullfile(expanduser('~/Desktop/'), datestr(now, 'mmddyy'), 'stimulus.h5');
