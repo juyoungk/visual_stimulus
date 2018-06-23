@@ -30,8 +30,8 @@ else
 end
 
 % File select
-which_ex = input('Which ex (json) file would you like to replay?');
-filename = files(which_ex);
+which_ex = input('Which ex (json) file would you like to replay? ');
+filename = files(which_ex).name;
 expt = loadjson(fullfile(cd, basedir, filename));
 
 %%

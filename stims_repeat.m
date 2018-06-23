@@ -231,7 +231,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                 
             end
             ex.end = datestr(now, 'HH:MM:SS');
-            ex.duration = ex.end - ex.start
+            ex.duration = ex.end - ex.t_start;
             %disp(['Total duration of stimulus was ', num2str(ex.duration), ' secs']);
             
           % Check for ESC keypress during the experiment

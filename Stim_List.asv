@@ -63,7 +63,7 @@ stim = []; j=1;
 w = [1 1 .5]; % color weight (calibration) factor or mean level
 blueUV = [0 .8 .8]; % white color mix ratio
 % half period (secs)
-     n_repeats = 1;
+     n_repeats = 10;
       hp_flash = 2;
     hp_grating = 2;
 stim    = struct('tag',    'UV',  'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 0, 'w_Annulus', .3, 'color', [0  1  0].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
@@ -88,7 +88,7 @@ stim(j) = struct('tag', 'sync step', 'ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 
 stim(j) = struct('tag', 'diff step', 'ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'Annulus', 0, 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
 %stim(j) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'Annulus', 0, 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
 % black
-stim(j) = struct('tag', '', 'ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 0, 'w_Annulus', .3, 'color', [0 0 0].*w, 'half_period', hp_flash/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 0, 'w_Annulus', .3, 'color', [0 0 0].*w, 'half_period', hp_flash/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
  
 ex_typing = stims_repeat(stim, n_repeats, 'debug', true); i = i + 1; % FOV (or ex) index % + options % save the stim in log forder?
 
