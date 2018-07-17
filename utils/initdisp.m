@@ -9,9 +9,11 @@ function ex = initdisp(ex, x0, y0, varargin)
 %
 % 27 Feb 2015 - added check for background color in 'ex' struct
 % 28 Apr 2015 - removed check for alternate display
-
-% Feb 07 2018 - input arguments for offset position
-%               Screen number search for lowest resolution
+% 
+% xxx xx 2017 JY - Options for screen selection.   
+% Feb 07 2018 JY - input arguments for offset position
+%                  Screen number search for lowest resolution
+% Jul 16 2018 JY - Color weight vector for custom DLP setup.
 
 if nargin <2
     x0 = 0;
@@ -44,14 +46,24 @@ for i = 1:n
 end
 disp(['Screen number = ', num2str(ex.disp.screen)]);
 
-% Colors
+% Colors (Scalers)
 ex.disp.white = round(WhiteIndex(ex.disp.screen));
 ex.disp.black = BlackIndex(ex.disp.screen);
 ex.disp.gray  = round((ex.disp.white + ex.disp.black) / 2);
 
+% Color gray vector (direction of gray) or color weight
+% For mouse experiment by JY
+ex.disp.grayvector = [0 1 .5];
+
+% White and black by the user-defined gray vector
+ex.disp.whitecolor = round(ex.disp.white * ex.disp.grayvector);
+ex.disp.blackcolor = round(ex.disp.black * ex.disp.grayvector);
+ex.disp.graycolor  = round(ex.disp.gray  * ex.disp.grayvector);
+
 % Check 'ex' struct for background color
 if ~isfield(ex.disp, 'bgcol')
-  ex.disp.bgcol = 127.5 .* ones(1, 3);
+  %ex.disp.bgcol = 127.5 .* ones(1, 3);
+  ex.disp.bgcol = ex.disp.graycolor;
 end
 
 % Initialize the OpenGL pipeline, set debugging

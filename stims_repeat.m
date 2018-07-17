@@ -6,6 +6,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
         n_repeats = 3
     end
     debug_exp = p.Results.debug;
+    ex_title = p.Results.title;
     % default conditions
     gray_margin = 0.2;
     framerate = p.Results.framerate;
@@ -14,12 +15,14 @@ function ex = stims_repeat(stim, n_repeats, varargin)
     addpath('utils/')
     commandwindow
     try
+          % id for FOV or Exp.
+          loc_id = input(['\nNEW EXPERIMENT: ', ex_title, '\nFOV or Loc name? (e.g. 1 or 2 ..) ']); 
+          [stim(:).name] = deal(['loc',loc_id, '_', ex_title]);
+            
           % Construct an experimental structure array
           ex = initexptstruct(debug_exp);
           % Initialize the keyboard
           ex = initkb(ex);
-          % bg color & margin
-          ex.disp.bgcol = 0;
           
           % Initalize the visual display w/ offset position
           ex = initdisp(ex, 1500, -100);
@@ -33,6 +36,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
             ex.stim{e} = stim(e);
             ex.stim{e}.framerate = framerate;
           end
+          ex.n_repeats = n_repeats;
             
           % initialize the VBL timestamp
           vbl = GetSecs();
@@ -62,15 +66,25 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     L = s.sizeCenter * 1000 * ex.disp.pix_per_um;
                     L_gray = (s.sizeCenter + gray_margin)*1000*ex.disp.pix_per_um;
                     
+                    % color & delay
+                    if ~isfield(s, 'color') || isempty(s.color)
+                        s.color = [1 1 1];
+                    end
+                    if ~isfield(s, 'delay') || isempty(s.delay)
+                        s.delay = 0;
+                    end
+                    if ~isfield(s, 'cycle') || isempty(s.cycle)
+                        s.cycle = 1;
+                    end
                     %
-                    nx = s.ndims(1);      
+                    nx = s.ndims(1);
                     ny = s.ndims(2);
                     % dim+1 checkers
-                    checkers_center = gen_checkers(nx+1, ny+1);
-                    checkers_center = color_matrix(checkers_center, s.color);
+                    checkers_center = gen_checkers(nx+1, ny+1); % 0 and 1 checkers
+                    checkers_center = color_matrix(checkers_center, s.color .* ex.disp.whitecolor);
                     
                     % make the texture
-                    ct_texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * checkers_center));
+                    ct_texid = Screen('MakeTexture', ex.disp.winptr, uint8(checkers_center));
                     
                     % texture dst rect (integer times checkers)
                     w_pixels_x = ceil(L/nx);
@@ -78,6 +92,10 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     Lx = w_pixels_x * nx;
                     Ly = w_pixels_y * ny;
                     Lchecker = max(Lx, Ly);
+                    % display for grating stim
+                    if any(s.ndims > [1, 1])
+                        fprintf('(Grating stimulus) Pixels per one checker: [%d, %d]\n', w_pixels_x, w_pixels_y);  
+                    end
                     ct_checker_rect = CenterRectOnPoint(...	
                               [0 0 Lchecker Lchecker], ...
                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
@@ -86,7 +104,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     ct_dst_rect = CenterRectOnPoint(...	
                               [0 0 L L], ...
                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
-                    % gray dst rect
+                    % gray dst rect : rect for margin btw ct and bg
                     gray_rect = CenterRectOnPoint(...	
                               [0 0 L_gray L_gray], ...
                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
@@ -112,8 +130,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                               [0 0 L_bg L_bg], ...
                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
                     checkers_bg = gen_checkers(nx_bg+1, ny_bg+1);
-                    checkers_bg = color_matrix(checkers_bg, s.color);     
-                    bg_texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * checkers_bg));
+                    checkers_bg = color_matrix(checkers_bg, s.color .* ex.disp.whitecolor);     
+                    bg_texid = Screen('MakeTexture', ex.disp.winptr, uint8(checkers_bg));
                     
                     % prepare whitenoise frames
                     if isfield(s, 'noise_contrast') && ~isempty(s.noise_contrast)
@@ -128,18 +146,32 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     
                     for kk =1:s.cycle
                         
-                        shift_ct = 1:frames_per_period > (round(frames_per_period/2.));
+                        % phase for impulse (default for flashes)
+                        if all(s.ndims == [1 1])
+                            shift_ct = 0.5 * ones(1, frames_per_period);
+                            shift_ct(1:2) = 0;                   % 2 frames = 1/15 sec for 30Hz presentation.
+                            fi_ON = round(frames_per_period/2.); % frame id for pahse = 1 
+                            shift_ct([fi_ON, fi_ON+1]) = 1;
+                        else
+                            % phase for step (duty rate 50%):
+                            shift_ct = 1:frames_per_period > (round(frames_per_period/2.));
+                        end
+                        
                         shift_bg = circshift(shift_ct, round(s.delay*frames_per_period));
+                        
                         % phase of the annulus: flashing vs moving
                         if length(L_ann) == 2 % [a, b]: moving anuulus
                             ann_phase = ones(1, frames_per_period);
                         else % single annulus: flashing
-                            ann_phase = 1:frames_per_period <= (round(frames_per_period/2.));   % anti-phase with shift variable
+                            ann_phase = shift_ct; % same as center object
                             ann_phase = circshift(ann_phase, round(s.delay*frames_per_period)); % flashing annulus
                         end
                         
                         for fi = 1:frames_per_period 
                               
+                              % bg color for entire presentation field.
+                              Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.winrect);
+                            
                               if nx > 1
                                   src_rect_bg = [shift_bg(fi) 0 nx_bg + shift_bg(fi)  ny_bg];
                                   src_rect_ct = [shift_ct(fi) 0    nx + shift_ct(fi)  ny   ];
@@ -151,7 +183,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                               % draw the BG texture & gray gap
                               if isfield(s, 'BG') && ~isempty(s.BG) && s.BG
                                   Screen('DrawTexture', ex.disp.winptr, bg_texid, src_rect_bg, bg_dst_rect, 0, 0);
-                                  Screen('FillRect',    ex.disp.winptr, ex.disp.gray*s.color, gray_rect);
+                                  Screen('FillRect',    ex.disp.winptr, ex.disp.bgcol, gray_rect); % margin rect.
                               end
                               % Annulus
                               if sum(L_ann) > 0 % L_ann is either a value or a range [a, b].
@@ -164,28 +196,33 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                     rect_ann_out = CenterRectOnPoint(...	
                                               [0 0 L_ann_out L_ann_out], ...
                                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
-                                  %
-                                  Screen('FillOval', ex.disp.winptr, s.color * ex.disp.white * ann_phase(fi), rect_ann_out);
-                                  Screen('FillOval', ex.disp.winptr, ex.disp.black, rect_ann_in);
+                                  % phase [0 1] into pixel value
+                                  Screen('FillOval', ex.disp.winptr, (s.color .* ex.disp.whitecolor) * ann_phase(fi), rect_ann_out);
+                                  Screen('FillOval', ex.disp.winptr, ex.disp.bgcol, rect_ann_in);
                               end
                               
-                              % Alpha Mask for center
+                              % Alpha Mask for center circle
                                 % Disable alpha-blending, restrict following drawing to alpha channel:
                                 Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [0 0 0 1]);
                                 % Clear 'dstRect' region of framebuffers alpha channel to zero: 
                                 Screen('FillRect', ex.disp.winptr, [0 0 0 0], ex.disp.dstrect); % Alpha 0 means completely clear. 
-                                Screen('FillRect', ex.disp.winptr, [0 0 0 ex.disp.white], ct_dst_rect);  
+                                Screen('FillOval', ex.disp.winptr, [0 0 0 ex.disp.white], ct_dst_rect);  
                                 %
                                 Screen('Blendfunction', ex.disp.winptr, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
                               
                               if isfield(s, 'noise_contrast') && ~isempty(s.noise_contrast)
-                                  noise_frame = color_weight(frames(:,:,:,fi), s.color);
-                                  ct_texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.white * noise_frame));
+                                  noise_frame = color_weight(frames(:,:,:,fi), s.color .* ex.disp.whitecolor);
+                                  ct_texid = Screen('MakeTexture', ex.disp.winptr, uint8(noise_frame));
                                   src_rect_ct = [0 0 nx ny];
                               end
                                 
                               % Draw center pattern
-                              Screen('DrawTexture', ex.disp.winptr, ct_texid, src_rect_ct, ct_checker_rect, 0, 0);
+                              %if all(s.ndims == [1,1]) && (shift_ct(fi) == 0.5)
+                              if shift_ct(fi) == 0.5 % 0.5 phase shift means gray or bg color. 
+                                Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ct_checker_rect);  
+                              else
+                                Screen('DrawTexture', ex.disp.winptr, ct_texid, src_rect_ct, ct_checker_rect, 0, 0);
+                              end
                               % Restore alpha setting
                               Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 1 1 1]);
                                
@@ -199,7 +236,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                               Screen('FillOval', ex.disp.winptr, pd, ex.disp.pdrect);
                               %Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [s.color 1]);
 
-                              % flip onto the scren
+                              % flip onto the screen
                               Screen('DrawingFinished', ex.disp.winptr);
                               [vbl, ~, ~, missed] = Screen('Flip', ex.disp.winptr, vbl + stim_ifi - ex.disp.ifi/2.);
                               
@@ -270,8 +307,9 @@ function ex = stims_repeat(stim, n_repeats, varargin)
 end
 
 function p = gen_checkers(nx, ny)
+% Generate checkers composed of 0 and 1. 
     [x, y] = meshgrid(1:nx, 1:ny);
-    p = mod(x+y+1, 2);
+    p = mod(x+y, 2);
 end
 
 function C = color_matrix(A, color)
@@ -306,6 +344,7 @@ function p =  ParseInput(varargin)
     
     addParamValue(p,'framerate', 30, @(x)x>=0);
     addParamValue(p,'debug', false, @(x) islogical(x));
+    addParamValue(p,'title', '_', @(x) ischar(x));
 %     addParamValue(p,'c_mask', [0 1 1], @(x) isvector(x));
 %     addParamValue(p,'barColor', 'dark', @(x) strcmp(x,'dark') || ...
 %         strcmp(x,'white'));

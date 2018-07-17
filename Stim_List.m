@@ -29,10 +29,13 @@ data = 255;
 err=DaqDOut(DeviceIndex, port, data);
 
 %% gammaTable for DLP
-[gammaTable0, dacbits, reallutsize] =Screen('ReadNormalizedGammaTable', 2);
-gammaTable0(:,2) = gammaTable0(:,2)*0.6;
+ScreenNum = 0;
+[gammaTable0, dacbits, reallutsize] =Screen('ReadNormalizedGammaTable', ScreenNum);
 %%
-Screen('LoadNormalizedGammaTable', 2, gammaTable0);
+%gammaTable0(:,2) = gammaTable0(:,2)*0.6;
+gammaTable0(:,3) = gammaTable0(:,3)*0.5;
+%%
+Screen('LoadNormalizedGammaTable', ScreenNum, gammaTable0);
 % Screen('ColorRange') for color range independent of system [0 t1]
 %% Commandwindow % Change focus to command window
 addpath('HelperFunctions/')
@@ -57,27 +60,29 @@ testscreen_colors;
 % calibration between LEDs: UV is ~12% brighter than Blue at 255 value.
 % Blue is brighter by ~25% in middle range color values.
 % (0410)
-loc_id = 'loc1';
+ex_title = 'typing';
 %
-stim = []; j=1;
-w = [1 1 .5]; % color weight (calibration) factor or mean level
-blueUV = [0 .8 .8]; % white color mix ratio
+w = [1 1 1]; % color weight (calibration) factor or mean level
+blueUV = [0 .5 .5]; % white color mix ratio
 % half period (secs)
-     n_repeats = 1;
+     n_repeats = 10;
       hp_flash = 2;
     hp_grating = 2;
-stim    = struct('tag',    'UV',  'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 0, 'w_Annulus', .3, 'color', [0  1  0].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim    = struct('tag',    'UV', 'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 0, 'w_Annulus', .3, 'color', [0  1  0].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=2;
 stim(j) = struct('tag',  'Blue', 'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 0, 'w_Annulus', .3, 'color', [0  0  1].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 %stim(j) = struct('tag','UVBlue', 'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 0, 'w_Annulus', .3, 'color',    blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 %
-% Flickering annulus
-stim(j) = struct('tag', 'w/ 1.2 Ann', 'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 1.2,       'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-stim(j) = struct('tag', 'w/ 1.6 Ann', 'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 1.6,       'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-stim(j) = struct('tag', 'w/ 2.0 Ann', 'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 2.0,       'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+% Peripheral input can excite the amacrine cells?
+% 1. annulus (D = ...)
+% 2. annulus grating?
+stim(j) = struct('tag', 'w/ 1.2 Ann', 'ndims',[1,1], 'sizeCenter', 0.4, 'BG', 0, 'Annulus', 1.2,       'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('tag', 'w/ 1.6 Ann', 'ndims',[1,1], 'sizeCenter', 0.4, 'BG', 0, 'Annulus', 1.6,       'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
+stim(j) = struct('tag', 'w/ 2.0 Ann', 'ndims',[1,1], 'sizeCenter', 0.4, 'BG', 0, 'Annulus', 2.0,       'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 % Moving annulus
 stim(j) = struct('tag', 'Mov Ann+', 'ndims',[1,1], 'sizeCenter', 0.0, 'BG', 0, 'Annulus', [1., 2.5], 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 stim(j) = struct('tag', 'Mov Ann-', 'ndims',[1,1], 'sizeCenter', 0.0, 'BG', 0, 'Annulus', [2.5, 1.], 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-% % % Nonlinear spatial summation: RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
+
+
 % stim(j) = struct('ndims',[28, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
 % stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
 % % pause
@@ -87,10 +92,38 @@ stim(j) = struct('tag', 'Mov Ann-', 'ndims',[1,1], 'sizeCenter', 0.0, 'BG', 0, '
 stim(j) = struct('tag', 'sync step', 'ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'Annulus', 0, 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
 stim(j) = struct('tag', 'diff step', 'ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'Annulus', 0, 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
 %stim(j) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'Annulus', 0, 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
+
 % black
 stim(j) = struct('tag', '', 'ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 0, 'w_Annulus', .3, 'color', [0 0 0].*w, 'half_period', hp_flash/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
- 
+
+%
+loc_id = input(['\nNEW EXPERIMENT: ',ex_title, '\nFOV or Loc name? (e.g. 1 or 2 ..) ']); 
+[stim(:).name] = deal(['loc',loc_id, '_', ex_title]);
 ex_typing = stims_repeat(stim, n_repeats, 'debug', true); i = i + 1; % FOV (or ex) index % + options % save the stim in log forder?
+
+%% 0716 2018 typing stimulus
+ex_title = 'typing';
+stim = [];
+ n_repeats = 10;
+  hp_flash = 2;
+hp_grating = 1;
+% ndims=[1,1]: flash mode. Impulse turn on and off.
+flash = struct('tag', 'flash', 'ndims', [1,1], 'color', [0 1 1], 'sizeCenter', 0.6, 'half_period', hp_flash); stim = addStruct(stim, flash);
+annul = struct('tag', {'w/ 1.2 Ann','w/ 1.6 Ann'},...
+                        'Annulus', {1.2, 1.6},...
+                        'ndims', [1,1], 'sizeCenter', 0, 'BG', 0,...
+                        'w_Annulus', .4, 'half_period', hp_flash);          stim = addStruct(stim, annul);
+% Nonlinear spatial summation: RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
+% 14 bars / 640 um ~ width: 50 um
+grating = struct('tag', 'grating',...
+                'ndims', {[56,1], [28,1], [14,1]},...
+                'sizeCenter', 0.64, 'half_period', hp_grating, 'cycle', 2); stim = addStruct(stim, grating);
+%            
+blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); stim = addStruct(stim, blank);
+%
+ex_typing = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', true);
+
+% check the struct 'stim'
 
 %% Typing by Full-field noise stim: aligned depol & hypol events & adaptation/sensitization: Functional classification
 % Not for RF since it cannot replay. Binary noise would be sufficient. 
@@ -130,7 +163,7 @@ params = struct('function', 'naturalmovie2', 'framerate', 20, 'jumpevery', 60,..
 loc_id = input(['\nNEW EXPERIMENT: ',ex_title, '\nFOV or Loc name? (e.g. loc1) '], 's'); 
 [params(:).name] = deal([loc_id, '_', ex_title]);
 run_stims
-%%
+%% Full-fild WN (Gaussian): Linear vs Nonlinear populations
 ex_title = 'Uniform_Whitenoise_UV';
 debug_exp = false;
 % Full-field (2 mean level) Gaussian Whitenoise [5 min each]: temporal filter change?

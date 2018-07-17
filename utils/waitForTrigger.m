@@ -16,6 +16,10 @@ x = 0.45*xsize;
 y = 0.42*ysize;
 
 %% arm the trigger
+
+% bg 
+Screen('FillRect', ex.disp.winptr, ex.disp.graycolor, ex.disp.winrect);
+
 Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 0 0 1]);
 Screen('DrawText', ex.disp.winptr, 'Press ''spacebar'' to arm trigger ... ', ...
 	x, y, ex.disp.white);
