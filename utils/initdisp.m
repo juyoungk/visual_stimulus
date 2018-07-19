@@ -11,7 +11,7 @@ function ex = initdisp(ex, x0, y0, varargin)
 % 28 Apr 2015 - removed check for alternate display
 % 
 % xxx xx 2017 JY - Options for screen selection.   
-% Feb 07 2018 JY - input arguments for offset position
+% Feb 07 2018 JY - Input arguments for offset position
 %                  Screen number search for lowest resolution
 % Jul 16 2018 JY - Color weight vector for custom DLP setup.
 
@@ -72,12 +72,12 @@ InitializeMatlabOpenGL;
 % Juyoung option 
 ex.disp.nominal_frate = Screen('NominalFrameRate', ex.disp.screen);
 if any([ex.disp.nominal_frate == 0, ex.disp.screen ==0, ex.debug==1])
-    Screen('Preference', 'SkipSyncTests',1);
+    Screen('Preference', 'SkipSyncTests', 1);
     Screen('Preference', 'VisualDebugLevel', 3);
     ex.disp.ifi=0.01176568031;
     %[ex.disp.w ex.disp.rect]=Screen('OpenWindow', ex.disp.screen, backColor, [10 10 1000 1000]);
     [ex.disp.winptr, ex.disp.winrect] = PsychImaging('OpenWindow', ...
-                        ex.disp.screen, ex.disp.bgcol,[0 10 1024 778]);
+                        ex.disp.screen, ex.disp.bgcol, [0 10 1024 778]);
     ex.rig_Name = 'test';                
      
 else
@@ -124,6 +124,7 @@ ex.disp.pdrect  = CenterRectOnPoint(ex.disp.pdsize, ...
 % Juyoung PD setting
 %[ex.disp.pdrect, ex.disp.pd_color] = DefinePD_shift(ex.disp.winptr);
 [ex.disp.pdrect, ex.disp.pd_color] = DefinePD_shift_ex(ex);
+ex.disp.pdcolor = [1 0 0] * ex.disp.white;
 
 % the destination rectangle: size and offset
 aperturesize = 1.4 % mm

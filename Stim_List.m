@@ -76,12 +76,6 @@ stim(j) = struct('tag',  'Blue', 'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Ann
 % 1. annulus (D = ...)
 % 2. annulus grating?
 stim(j) = struct('tag', 'w/ 1.2 Ann', 'ndims',[1,1], 'sizeCenter', 0.4, 'BG', 0, 'Annulus', 1.2,       'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-stim(j) = struct('tag', 'w/ 1.6 Ann', 'ndims',[1,1], 'sizeCenter', 0.4, 'BG', 0, 'Annulus', 1.6,       'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-stim(j) = struct('tag', 'w/ 2.0 Ann', 'ndims',[1,1], 'sizeCenter', 0.4, 'BG', 0, 'Annulus', 2.0,       'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-% Moving annulus
-stim(j) = struct('tag', 'Mov Ann+', 'ndims',[1,1], 'sizeCenter', 0.0, 'BG', 0, 'Annulus', [1., 2.5], 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-stim(j) = struct('tag', 'Mov Ann-', 'ndims',[1,1], 'sizeCenter', 0.0, 'BG', 0, 'Annulus', [2.5, 1.], 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-
 
 % stim(j) = struct('ndims',[28, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
 % stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
@@ -108,22 +102,30 @@ stim = [];
   hp_flash = 2;
 hp_grating = 1;
 % ndims=[1,1]: flash mode. Impulse turn on and off.
-flash = struct('tag', 'flash', 'ndims', [1,1], 'color', [0 1 1], 'sizeCenter', 0.6, 'half_period', hp_flash); stim = addStruct(stim, flash);
-annul = struct('tag', {'w/ 1.2 Ann','w/ 1.6 Ann'},...
-                        'Annulus', {1.2, 1.6},...
-                        'ndims', [1,1], 'sizeCenter', 0, 'BG', 0,...
-                        'w_Annulus', .4, 'half_period', hp_flash);          stim = addStruct(stim, annul);
+flash = struct('tag', 'flash', 'ndims', [1,1], 'sizeCenter', 0.6, 'half_period', hp_flash);
+annul = struct('tag', {'Ann0.8', 'Ann1.2','Ann1.6'}, 'ndims', [1,1], 'sizeCenter', 0,...
+                        'Annulus', {0.8, 1.2, 1.6},...
+                        'w_Annulus', .4, 'half_period', hp_flash);
+% moving annulus? 'Annulus', [1., 2.5]                   
 % Nonlinear spatial summation: RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
 % 14 bars / 640 um ~ width: 50 um
 grating = struct('tag', 'grating',...
                 'ndims', {[56,1], [28,1], [14,1]},...
-                'sizeCenter', 0.64, 'half_period', hp_grating, 'cycle', 2); stim = addStruct(stim, grating);
+                'sizeCenter', 0.64, 'half_period', hp_grating, 'cycle', 3, 'phase_1st_cycle', 1);
+% grating from far
+fartex = struct('tag', 'fartex',...
+                'ndims', {[14,1]}, 'sizeCenter', 0.64, 'draw_center', false,...
+                'BG', 1.0, 'half_period', hp_grating, 'cycle', 3, 'phase_1st_cycle', 1, 'delay', 0);
 %            
-blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); stim = addStruct(stim, blank);
+blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
+%
+stim = addStruct(stim, flash);
+stim = addStruct(stim, annul);
+stim = addStruct(stim, grating);
+stim = addStruct(stim, fartex);
+stim = addStruct(stim, blank);
 %
 ex_typing = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', true);
-
-% check the struct 'stim'
 
 %% Typing by Full-field noise stim: aligned depol & hypol events & adaptation/sensitization: Functional classification
 % Not for RF since it cannot replay. Binary noise would be sufficient. 

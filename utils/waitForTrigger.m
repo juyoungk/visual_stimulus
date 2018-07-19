@@ -17,12 +17,12 @@ y = 0.42*ysize;
 
 %% arm the trigger
 
-% bg 
-Screen('FillRect', ex.disp.winptr, ex.disp.graycolor, ex.disp.winrect);
+% bg color
+%Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.winrect);
 
-Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 0 0 1]);
+%Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 0 0 0]); % update only red channel??
 Screen('DrawText', ex.disp.winptr, 'Press ''spacebar'' to arm trigger ... ', ...
-	x, y, ex.disp.white);
+	x, y, ex.disp.pdcolor);
 ex.disp.vbl = Screen('Flip', ex.disp.winptr);
 while ~ex.key.keycode(ex.key.space) && ~ex.key.keycode(ex.key.esc)
     % (JK comment) Assumption: keycode was initialized as zero vector. 
@@ -33,7 +33,7 @@ end
 %% wait for trigger
 if any(strcmp('m', {'m', 'manual'})) % ??? always true?
 	Screen('DrawText', ex.disp.winptr, 'Press ''t'' for experimenter trigger  ... ', ...
-		x, y, ex.disp.white);
+		x, y, ex.disp.pdcolor);
 	Screen('FillOval', ex.disp.winptr, ex.disp.black, ex.disp.pdrect);
 	Screen('Flip', ex.disp.winptr);
 	while ~ex.key.keycode(ex.key.t) % KbCheck inside a loop ! 
@@ -41,8 +41,8 @@ if any(strcmp('m', {'m', 'manual'})) % ??? always true?
         ex = checkkb(ex);
 	end
 else
-	Screen('DrawText', ex.disp.winptr, 'Waiting for recording computer ... ', ...
-		x, y);
+	Screen('DrawText', ex.disp.winptr, 'Waiting for recording computer ... ',...
+		x, y, ex.disp.pdcolor);
 	Screen('FillOval', ex.disp.winptr, ex.disp.black, ex.disp.pdrect);
 	Screen('Flip', ex.disp.winptr);
 	WaitForRec;
@@ -51,4 +51,6 @@ end
 
 %% hide the cursor to start the experiment
 %HideCursor;
-Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 1 1 1]);
+%Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 1 1 1]);
+
+end

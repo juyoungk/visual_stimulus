@@ -1,9 +1,14 @@
 function ex = stims_repeat(stim, n_repeats, varargin)
+%STIMS_REPEAT present the given stimulus (struct) by n_repeats times using
+%PTB. Stimulus can be [n m] grating or annulus. Flash is a [1 1] case of
+%grating and turn on/off by shifting [2 1] grating. 
+%
 % noise: uniformly-distributed whitenoise only. ndims = 3 only.
 % gap between center and bg: 0.2mm
+% 
     p = ParseInput(varargin{:});
     if nargin < 2
-        n_repeats = 3
+        n_repeats = 3;
     end
     debug_exp = p.Results.debug;
     ex_title = p.Results.title;
@@ -76,6 +81,10 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     if ~isfield(s, 'cycle') || isempty(s.cycle)
                         s.cycle = 1;
                     end
+                    % FLAG for center drawing
+                    if ~isfield(s, 'draw_center') || isempty(s.draw_center)
+                        s.draw_center = true;
+                    end
                     %
                     nx = s.ndims(1);
                     ny = s.ndims(2);
@@ -125,7 +134,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     end
                     Lx_bg = w_pixels_x * nx_bg;
                     Ly_bg = w_pixels_y * ny_bg;
-                    L_bg = max(Lx_bg, Ly_bg); 
+                    L_bg = max(Lx_bg, Ly_bg) 
                     bg_dst_rect = CenterRectOnPoint(...	
                               [0 0 L_bg L_bg], ...
                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
@@ -144,8 +153,18 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         frames = s.noise_contrast * frames + (1-s.noise_contrast)/2.;
                     end
                     
+                    % prepare screen before repeating by cycle numbers
+                    % e.g. constant phase (1) grating before contrast-reversing
+                    for fi = 1:frames_per_period % one cycle for being ready
+                        % bg color for entire presentation field.
+                        Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.winrect);
+                        
+                    end
+                    
+                    % The main stimulus
                     for kk =1:s.cycle
                         
+                        % phase profile or trajectories
                         % phase for impulse (default for flashes)
                         if all(s.ndims == [1 1])
                             shift_ct = 0.5 * ones(1, frames_per_period);
@@ -153,11 +172,9 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                             fi_ON = round(frames_per_period/2.); % frame id for pahse = 1 
                             shift_ct([fi_ON, fi_ON+1]) = 1;
                         else
-                            % phase for step (duty rate 50%):
+                        % phase for step (duty rate 50%):
                             shift_ct = 1:frames_per_period > (round(frames_per_period/2.));
                         end
-                        
-                        shift_bg = circshift(shift_ct, round(s.delay*frames_per_period));
                         
                         % phase of the annulus: flashing vs moving
                         if length(L_ann) == 2 % [a, b]: moving anuulus
@@ -167,7 +184,18 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                             ann_phase = circshift(ann_phase, round(s.delay*frames_per_period)); % flashing annulus
                         end
                         
-                        for fi = 1:frames_per_period 
+                        % phase for 1st cycle: can be constant
+                        if isfield(s, 'phase_1st_cycle') && ~isempty(s.phase_1st_cycle)
+                            if kk == 1
+                                shift_ct = s.phase_1st_cycle * ones(1, frames_per_period);
+                            end
+                        end
+                        
+                        % phase for bg = phase for ccenter + delay (if defined.)
+                        shift_bg = circshift(shift_ct, round(s.delay*frames_per_period));
+                        
+                        % presentation    
+                        for fi = 1:frames_per_period
                               
                               % bg color for entire presentation field.
                               Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.winrect);
@@ -183,7 +211,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                               % draw the BG texture & gray gap
                               if isfield(s, 'BG') && ~isempty(s.BG) && s.BG
                                   Screen('DrawTexture', ex.disp.winptr, bg_texid, src_rect_bg, bg_dst_rect, 0, 0);
-                                  Screen('FillRect',    ex.disp.winptr, ex.disp.bgcol, gray_rect); % margin rect.
+                                  Screen('FillOval',    ex.disp.winptr, ex.disp.bgcol, gray_rect); % margin rect.
                               end
                               % Annulus
                               if sum(L_ann) > 0 % L_ann is either a value or a range [a, b].
@@ -218,10 +246,12 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                 
                               % Draw center pattern
                               %if all(s.ndims == [1,1]) && (shift_ct(fi) == 0.5)
-                              if shift_ct(fi) == 0.5 % 0.5 phase shift means gray or bg color. 
-                                Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ct_checker_rect);  
-                              else
-                                Screen('DrawTexture', ex.disp.winptr, ct_texid, src_rect_ct, ct_checker_rect, 0, 0);
+                              if s.draw_center
+                                  if shift_ct(fi) == 0.5 % 0.5 phase shift means gray or bg color. 
+                                    Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ct_checker_rect);  
+                                  else
+                                    Screen('DrawTexture', ex.disp.winptr, ct_texid, src_rect_ct, ct_checker_rect, 0, 0);
+                                  end
                               end
                               % Restore alpha setting
                               Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 1 1 1]);
