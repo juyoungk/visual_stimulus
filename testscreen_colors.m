@@ -25,10 +25,10 @@ screen = InitScreen(debug);
 disp(['screen.white = ',num2str(screen.white)]);
 disp(['screen.black = ',num2str(screen.black)]);
 
-    boxL_um = 60; %unit: um
+    boxL_um = 50; %unit: um
     boxL = Pixel_for_Micron(boxL_um);  %um to pixels
     
-    N = 5; % determines the stim size
+    N = 20; % determines the stim size
     pd_shift_from_center = 2.5; % mm
     stimsize = Pixel_for_Micron(boxL_um*N);
     
@@ -38,8 +38,11 @@ disp(['screen.black = ',num2str(screen.black)]);
     
 % Define the obj Destination Rectangle
 % center the obj to screen.rect which was shifted by xo, yo
+
 objRect = RectForScreen(screen,stimsize,stimsize,0,0);
 box     = RectForScreen(screen,stimsize,stimsize,0,0);
+NNrect = RectForScreen(screen,N,N,0,0); % sinple px width test
+
 % pd rect
 pd = DefinePD_shift(screen.w, 'shift', pd_shift_from_center*1000);
 pd_color = [screen.white, 0, 0];
@@ -65,17 +68,24 @@ ifi = screen.ifi;
     % 2. texture (Is there a chromatic abberation ?)
     [x, y] = meshgrid(1:N, 1:N);  
     texMatrix = max(min(mod(x+y,2)*2*screen.gray, 255), 0);
+    texGrating = max(min(mod(x,2)*2*screen.gray, 255), 0);
+    
     % coordinate check 
     %texMatrix(1, :) = 255;
-    texMatrix(:, 1) = 255;
+    %texMatrix(:, 1) = 255;
     
     objTex  = Screen('MakeTexture', screen.w, texMatrix);
+    objGrating  = Screen('MakeTexture', screen.w, texGrating);
+    
     angle = 0;
     % color change @ white intensity
         for j=1:n_colors
             % bright stim area on dark
             Screen('FillRect', screen.w, 0);
-            Screen('DrawTexture', screen.w, objTex, [], objRect, angle, 0, 1, color_sequence{j});
+            
+            %Screen('DrawTexture', screen.w, objTex, [], objRect, angle, 0, 1, color_sequence{j});
+            Screen('DrawTexture', screen.w, objGrating, [], NNrect, angle, 0, 1, color_sequence{j});
+            
             Screen('FillOval', screen.w, pd_color, pd);
             vbl = Screen('Flip', screen.w, vbl+ifi*0.5);
             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);

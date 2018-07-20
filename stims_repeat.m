@@ -6,17 +6,18 @@ function ex = stims_repeat(stim, n_repeats, varargin)
 % noise: uniformly-distributed whitenoise only. ndims = 3 only.
 % gap between center and bg: 0.2mm
 % 
+    gray_margin = 0.2;
     p = ParseInput(varargin{:});
     if nargin < 2
         n_repeats = 3;
     end
     debug_exp = p.Results.debug;
+    ex_mode = p.Results.mode;
     ex_title = p.Results.title;
     % default conditions
-    gray_margin = 0.2;
-    framerate = p.Results.framerate;
-    stim_ifi = 1/framerate;
     
+    framerate = p.Results.framerate;
+
     addpath('utils/')
     commandwindow
     try
@@ -31,6 +32,9 @@ function ex = stims_repeat(stim, n_repeats, varargin)
           
           % Initalize the visual display w/ offset position
           ex = initdisp(ex, 1500, -100);
+              stim_ifi = 1/framerate;
+              stim_ifi = round(stim_ifi/ex.disp.ifi) * ex.disp.ifi; % integer times of nominal ifi.
+              
           % wait for trigger
           ex = waitForTrigger(ex);
           
@@ -134,7 +138,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     end
                     Lx_bg = w_pixels_x * nx_bg;
                     Ly_bg = w_pixels_y * ny_bg;
-                    L_bg = max(Lx_bg, Ly_bg) 
+                    L_bg = max(Lx_bg, Ly_bg);
                     bg_dst_rect = CenterRectOnPoint(...	
                               [0 0 L_bg L_bg], ...
                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
@@ -152,14 +156,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         frames = randi(rs, 2, [s.ndims, frames_per_period]) - 1; % 0 or 1
                         frames = s.noise_contrast * frames + (1-s.noise_contrast)/2.;
                     end
-                    
-                    % prepare screen before repeating by cycle numbers
-                    % e.g. constant phase (1) grating before contrast-reversing
-                    for fi = 1:frames_per_period % one cycle for being ready
-                        % bg color for entire presentation field.
-                        Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.winrect);
-                        
-                    end
+   
                     
                     % The main stimulus
                     for kk =1:s.cycle
@@ -198,7 +195,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         for fi = 1:frames_per_period
                               
                               % bg color for entire presentation field.
-                              Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.winrect);
+                              Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.dstrect);
                             
                               if nx > 1
                                   src_rect_bg = [shift_bg(fi) 0 nx_bg + shift_bg(fi)  ny_bg];
@@ -278,16 +275,26 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                         ex.disp.missed = ex.disp.missed + 1;
                                     end
                               end
-
+                              
+                              % snapshot mode
+                              if contains(ex_mode, 'snap') && fi == 1
+                                  while ~ex.key.keycode(ex.key.space)
+                                        % (JK comment) Assumption: keycode was initialized as zero vector. 
+                                        % escape the loop by pressing space or esc
+                                        ex = checkkb(ex);
+                                  end
+                                  ex.key.keycode(ex.key.space) = 0;   
+                                  break;
+                              end
+                              
                               % check for ESC
                               ex = checkkb(ex);
                               if ex.key.keycode(ex.key.esc)
                                 ex.stop_by_ESC = datestr(now, 'HH:MM:SS');
                                 %fprintf('ESC pressed. Quitting.')
                                 error('ESC pressed. Quitting.')
-                                break;
                               end
-                              
+                             
                         end
                     end
                     
@@ -373,8 +380,9 @@ function p =  ParseInput(varargin)
     p  = inputParser;   % Create an instance of the inputParser class.
     
     addParamValue(p,'framerate', 30, @(x)x>=0);
-    addParamValue(p,'debug', false, @(x) islogical(x));
+    addParamValue(p,'debug', false, @(x) islogical(x) || isnumeric(x));
     addParamValue(p,'title', '_', @(x) ischar(x));
+    addParamValue(p,'mode', '', @(x) ischar(x));
 %     addParamValue(p,'c_mask', [0 1 1], @(x) isvector(x));
 %     addParamValue(p,'barColor', 'dark', @(x) strcmp(x,'dark') || ...
 %         strcmp(x,'white'));

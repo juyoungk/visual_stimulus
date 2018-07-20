@@ -54,6 +54,7 @@ ex.disp.gray  = round((ex.disp.white + ex.disp.black) / 2);
 % Color gray vector (direction of gray) or color weight
 % For mouse experiment by JY
 ex.disp.grayvector = [0 1 .5];
+%ex.disp.grayvector = [0 0 1];
 
 % White and black by the user-defined gray vector
 ex.disp.whitecolor = round(ex.disp.white * ex.disp.grayvector);
@@ -63,7 +64,7 @@ ex.disp.graycolor  = round(ex.disp.gray  * ex.disp.grayvector);
 % Check 'ex' struct for background color
 if ~isfield(ex.disp, 'bgcol')
   %ex.disp.bgcol = 127.5 .* ones(1, 3);
-  ex.disp.bgcol = ex.disp.graycolor;
+  ex.disp.bgcol = ex.disp.blackcolor;
 end
 
 % Initialize the OpenGL pipeline, set debugging
@@ -92,7 +93,8 @@ else
         ex.disp.screen, ex.disp.bgcol);
     ex.rig_Name = '2P_new_rig_Olympus_4x';
 end
-oldtxtsize = Screen('TextSize', ex.disp.winptr, 10);
+ex.disp.bgcol = ex.disp.graycolor; % Not as a screen setting, but for other codes. 
+%oldtxtsize = Screen('TextSize', ex.disp.winptr, 10);
 
 % Setup alpha-blending
 Screen('BlendFunction', ex.disp.winptr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -115,9 +117,9 @@ ex.disp.pix_per_um = ex.disp.pix_per_100um/100.;
 ex.disp.umperpix = 1./ex.disp.pix_per_um;
 
 % Describe photodiode
-ex.disp.pdscale = 0.9;					% Scale factor for the photodiode signal
+ex.disp.pdscale = 0.95;					% Scale factor for the photodiode signal
 ex.disp.pdctr   = [0.93 0.15];
-ex.disp.pdsize  = SetRect(0, 0, 100, 100);
+ex.disp.pdsize  = SetRect(0, 0, 600, 600);
 ex.disp.pdrect  = CenterRectOnPoint(ex.disp.pdsize, ...
   ex.disp.winrect(3) * ex.disp.pdctr(1), ...
   ex.disp.winrect(4) * ex.disp.pdctr(2));
@@ -127,7 +129,7 @@ ex.disp.pdrect  = CenterRectOnPoint(ex.disp.pdsize, ...
 ex.disp.pdcolor = [1 0 0] * ex.disp.white;
 
 % the destination rectangle: size and offset
-aperturesize = 1.4 % mm
+aperturesize = 1.8; % mm
 ex.disp.aperturesize_mm = aperturesize;                 	% Size of stimulus aperture
 ex.disp.aperturesize    = aperturesize*10*PIXELS_PER_100_MICRONS(ex.rig_Name);                 	% Size of stimulus aperture
 ex.disp.offset_x = round( (x0/100) * PIXELS_PER_100_MICRONS(ex.rig_Name) );

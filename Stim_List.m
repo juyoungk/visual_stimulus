@@ -42,8 +42,6 @@ addpath('HelperFunctions/')
 addpath('functions/')
 addpath('utils/')
 addpath('jsonlab/')
-% common parameters for all stimuli
-debug = 0;
 % screen initialization -> bg color and pd setting
 % offset location? % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen
 % basedir = fullfile('logs/', ex.today);
@@ -77,30 +75,19 @@ stim(j) = struct('tag',  'Blue', 'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Ann
 % 2. annulus grating?
 stim(j) = struct('tag', 'w/ 1.2 Ann', 'ndims',[1,1], 'sizeCenter', 0.4, 'BG', 0, 'Annulus', 1.2,       'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 
-% stim(j) = struct('ndims',[28, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
-% stim(j) = struct('ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 0, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
-% % pause
-% stim(j) = struct('ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'color', [0 0 0].*w, 'half_period', hp_grating/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-
 % Global & diff motion: 14 bars / 640 um ~ width: 50 um
 stim(j) = struct('tag', 'sync step', 'ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'Annulus', 0, 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
 stim(j) = struct('tag', 'diff step', 'ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'Annulus', 0, 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
 %stim(j) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'Annulus', 0, 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
 
-% black
-stim(j) = struct('tag', '', 'ndims',[1, 1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 0, 'w_Annulus', .3, 'color', [0 0 0].*w, 'half_period', hp_flash/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-
-%
-loc_id = input(['\nNEW EXPERIMENT: ',ex_title, '\nFOV or Loc name? (e.g. 1 or 2 ..) ']); 
-[stim(:).name] = deal(['loc',loc_id, '_', ex_title]);
 ex_typing = stims_repeat(stim, n_repeats, 'debug', true); i = i + 1; % FOV (or ex) index % + options % save the stim in log forder?
 
 %% 0716 2018 typing stimulus
 ex_title = 'typing';
-stim = [];
- n_repeats = 10;
+stim = []; debug = true;
+ n_repeats = 15;
   hp_flash = 2;
-hp_grating = 1;
+hp_grating = 2;
 % ndims=[1,1]: flash mode. Impulse turn on and off.
 flash = struct('tag', 'flash', 'ndims', [1,1], 'sizeCenter', 0.6, 'half_period', hp_flash);
 annul = struct('tag', {'Ann0.8', 'Ann1.2','Ann1.6'}, 'ndims', [1,1], 'sizeCenter', 0,...
@@ -110,12 +97,14 @@ annul = struct('tag', {'Ann0.8', 'Ann1.2','Ann1.6'}, 'ndims', [1,1], 'sizeCenter
 % Nonlinear spatial summation: RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
 % 14 bars / 640 um ~ width: 50 um
 grating = struct('tag', 'grating',...
-                'ndims', {[56,1], [28,1], [14,1]},...
-                'sizeCenter', 0.64, 'half_period', hp_grating, 'cycle', 3, 'phase_1st_cycle', 1);
+                'ndims', {[28,1], [14,1]},...
+                'sizeCenter', 0.6, 'half_period', hp_grating, 'cycle', 3, 'phase_1st_cycle', 1);
 % grating from far
-fartex = struct('tag', 'fartex',...
-                'ndims', {[14,1]}, 'sizeCenter', 0.64, 'draw_center', false,...
-                'BG', 1.0, 'half_period', hp_grating, 'cycle', 3, 'phase_1st_cycle', 1, 'delay', 0);
+fartex = struct('tag', 'fartex', 'half_period', hp_grating,...
+                'ndims', {[28,1]}, 'sizeCenter', 0.6, 'BG', 1.6,...
+                'draw_center', {false, true, true},...
+                      'cycle', {3, 2, 2}, 'phase_1st_cycle', {1, [], []},...
+                      'delay', {0, 0, 0.25});
 %            
 blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
 %
@@ -125,7 +114,7 @@ stim = addStruct(stim, grating);
 stim = addStruct(stim, fartex);
 stim = addStruct(stim, blank);
 %
-ex_typing = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', true);
+ex_typing = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
 %% Typing by Full-field noise stim: aligned depol & hypol events & adaptation/sensitization: Functional classification
 % Not for RF since it cannot replay. Binary noise would be sufficient. 
