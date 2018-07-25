@@ -40,11 +40,12 @@ function ex = stims_repeat(stim, n_repeats, varargin)
           
           % save stim info
           numStim = numel(stim);
-          ex.stim = cell(1,numStim);
-          for e=1:numStim
-            ex.stim{e} = stim(e);
-            ex.stim{e}.framerate = framerate;
-          end
+%           ex.stim = cell(1,numStim);
+%           for e=1:numStim
+%             ex.stim{e} = stim(e);
+%           end
+          ex.stim = stim;
+          ex.framerate = framerate;
           ex.n_repeats = n_repeats;
             
           % initialize the VBL timestamp
@@ -58,22 +59,6 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     if isempty(s.ndims)
                         continue;
                     end
-                    % frame numbers
-                    frames_per_period = round(framerate * s.half_period * 2);
-                    
-                    % Annulus stim
-                    if isfield(s, 'Annulus') && ~isempty(s.Annulus)
-                        L_ann = s.Annulus   * 1000 * ex.disp.pix_per_um;
-                        w_ann = s.w_Annulus * 1000 * ex.disp.pix_per_um;
-                    else
-                        L_ann = 0;
-                        w_ann = 0;
-                    end
-                    L_ann_frames = linspace(L_ann(1), L_ann(end), frames_per_period);
-                    
-                    % dims
-                    L = s.sizeCenter * 1000 * ex.disp.pix_per_um;
-                    L_gray = (s.sizeCenter + gray_margin)*1000*ex.disp.pix_per_um;
                     
                     % color & delay
                     if ~isfield(s, 'color') || isempty(s.color)
@@ -89,6 +74,25 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     if ~isfield(s, 'draw_center') || isempty(s.draw_center)
                         s.draw_center = true;
                     end
+                    
+                    % frame numbers
+                    frames_per_period = round(framerate * s.half_period * 2);
+                    frameid_ON = round(frames_per_period/2.) + 1; % frame id for pahse = 1 
+                    
+                    % Annulus stim
+                    if isfield(s, 'Annulus') && ~isempty(s.Annulus)
+                        L_ann = s.Annulus   * 1000 * ex.disp.pix_per_um;
+                        w_ann = s.w_Annulus * 1000 * ex.disp.pix_per_um;
+                    else
+                        L_ann = 0;
+                        w_ann = 0;
+                    end
+                    L_ann_frames = linspace(L_ann(1), L_ann(end), frames_per_period);
+                    
+                    % dims
+                    L = s.sizeCenter * 1000 * ex.disp.pix_per_um;
+                    L_gray = (s.sizeCenter + gray_margin)*1000*ex.disp.pix_per_um;
+                    
                     %
                     nx = s.ndims(1);
                     ny = s.ndims(2);
@@ -102,21 +106,25 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     % texture dst rect (integer times checkers)
                     w_pixels_x = ceil(L/nx);
                     w_pixels_y = ceil(L/ny);
+                    w_pixels = min(w_pixels_x, w_pixels_y);
+                    %
                     Lx = w_pixels_x * nx;
                     Ly = w_pixels_y * ny;
                     Lchecker = max(Lx, Ly);
+                    %
+                    ex.stim(k).L_optimized_px = Lchecker;
                     % display for grating stim
                     if any(s.ndims > [1, 1])
-                        fprintf('(Grating stimulus) Pixels per one checker: [%d, %d]\n', w_pixels_x, w_pixels_y);  
+                        fprintf('(Grating stimulus) Pixels per one checker: [%d, %d] ~ [%.0f, %.0f] um. Optimized checker size L = %.1f um\n', w_pixels_x, w_pixels_y, w_pixels_x*ex.disp.um_per_px, w_pixels_y*ex.disp.um_per_px, Lchecker*ex.disp.um_per_px);
                     end
                     ct_checker_rect = CenterRectOnPoint(...	
                               [0 0 Lchecker Lchecker], ...
                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
                     
                     % dst rect for center
-                    ct_dst_rect = CenterRectOnPoint(...	
-                              [0 0 L L], ...
-                              ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
+%                     ct_dst_rect = CenterRectOnPoint(...	
+%                               [0 0 L L], ...
+%                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
                     % gray dst rect : rect for margin btw ct and bg
                     gray_rect = CenterRectOnPoint(...	
                               [0 0 L_gray L_gray], ...
@@ -165,12 +173,31 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         % phase for impulse (default for flashes)
                         if all(s.ndims == [1 1])
                             shift_ct = 0.5 * ones(1, frames_per_period);
-                            shift_ct(1:2) = 0;                   % 2 frames = 1/15 sec for 30Hz presentation.
-                            fi_ON = round(frames_per_period/2.); % frame id for pahse = 1 
-                            shift_ct([fi_ON, fi_ON+1]) = 1;
+                            shift_ct(1:2) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
+                            shift_ct([frameid_ON, frameid_ON+1]) = 1;
                         else
-                        % phase for step (duty rate 50%):
+                            % phase for step (duty rate 50%):
                             shift_ct = 1:frames_per_period > (round(frames_per_period/2.));
+                        end
+                        shift_ct = double(shift_ct);
+                        
+                        % shfit w/ finite speed
+                        if isfield(s, 'shift_per_frame')
+                            px_per_frame = s.shift_per_frame;
+                            % in phase?
+                            ph_per_frame = px_per_frame/w_pixels;
+                            
+                            % phase trajectories
+                            ph1 = 1:(-ph_per_frame):0; ph1 = ph1(2:end);
+                            ph2 = 0:ph_per_frame:1; ph2 = ph2(2:end);
+                            if length(ph1) > frames_per_period
+                                ph1 = ph1(1:frames_per_period);
+                                ph2 = ph2(1:frames_per_period);
+                            end
+                            numshift = length(ph1);
+                            %
+                            shift_ct(1:numshift) = ph1; 
+                            shift_ct(frameid_ON:frameid_ON+numshift-1) = ph2; 
                         end
                         
                         % phase of the annulus: flashing vs moving
@@ -231,7 +258,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                 Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [0 0 0 1]);
                                 % Clear 'dstRect' region of framebuffers alpha channel to zero: 
                                 Screen('FillRect', ex.disp.winptr, [0 0 0 0], ex.disp.dstrect); % Alpha 0 means completely clear. 
-                                Screen('FillOval', ex.disp.winptr, [0 0 0 ex.disp.white], ct_dst_rect);  
+                                %Screen('FillOval', ex.disp.winptr, [0 0 0 ex.disp.white], ct_dst_rect);  
+                                Screen('FillOval', ex.disp.winptr, [0 0 0 ex.disp.white], ct_checker_rect);  
                                 %
                                 Screen('Blendfunction', ex.disp.winptr, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
                               

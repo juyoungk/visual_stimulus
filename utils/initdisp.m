@@ -115,6 +115,7 @@ Screen('TextSize', ex.disp.winptr, 24);
 ex.disp.pix_per_100um = PIXELS_PER_100_MICRONS(ex.rig_Name);
 ex.disp.pix_per_um = ex.disp.pix_per_100um/100.;
 ex.disp.umperpix = 1./ex.disp.pix_per_um;
+ex.disp.um_per_px = ex.disp.umperpix; % different name
 
 % Describe photodiode
 ex.disp.pdscale = 0.95;					% Scale factor for the photodiode signal

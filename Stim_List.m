@@ -29,14 +29,12 @@ data = 255;
 err=DaqDOut(DeviceIndex, port, data);
 
 %% gammaTable for DLP
-ScreenNum = 0;
-[gammaTable0, dacbits, reallutsize] =Screen('ReadNormalizedGammaTable', ScreenNum);
-%%
-%gammaTable0(:,2) = gammaTable0(:,2)*0.6;
-gammaTable0(:,3) = gammaTable0(:,3)*0.5;
-%%
-Screen('LoadNormalizedGammaTable', ScreenNum, gammaTable0);
-% Screen('ColorRange') for color range independent of system [0 t1]
+% ScreenNum = 0;
+% [gammaTable0, dacbits, reallutsize] =Screen('ReadNormalizedGammaTable', ScreenNum);
+% %gammaTable0(:,2) = gammaTable0(:,2)*0.6;
+% gammaTable0(:,3) = gammaTable0(:,3)*0.5;
+% Screen('LoadNormalizedGammaTable', ScreenNum, gammaTable0);
+% % Screen('ColorRange') for color range independent of system [0 t1]
 %% Commandwindow % Change focus to command window
 addpath('HelperFunctions/')
 addpath('functions/')
@@ -45,8 +43,6 @@ addpath('jsonlab/')
 % screen initialization -> bg color and pd setting
 % offset location? % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen
 % basedir = fullfile('logs/', ex.today);
-i = 1; % ex or FOV id
-
 %% Test screen (increasing disc?)
 testscreen_colors;
 %testscreen_annulus;
@@ -58,67 +54,59 @@ testscreen_colors;
 % calibration between LEDs: UV is ~12% brighter than Blue at 255 value.
 % Blue is brighter by ~25% in middle range color values.
 % (0410)
-ex_title = 'typing';
-%
-w = [1 1 1]; % color weight (calibration) factor or mean level
-blueUV = [0 .5 .5]; % white color mix ratio
-% half period (secs)
-     n_repeats = 10;
-      hp_flash = 2;
-    hp_grating = 2;
-stim    = struct('tag',    'UV', 'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 0, 'w_Annulus', .3, 'color', [0  1  0].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=2;
-stim(j) = struct('tag',  'Blue', 'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 0, 'w_Annulus', .3, 'color', [0  0  1].*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-%stim(j) = struct('tag','UVBlue', 'ndims',[1,1], 'sizeCenter', 0.6, 'BG', 0, 'Annulus', 0, 'w_Annulus', .3, 'color',    blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-%
-% Peripheral input can excite the amacrine cells?
-% 1. annulus (D = ...)
-% 2. annulus grating?
-stim(j) = struct('tag', 'w/ 1.2 Ann', 'ndims',[1,1], 'sizeCenter', 0.4, 'BG', 0, 'Annulus', 1.2,       'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_flash, 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 
-% Global & diff motion: 14 bars / 640 um ~ width: 50 um
-stim(j) = struct('tag', 'sync step', 'ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'Annulus', 0, 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0); j=j+1;
-stim(j) = struct('tag', 'diff step', 'ndims',[14, 1], 'sizeCenter', 0.64, 'BG', 1, 'Annulus', 0, 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
-%stim(j) = struct('ndims',[1, 12], 'sizeCenter', 0.6, 'BG', 1, 'Annulus', 0, 'w_Annulus', .3, 'color', blueUV.*w, 'half_period', hp_grating, 'cycle', 2, 'phase', 0, 'delay', 0.25); j=j+1;
-
-ex_typing = stims_repeat(stim, n_repeats, 'debug', true); i = i + 1; % FOV (or ex) index % + options % save the stim in log forder?
-
-%% 0716 2018 typing stimulus
+%% 0716 2018 typing stimulus (generalized checker stimulus)
 ex_title = 'typing';
 stim = []; debug = true;
  n_repeats = 15;
   hp_flash = 2;
-hp_grating = 2;
+hp_grating = 1;
 % ndims=[1,1]: flash mode. Impulse turn on and off.
 flash = struct('tag', 'flash', 'ndims', [1,1], 'sizeCenter', 0.6, 'half_period', hp_flash);
-annul = struct('tag', {'Ann0.8', 'Ann1.2','Ann1.6'}, 'ndims', [1,1], 'sizeCenter', 0,...
-                        'Annulus', {0.8, 1.2, 1.6},...
+annul = struct('tag', { 'Ann0.8', 'Ann1.2', 'Ann1.6'}, 'ndims', [1,1], 'sizeCenter', 0,...
+               'Annulus', {  0.8,      1.2,      1.6},...
                         'w_Annulus', .4, 'half_period', hp_flash);
 % moving annulus? 'Annulus', [1., 2.5]                   
 % Nonlinear spatial summation: RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
 % 14 bars / 640 um ~ width: 50 um
 grating = struct('tag', 'grating',...
-                'ndims', {[28,1], [14,1]},...
+                'ndims', {[28,1], [14,1]},...% center size is redefined by the integer times grating?
                 'sizeCenter', 0.6, 'half_period', hp_grating, 'cycle', 3, 'phase_1st_cycle', 1);
-% grating from far
-fartex = struct('tag', 'fartex', 'half_period', hp_grating,...
+% bg texture input
+bgtex = struct('tag', 'bgtex', 'half_period', hp_grating,...
                 'ndims', {[28,1]}, 'sizeCenter', 0.6, 'BG', 1.6,...
-                'draw_center', {false, true, true},...
-                      'cycle', {3, 2, 2}, 'phase_1st_cycle', {1, [], []},...
-                      'delay', {0, 0, 0.25});
+                'draw_center', {false,  true,   true},...% {B , C+B, C+B}
+                      'cycle', {    3,     2,      2},... 
+            'phase_1st_cycle', {    1,    [],     []},...
+                      'delay', {    0,     0,   0.25});  % {global, global, diff}
+
+% population picture of speed tuning: amacrine cells
+speed = struct('tag', 'speed', 'half_period', hp_grating,...
+                'ndims', {[28,1]}, 'sizeCenter', 0.6,...%'BG', 1.6,... 
+                'phase_1st_cycle', { 1, [], [], []},...
+                          'cycle', { 2,  1,  1,  1},... 
+                'shift_per_frame', {.5, 1, 1.5, 2.0}); % in px. ~ 1/speed. 1 px * 21um * 30 Hz = 630 um/s
 %            
 blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
 %
-stim = addStruct(stim, flash);
-stim = addStruct(stim, annul);
-stim = addStruct(stim, grating);
-stim = addStruct(stim, fartex);
+% stim = addStruct(stim, flash);
+% stim = addStruct(stim, annul);
+%stim = addStruct(stim, grating);
+%stim = addStruct(stim, bgtex);
+stim = addStruct(stim, speed);
 stim = addStruct(stim, blank);
 %
 ex_typing = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
+%% Population picture of Speed tuning
+
+
+
+
 %% Typing by Full-field noise stim: aligned depol & hypol events & adaptation/sensitization: Functional classification
 % Not for RF since it cannot replay. Binary noise would be sufficient. 
     % contrast = STD/mean. 0.35 to 0.05 for Baccus and Meister 2002 
+i = 1; % ex or FOV id
 j=1;
  duration = 12;
 n_repeats = 5;
