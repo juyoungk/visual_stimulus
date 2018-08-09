@@ -6,7 +6,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
 % noise: uniformly-distributed whitenoise only. ndims = 3 only.
 % gap between center and bg: 0.2mm
 % 
-    gray_margin = 0.2;
+    gray_margin = 0.3;
     p = ParseInput(varargin{:});
     if nargin < 2
         n_repeats = 3;
@@ -17,7 +17,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
     % default conditions
     
     framerate = p.Results.framerate;
-
+    
+    addpath('HelperFunctions/')
     addpath('utils/')
     commandwindow
     try
@@ -74,6 +75,12 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     if ~isfield(s, 'draw_center') || isempty(s.draw_center)
                         s.draw_center = true;
                     end
+                    if ~isfield(s, 'tag')
+                        s.tag = '';
+                    end
+                    
+                    % Print where I am
+                    fprintf('(stim repeats %d/%d) %8s stimulus (%2d/%d)\n', i, n_repeats, s.tag, k, numStim);
                     
                     % frame numbers
                     frames_per_period = round(framerate * s.half_period * 2);
@@ -114,7 +121,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     %
                     ex.stim(k).L_optimized_px = Lchecker;
                     % display for grating stim
-                    if any(s.ndims > [1, 1])
+                    if any(s.ndims(1:2) > [1, 1]) % compare first 2 dims. 3 dim is color channel.
                         fprintf('(Grating stimulus) Pixels per one checker: [%d, %d] ~ [%.0f, %.0f] um. Optimized checker size L = %.1f um\n', w_pixels_x, w_pixels_y, w_pixels_x*ex.disp.um_per_px, w_pixels_y*ex.disp.um_per_px, Lchecker*ex.disp.um_per_px);
                     end
                     ct_checker_rect = CenterRectOnPoint(...	
@@ -171,7 +178,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         
                         % phase profile or trajectories
                         % phase for impulse (default for flashes)
-                        if all(s.ndims == [1 1])
+                        if all(s.ndims(1:2) == [1 1])
                             shift_ct = 0.5 * ones(1, frames_per_period);
                             shift_ct(1:2) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
                             shift_ct([frameid_ON, frameid_ON+1]) = 1;
@@ -262,12 +269,6 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                 Screen('FillOval', ex.disp.winptr, [0 0 0 ex.disp.white], ct_checker_rect);  
                                 %
                                 Screen('Blendfunction', ex.disp.winptr, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
-                              
-                              if isfield(s, 'noise_contrast') && ~isempty(s.noise_contrast)
-                                  noise_frame = color_weight(frames(:,:,:,fi), s.color .* ex.disp.whitecolor);
-                                  ct_texid = Screen('MakeTexture', ex.disp.winptr, uint8(noise_frame));
-                                  src_rect_ct = [0 0 nx ny];
-                              end
                                 
                               % Draw center pattern
                               %if all(s.ndims == [1,1]) && (shift_ct(fi) == 0.5)
@@ -278,6 +279,14 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                     Screen('DrawTexture', ex.disp.winptr, ct_texid, src_rect_ct, ct_checker_rect, 0, 0);
                                   end
                               end
+                              
+                              % Draw noise if noise is defined.
+                              if isfield(s, 'noise_contrast') && ~isempty(s.noise_contrast)
+                                  noise_frame = color_weight(frames(:,:,:,fi), s.color .* ex.disp.whitecolor);
+                                  ct_texid = Screen('MakeTexture', ex.disp.winptr, uint8(noise_frame));
+                                  src_rect_ct = [0 0 nx ny];
+                              end
+                              
                               % Restore alpha setting
                               Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 1 1 1]);
                                

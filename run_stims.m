@@ -16,8 +16,13 @@
         debug_exp = false;
     end
     
+    %%
     try
       
+      % id for FOV or Exp.
+      loc_id = input(['\nNEW EXPERIMENT: ', ex_title, '\nFOV or Loc name? (e.g. 1 or 2 ..) ']); 
+      [params(:).name] = deal(['loc',loc_id, '_', ex_title]);  
+        
       % Construct an experimental structure array
       ex = initexptstruct(debug_exp);
 

@@ -34,7 +34,11 @@ err=DaqDOut(DeviceIndex, port, data);
 % %gammaTable0(:,2) = gammaTable0(:,2)*0.6;
 % gammaTable0(:,3) = gammaTable0(:,3)*0.5;
 % Screen('LoadNormalizedGammaTable', ScreenNum, gammaTable0);
+% (0410)
 % % Screen('ColorRange') for color range independent of system [0 t1]
+% calibration between LEDs: UV is ~12% brighter than Blue at 255 value.
+% Blue is brighter by ~25% in middle range color values.
+
 %% Commandwindow % Change focus to command window
 addpath('HelperFunctions/')
 addpath('functions/')
@@ -43,24 +47,18 @@ addpath('jsonlab/')
 % screen initialization -> bg color and pd setting
 % offset location? % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen
 % basedir = fullfile('logs/', ex.today);
+
 %% Test screen (increasing disc?)
 testscreen_colors;
 %testscreen_annulus;
-
-%% Checkerboard style stim definition (Functional typing)
-% size in mm, period in secs
-% BG mode: 0 - No BG, 1 - Checkers (same pattern as center)
-% BG size = aperture size.
-% calibration between LEDs: UV is ~12% brighter than Blue at 255 value.
-% Blue is brighter by ~25% in middle range color values.
-% (0410)
 
 %% 0716 2018 typing stimulus (generalized checker stimulus)
 ex_title = 'typing';
 stim = []; debug = true;
  n_repeats = 15;
-  hp_flash = 2;
-hp_grating = 1;
+  hp_flash = 2; % secs
+hp_grating = 2;
+hp_speed = 1.5;
 % ndims=[1,1]: flash mode. Impulse turn on and off.
 flash = struct('tag', 'flash', 'ndims', [1,1], 'sizeCenter', 0.6, 'half_period', hp_flash);
 annul = struct('tag', { 'Ann0.8', 'Ann1.2', 'Ann1.6'}, 'ndims', [1,1], 'sizeCenter', 0,...
@@ -72,16 +70,15 @@ annul = struct('tag', { 'Ann0.8', 'Ann1.2', 'Ann1.6'}, 'ndims', [1,1], 'sizeCent
 grating = struct('tag', 'grating',...
                 'ndims', {[28,1], [14,1]},...% center size is redefined by the integer times grating?
                 'sizeCenter', 0.6, 'half_period', hp_grating, 'cycle', 3, 'phase_1st_cycle', 1);
-% bg texture input
+% bg texture input: long range > 1mm input can exist?
 bgtex = struct('tag', 'bgtex', 'half_period', hp_grating,...
                 'ndims', {[28,1]}, 'sizeCenter', 0.6, 'BG', 1.6,...
                 'draw_center', {false,  true,   true},...% {B , C+B, C+B}
                       'cycle', {    3,     2,      2},... 
             'phase_1st_cycle', {    1,    [],     []},...
                       'delay', {    0,     0,   0.25});  % {global, global, diff}
-
-% population picture of speed tuning: amacrine cells
-speed = struct('tag', 'speed', 'half_period', hp_grating,...
+% Speed tuning: population picture of amacrine cells
+speed = struct('tag', 'speed', 'half_period', hp_speed,...
                 'ndims', {[28,1]}, 'sizeCenter', 0.6,...%'BG', 1.6,... 
                 'phase_1st_cycle', { 1, [], [], []},...
                           'cycle', { 2,  1,  1,  1},... 
@@ -89,35 +86,38 @@ speed = struct('tag', 'speed', 'half_period', hp_grating,...
 %            
 blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
 %
-% stim = addStruct(stim, flash);
-% stim = addStruct(stim, annul);
-%stim = addStruct(stim, grating);
-%stim = addStruct(stim, bgtex);
+stim = addStruct(stim, flash);
+stim = addStruct(stim, annul);
+stim = addStruct(stim, grating);
+stim = addStruct(stim, bgtex);
 stim = addStruct(stim, speed);
 stim = addStruct(stim, blank);
 %
 ex_typing = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
-%% Population picture of Speed tuning
-
-
-
+%% Main recording: UV Natural movie
+% 1.4 mm aperture : 2.7 mm [64 64] mov, 35 grid checkers  1.48 mm
+% 1.3 mm apergure : 1.36 mm [64 64] mov
+ex_title = 'UV_nat_movies_10mins';
+nm_params = struct('function', 'naturalmovie2', 'framerate', 20, 'jumpevery', 60,... 
+                'length', 10, 'repeat', 1,... 
+                'mov_id', [1, 2, 3, 4], 'startframe', 1, 'seed', 7,... 
+                'ndims', [100, 100], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 0]);
+params= nm_params;
+%
+run_stims
 
 %% Typing by Full-field noise stim: aligned depol & hypol events & adaptation/sensitization: Functional classification
 % Not for RF since it cannot replay. Binary noise would be sufficient. 
     % contrast = STD/mean. 0.35 to 0.05 for Baccus and Meister 2002 
 i = 1; % ex or FOV id
-j=1;
+j = 1;
  duration = 12;
 n_repeats = 5;
 framerate = 20;
 stim_noise    = struct('ndims', [1, 1, 3], 'sizeCenter', 0.6, 'noise_contrast',   1, 'color', [0  1  1], 'half_period', duration/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
 stim_noise(j) = struct('ndims', [1, 1, 3], 'sizeCenter', 0.6, 'noise_contrast', 0.2, 'color', [0  1  1], 'half_period', duration/2., 'cycle', 1, 'phase', 0, 'delay', 0); j=j+1;
-ex_typing(i) = stims_repeat(stim_noise, n_repeats, 'framerate', framerate, 'debug', true); i = i+1; 
-
-%%
-% stim_typing = addStruct(stim, stim_noise);
-% ex_typing(i) = stims_repeat(stim_typing, n_repeats, 'debug', true, 'framerate', framerate); i = i+1;
+ex_ff_noise = stims_repeat(stim_noise, n_repeats, 'framerate', framerate, 'debug', true);
 
 %% Moving Bar: Probing Wide-field effect.
 % A bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). Johnston and Lagnado (2016)
@@ -138,10 +138,9 @@ params = struct('function', 'naturalmovie2', 'framerate', 20, 'jumpevery', 60,..
                 'startframe', {910, 450}, 'seed', 7,... 
                 'ndims', [128,128], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]);
             
-% script for playing stimulus. 'params' should be defined in advance.
-loc_id = input(['\nNEW EXPERIMENT: ',ex_title, '\nFOV or Loc name? (e.g. loc1) '], 's'); 
-[params(:).name] = deal([loc_id, '_', ex_title]);
+% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
 run_stims
+
 %% Full-fild WN (Gaussian): Linear vs Nonlinear populations
 ex_title = 'Uniform_Whitenoise_UV';
 debug_exp = false;
@@ -150,33 +149,21 @@ wn_params = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,...
                 'ndims', [1,1], 'dist', 'gaussian', 'contrast', 0.35,... 
                 'length', 5, 'w_mean', {1.0, 0.2}, 'c_mask', [0, 1, 0]); k = length(wn_params);
 params = wn_params;
-loc_id = input(['\nNEW EXPERIMENT: ',ex_title, '\nFOV or Loc name? (e.g. loc1) '], 's'); 
-[params(:).name] = deal([loc_id, '_', ex_title]);
+%
 run_stims
+
 %% Bar (color) whitenoise across the dorsal-ventral direction            
+ex_title = 'Bar_1d_wn_Color';
 wn_params = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,... 
                 'ndims', [35,1,3], 'dist', 'binary', 'contrast', 1,... 
                 'length', 10, 'w_mean', 1, 'c_mask', [0, 1, 1]); 
 %            
 %params = addStruct(nm_params, wn_params)
 params = wn_params;
-ex_title = 'Bar_1d_wn_Color';
-loc_id = input(['\nNEW EXPERIMENT: ',ex_title, '\nFOV or Loc name? (e.g. loc1) '], 's'); 
-[params(:).name] = deal([loc_id, '_', ex_title]);
+%
 run_stims
-%% Main recording: UV Natural movie
-% 1.4 mm aperture : 2.7 mm [64 64] mov, 35 grid checkers  1.48 mm
-% 1.3 mm apergure : 1.36 mm [64 64] mov
-ex_title = 'UV_nat_movies_10mins';
-nm_params = struct('function', 'naturalmovie2', 'framerate', 20, 'jumpevery', 60,... 
-                'length', 10, 'repeat', 1,... 
-                'mov_id', [1, 2, 3, 4], 'startframe', 1, 'seed', 7,... 
-                'ndims', [100, 100], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 0]);
-params= nm_params;            
 
-loc_id = input(['\nNEW EXPERIMENT: ',ex_title, '\nFOV or Loc name? (e.g. loc1) '], 's'); 
-[params(:).name] = deal([loc_id, '_', ex_title]);
-run_stims
+
 %%
 replay % for runjuyoung
 
