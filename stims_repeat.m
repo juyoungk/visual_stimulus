@@ -34,7 +34,9 @@ function ex = stims_repeat(stim, n_repeats, varargin)
           % Initalize the visual display w/ offset position
           ex = initdisp(ex, 1500, -100);
               stim_ifi = 1/framerate;
-              stim_ifi = round(stim_ifi/ex.disp.ifi) * ex.disp.ifi; % integer times of nominal ifi.
+              stim_ifi = round(stim_ifi/ex.disp.ifi) * ex.disp.ifi % integer times of nominal ifi.
+              [stim(:).framerate] = deal(framerate);
+              ex.framerate = framerate;
               
           % wait for trigger
           ex = waitForTrigger(ex);
@@ -46,7 +48,6 @@ function ex = stims_repeat(stim, n_repeats, varargin)
 %             ex.stim{e} = stim(e);
 %           end
           ex.stim = stim;
-          ex.framerate = framerate;
           ex.n_repeats = n_repeats;
             
           % initialize the VBL timestamp
@@ -302,7 +303,11 @@ function ex = stims_repeat(stim, n_repeats, varargin)
 
                               % flip onto the screen
                               Screen('DrawingFinished', ex.disp.winptr);
-                              [vbl, ~, ~, missed] = Screen('Flip', ex.disp.winptr, vbl + stim_ifi - ex.disp.ifi/2.);
+                              vbl_old = vbl;
+                              [vbl, ~, ~, missed] = Screen('Flip', ex.disp.winptr, vbl + stim_ifi - ex.disp.ifi/8.);
+%                               if fi <4
+%                                frame_interval = vbl - vbl_old;
+%                               end
                               
                               if (missed > 0)
                                     % A negative value means that dead- lines have been satisfied.
@@ -343,7 +348,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
             end
             ex.end = datestr(now, 'HH:MM:SS');
             ex.duration = ex.end - ex.t_start;
-            %disp(['Total duration of stimulus was ', num2str(ex.duration), ' secs']);
+            ex.duration = etime(clock, ex.t1); % secs
+            disp(['Total duration of stimulus was ', num2str(ex.duration), ' secs']);
             
           % Check for ESC keypress during the experiment
           ex = checkesc(ex);
@@ -416,7 +422,7 @@ function p =  ParseInput(varargin)
     
     p  = inputParser;   % Create an instance of the inputParser class.
     
-    addParamValue(p,'framerate', 30, @(x)x>=0);
+    addParamValue(p,'framerate', 60, @(x)x>=0);
     addParamValue(p,'debug', false, @(x) islogical(x) || isnumeric(x));
     addParamValue(p,'title', '_', @(x) ischar(x));
     addParamValue(p,'mode', '', @(x) ischar(x));

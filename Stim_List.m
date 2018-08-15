@@ -52,12 +52,12 @@ addpath('jsonlab/')
 testscreen_colors;
 %testscreen_annulus;
 
-%% 0716 2018 typing stimulus (generalized checker stimulus)
+%% 0716 2018 typing stimulus (generalized checker stimulus) ~ 22 min
 ex_title = 'typing';
 stim = []; debug = true;
  n_repeats = 15;
-  hp_flash = 2; % secs
-hp_grating = 2;
+  hp_flash = 2.; % secs
+hp_grating = 1.5;
 hp_speed = 1.5;
 % ndims=[1,1]: flash mode. Impulse turn on and off.
 flash = struct('tag', 'flash', 'ndims', [1,1], 'sizeCenter', 0.6, 'half_period', hp_flash);
@@ -82,7 +82,7 @@ speed = struct('tag', 'speed', 'half_period', hp_speed,...
                 'ndims', {[28,1]}, 'sizeCenter', 0.6,...%'BG', 1.6,... 
                 'phase_1st_cycle', { 1, [], [], []},...
                           'cycle', { 2,  1,  1,  1},... 
-                'shift_per_frame', {.5, 1, 1.5, 2.0}); % in px. ~ 1/speed. 1 px * 21um * 30 Hz = 630 um/s
+                'shift_per_frame', {.25, .50, 0.75, 1.}); % in px. ~ 1/speed. 1 px * 21um * 60 Hz = 1260 um/s
 %            
 blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
 %
@@ -90,7 +90,7 @@ stim = addStruct(stim, flash);
 stim = addStruct(stim, annul);
 stim = addStruct(stim, grating);
 stim = addStruct(stim, bgtex);
-stim = addStruct(stim, speed);
+%stim = addStruct(stim, speed);
 stim = addStruct(stim, blank);
 %
 ex_typing = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
@@ -102,7 +102,7 @@ ex_title = 'UV_nat_movies_10mins';
 nm_params = struct('function', 'naturalmovie2', 'framerate', 20, 'jumpevery', 60,... 
                 'length', 10, 'repeat', 1,... 
                 'mov_id', [1, 2, 3, 4], 'startframe', 1, 'seed', 7,... 
-                'ndims', [100, 100], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 0]);
+                'ndims', [100, 100], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 0.5]);
 params= nm_params;
 %
 run_stims

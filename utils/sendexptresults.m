@@ -30,25 +30,33 @@ else
   % Check if flips were missed
   tol = 1e-3; % tolerance in seconds
   flipStr = '';
+  
+  % Check missed flips
   for stimidx = 1:length(ex.stim)
       
-      frametime = 1 / (ex.stim{stimidx}.framerate); % inter-frame interval
-      %frametime = 1 / (ex.disp.ifi*ex.stim{stimidx}.waitframes);
-      %frametime = 1 / (ex.disp.ifi*ex.stim{stimidx}.params.waitframes); % 1001 Juyoung
-      
-      % fraction of missed flips
-      if isfield(ex.stim{stimidx}, 'timestamps')
-              mu = mean(abs(diff(ex.stim{stimidx}.timestamps) - frametime) > tol);
+      if iscell(ex.stim)
+          frametime = 1 / (ex.stim{stimidx}.framerate); % inter-frame interval
+          %frametime = 1 / (ex.disp.ifi*ex.stim{stimidx}.waitframes);
+          %frametime = 1 / (ex.disp.ifi*ex.stim{stimidx}.params.waitframes); % 1001 Juyoung
+      elseif isstruct(ex.stim)
+          frametime = 1 / (ex.stim(stimidx).framerate); % inter-frame interval
+      end
 
-              if mu > 0
-                  flipStr = [flipStr, '\n', ...
-                             sprintf('(%i) %s \t\t %.2f of flips were missed.\n', ...
-                                      stimidx, ex.stim{stimidx}.function, mu)];
-              else
-                  flipStr = [flipStr, '\n', ...
-                             sprintf('(%i) %s\t\tNo flips missed.\n', ...
-                                      stimidx, ex.stim{stimidx}.function)];
-              end
+      % fraction of missed flips
+      if iscell(ex.stim)
+          if isfield(ex.stim{stimidx}, 'timestamps')
+                  mu = mean(abs(diff(ex.stim{stimidx}.timestamps) - frametime) > tol);
+
+                  if mu > 0
+                      flipStr = [flipStr, '\n', ...
+                                 sprintf('(%i) %s \t\t %.2f of flips were missed.\n', ...
+                                          stimidx, ex.stim{stimidx}.function, mu)];
+                  else
+                      flipStr = [flipStr, '\n', ...
+                                 sprintf('(%i) %s\t\tNo flips missed.\n', ...
+                                          stimidx, ex.stim{stimidx}.function)];
+                  end
+          end
       end
   end
 
@@ -59,7 +67,7 @@ expStr = sprintf(['\n' ...
 		 'date:\t\t%s\n' ...
 		 'status:\t\t%s\n' ...
 		 'error:\t\t%s\n' ...
-		 '%s'], ...
+		 '%s\n'], ...
 		 datestr(now), statusStr, errStr, sprintf(flipStr));
 %         saveStr ...
 %		 'save:\t\t%s\n' ...

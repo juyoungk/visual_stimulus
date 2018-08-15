@@ -28,7 +28,7 @@ disp(['screen.black = ',num2str(screen.black)]);
     boxL_um = 50; %unit: um
     boxL = Pixel_for_Micron(boxL_um);  %um to pixels
     
-    N = 20; % determines the stim size
+    N = 5; % determines the stim size
     pd_shift_from_center = 2.5; % mm
     stimsize = Pixel_for_Micron(boxL_um*N);
     
@@ -83,16 +83,14 @@ ifi = screen.ifi;
             % bright stim area on dark
             Screen('FillRect', screen.w, 0);
             
-            %Screen('DrawTexture', screen.w, objTex, [], objRect, angle, 0, 1, color_sequence{j});
-            Screen('DrawTexture', screen.w, objGrating, [], NNrect, angle, 0, 1, color_sequence{j});
+            Screen('DrawTexture', screen.w, objTex, [], objRect, angle, 0, 1, color_sequence{j});
+            %Screen('DrawTexture', screen.w, objGrating, [], NNrect, angle, 0, 1, color_sequence{j});
             
             Screen('FillOval', screen.w, pd_color, pd);
             vbl = Screen('Flip', screen.w, vbl+ifi*0.5);
             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
             if YorN==27, break; end
         end
-        
-        
         
 %     % 2-2. White noise texture
 %     for j=1:3
@@ -117,7 +115,7 @@ ifi = screen.ifi;
 %             Screen('FillRect', screen.w, brightness(j)*color, box);
 %             Screen('Flip', screen.w, 0);
 %             KbWait(-1, 2); [~, ~, c]=KbCheck;  YorN=find(c);
-%             if YorN==27, break; end
+%             if YorN==27, break; end 
 %         end
  end
 

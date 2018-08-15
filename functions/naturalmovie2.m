@@ -63,7 +63,7 @@ function ex = naturalmovie2(ex, replay, movies)
         end
         flipsPerFrame = round(ex.disp.frate / me.framerate);
         ex.stim{end}.framerate = 1 / (flipsPerFrame * ex.disp.ifi);
-        flipint = ex.disp.ifi * (flipsPerFrame - 0.25);
+        flipint = ex.disp.ifi * (flipsPerFrame - 0.15);
 
         % darken the photodiode
         Screen('FillOval', ex.disp.winptr, 0, ex.disp.pdrect);
@@ -218,6 +218,7 @@ function ex = naturalmovie2(ex, replay, movies)
             % subpart of the image
                 %frame = img(xstart:(xstart + me.ndims(1) - 1), ystart:(ystart + me.ndims(2) - 1)) * me.contrast + (1 - me.contrast) * ex.disp.gray;
             % no contrast option.
+            %  .* ex.disp.whitecolor ? white direction....
             frame = img(i_row:i_row_end, i_col:i_col_end,   :);
 
             % downsampling (more natural fixational eye movement with same variance)
