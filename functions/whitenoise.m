@@ -45,7 +45,7 @@ function ex = whitenoise(ex, replay)
     end
     flipsPerFrame = round(ex.disp.frate / me.framerate)
     ex.stim{end}.framerate = 1 / (flipsPerFrame * ex.disp.ifi);
-    flipint = ex.disp.ifi * (flipsPerFrame - 0.15);
+    flipint = ex.disp.ifi * (flipsPerFrame - 0.125);
     pd_period = round(ex.stim{end}.framerate); % every second.
 
     % store the number of frames

@@ -31,12 +31,12 @@ ex.disp.offset_y_um = y0;
 AssertOpenGL;
 
 % Get the screen numer
-%ex.disp.screen = max(Screen('Screens'));
+% instead of ex.disp.screen = max(Screen('Screens'));
 n = length(Screen('Screens'));
 resolutions = cell(1, n);
 cur_display_Res_width = 100000000;
 for i = 1:n
-    resolutions{i} = Screen('resolution', i-1);
+    resolutions{i} = Screen('resolution', i-1); % output can be an array
     if resolutions{i}.width < cur_display_Res_width
         cur_display_Res_width = resolutions{i}.width;
         % pick screen number whose resolution is the lowest among

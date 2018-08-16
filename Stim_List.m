@@ -1,8 +1,8 @@
 %% Load movie files in Workspace
 %moviedir = '../database/matfiles/fish_2xds/';
 moviedir = '/Users/peterfish/Movies/';
-moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
-movext   = '*.mat';
+%moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
+%movext   = '*.mat';
 movext   = '*intensity.mat';
 %movies = getMovFiles(moviedir, movext);
 
@@ -99,10 +99,11 @@ ex_typing = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode',
 % 1.4 mm aperture : 2.7 mm [64 64] mov, 35 grid checkers  1.48 mm
 % 1.3 mm apergure : 1.36 mm [64 64] mov
 ex_title = 'UV_nat_movies_10mins';
-nm_params = struct('function', 'naturalmovie2', 'framerate', 20, 'jumpevery', 60,... 
+nm_params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'length', 10, 'repeat', 1,... 
                 'mov_id', [1, 2, 3, 4], 'startframe', 1, 'seed', 7,... 
-                'ndims', [100, 100], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 0.5]);
+                'ndims', [100, 100], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]); % mask is mask for alpha blending. 
+                % nimds: subimage sampling dimension.
 params= nm_params;
 %
 run_stims
@@ -132,7 +133,7 @@ moving_bar('barColor','white','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.
 % cell array in values -> struct array
 ex_title = 'Cells_reliability_to_nat_movies';
 debug_exp = false;
-params = struct('function', 'naturalmovie2', 'framerate', 20, 'jumpevery', 60,... 
+params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'length', 0.2, 'repeat', 5,... 
                     'mov_id',   {1, 3},... 
                 'startframe', {910, 450}, 'seed', 7,... 

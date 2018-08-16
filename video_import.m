@@ -32,7 +32,7 @@ end
 %% Open Movie file
 %moviedir = '/Users/peterfish/Movies/';
 %vid = VideoReader([mpath,'Bee_Honet.mp4']);
-id = 3;
+id = 2;
 %
 vid = VideoReader([moviedir, files(id).name])
 vidHeight = vid.Height;
@@ -42,7 +42,6 @@ f_name = split(vid.Name, '.');
 str_mat = sprintf('mov_%s_f%d.mat', f_name(1), tot_numFrame)
 str_mat_int = sprintf('mov_%s_f%d_intensity.mat', f_name(1), tot_numFrame)
 
-mov = [];
 % NOTE: why struct for each frame? Very convinient to append frames. No need
 % to carefully match dimensions. 
 mov = struct('cdata',zeros(vidHeight,vidWidth,3,'uint8'),...
@@ -66,7 +65,7 @@ while hasFrame(vid)
     k = k+1;
 end
 
-%% Gray conversion & save
+%% Resize & Gray conversion (Mean over color ch) & Save
 numFrame = numel(mov);
 scaling = 0.5; % 640 x 360
  mm_intensity = zeros(numFrame, vidHeight*scaling, vidWidth*scaling, 'uint8');
@@ -78,10 +77,9 @@ for k=1:numFrame
     
     % resize by 0.5
     cdata = imresize(mov(k).cdata, scaling, 'bilinear');
-    cdata = uint16(cdata);
     
     % intensity
-      mm_intensity(k, :, :) = uint8(mean(cdata, 3));
+      mm_intensity(k, :, :) = uint8(mean(cdata, 3)); % output of mean is double.
     mov2_intensity(k).cdata = uint8(mean(cdata, 3));
 end
 %%

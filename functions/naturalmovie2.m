@@ -63,7 +63,7 @@ function ex = naturalmovie2(ex, replay, movies)
         end
         flipsPerFrame = round(ex.disp.frate / me.framerate);
         ex.stim{end}.framerate = 1 / (flipsPerFrame * ex.disp.ifi);
-        flipint = ex.disp.ifi * (flipsPerFrame - 0.15);
+        flipint = ex.disp.ifi * (flipsPerFrame - 0.125);
 
         % darken the photodiode
         Screen('FillOval', ex.disp.winptr, 0, ex.disp.pdrect);
@@ -173,6 +173,8 @@ function ex = naturalmovie2(ex, replay, movies)
         %mov = movies{randi(rs, nummovies)};
         mov = movies{fileidx};    
         movNumFrames = size(mov, 1);
+        % color mov or gray mov?
+        
 
         % # of pixels in display for 1 pixel in stimulus frame.
         % isotropic pixel size (integer) along x and y
@@ -193,7 +195,7 @@ function ex = naturalmovie2(ex, replay, movies)
               % frame id in movie (you might want to pick random frame)
               current_frame = fi; 
               % image
-              img = squeeze(mov(current_frame,:,:,:));
+              img = squeeze(mov(current_frame,:,:,:)); % looping over last dim (colors) in intesity mov wouldn't matter.
               [rows, cols] = size(img);
 
             if mod(fi - startframe, me.jumpevery) == 0
@@ -223,19 +225,21 @@ function ex = naturalmovie2(ex, replay, movies)
 
             % downsampling (more natural fixational eye movement with same variance)
             frame = uint8(imresize(frame, s_factor, 'bilinear'));
-            % uint8 output? 
-            %assignin('base','frameFromMovie',frame)
+            
+            % Color weithgt or redirection for gray scale. (only for
+            % gray-scle mov. Further dev is needed.)
+            frameRedirected = color_matrix(frame, ex.disp.grayvector);
 
             if replay
               % write the frame to the hdf5 file
               % mask effect
-              frame = uint8(color_weight(frame, c_mask));
+              %frame = uint8(color_weight(frame, c_mask));
               %h5write(ex.filename, [ex.group '/stim'], frame, [1, 1, 1, ti], [me.ndims*s_factor, 3, 1]);
               h5write(ex.filename, [ex.group '/stim'], frame, [ones(1, Ndims), ti], [ndims_scaled, 1]);
             else
               % make the texture
-              texid = Screen('MakeTexture', ex.disp.winptr, frame);
-              %texid = Screen('MakeTexture', ex.disp.winptr, frame, optimizeForDrawAngle=0, specialFlags=4);
+              texid = Screen('MakeTexture', ex.disp.winptr, frameRedirected);
+              %texid = Screen('MakeTexture', ex.disp.winptr, frameRedirected, optimizeForDrawAngle=0, specialFlags=4);
 
     %                   If 'specialFlags' is set to 4 then PTB tries to use an especially fast method of
     %         texture creation. This method can be at least an order of magnitude faster on
@@ -314,11 +318,11 @@ end
 
 function C = color_matrix(A, color)
 % color as a weight vector, form a 3D color matrix from 2D matrix A.
-n = numel(color);
+n_channels = numel(color);
 
-C = zeros([size(A), n]);
+C = zeros([size(A), n_channels]);
 
-for c = 1:n
+for c = 1:n_channels
     C(:,:,c) = color(c) * A(:,:);
 end
 
@@ -340,5 +344,4 @@ function C = color_weight(A, color)
     for c = 1:n
         C(:,:,c) = color(c) * A(:,:,c);
     end
-
 end

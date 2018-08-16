@@ -119,7 +119,7 @@
       % Send results via Pushover
       if ~debug_exp
         %sendexptresults(ex);
-        savejson('', ex, fullfile(basedir, ['stopped_', datestr(now, 'HH_MM_SS'), '_expt__', str_name,'.json']));
+        %savejson('', ex, fullfile(basedir, ['stopped_', datestr(now, 'HH_MM_SS'), '_expt__', str_name,'.json']));
         save(fullfile(basedir, ['stopped_', datestr(now, 'HH_MM_SS'), '_exlog_', str_name, '.mat']), 'ex');
       end
 

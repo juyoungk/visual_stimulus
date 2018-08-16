@@ -33,7 +33,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
           
           % Initalize the visual display w/ offset position
           ex = initdisp(ex, 1500, -100);
-              stim_ifi = 1/framerate;
+              stim_ifi = 1/framerate;                              % framerate and ifi I want 
               stim_ifi = round(stim_ifi/ex.disp.ifi) * ex.disp.ifi % integer times of nominal ifi.
               [stim(:).framerate] = deal(framerate);
               ex.framerate = framerate;
