@@ -181,8 +181,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         % phase for impulse (default for flashes)
                         if all(s.ndims(1:2) == [1 1])
                             shift_ct = 0.5 * ones(1, frames_per_period);
-                            shift_ct(1:2) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
-                            shift_ct([frameid_ON, frameid_ON+1]) = 1;
+                            shift_ct(1:6) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
+                            shift_ct(frameid_ON:frameid_ON+5) = 1;
                         else
                             % phase for step (duty rate 50%):
                             shift_ct = 1:frames_per_period > (round(frames_per_period/2.));
