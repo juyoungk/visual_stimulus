@@ -13,4 +13,5 @@ function C = addStruct(A, B)
         end
     end
     C = A;
+    
 end

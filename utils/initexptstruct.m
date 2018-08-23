@@ -15,7 +15,9 @@ ex.today = datestr(now, 'yy-mm-dd');
 
 % time
 ex.t_start = datestr(now, 'HH:MM:SS');
-ex.t1 = clock;
+ex.t_end = [];
+ex.duration = [];
+%ex.t1 = clock;
 
 % debug state
 ex.debug = debug;

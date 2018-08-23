@@ -22,9 +22,15 @@ function ex = stims_repeat(stim, n_repeats, varargin)
     addpath('utils/')
     commandwindow
     try
+          % today's directory. Create if it doesn't exist for ex history log.
+          basedir = fullfile('logs', datestr(now, 'yy-mm-dd'));
+          if exist(basedir,'dir') == 0
+              mkdir(basedir);
+          end
+
           % id for FOV or Exp.
-          loc_id = input(['\nNEW EXPERIMENT: ', ex_title, '\nFOV or Loc name? (e.g. 1 or 2 ..) ']); 
-          [stim(:).name] = deal(['loc',loc_id, '_', ex_title]);
+          loc_id = input(['\nNEW EXPERIMENT: ', ex_title, '\nFOV or Loc name? (e.g. 1 or 2 ..) ']);
+          ex_name = ['loc',num2str(loc_id), '_', ex_title];
             
           % Construct an experimental structure array
           ex = initexptstruct(debug_exp);
@@ -37,6 +43,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
               stim_ifi = round(stim_ifi/ex.disp.ifi) * ex.disp.ifi % integer times of nominal ifi.
               [stim(:).framerate] = deal(framerate);
               ex.framerate = framerate;
+              ex.name = ex_name;
               
           % wait for trigger
           ex = waitForTrigger(ex);
@@ -49,6 +56,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
 %           end
           ex.stim = stim;
           ex.n_repeats = n_repeats;
+          ex.name = ex_name;
+          t1 = clock;
             
           % initialize the VBL timestamp
           vbl = GetSecs();
@@ -181,8 +190,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         % phase for impulse (default for flashes)
                         if all(s.ndims(1:2) == [1 1])
                             shift_ct = 0.5 * ones(1, frames_per_period);
-                            shift_ct(1:6) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
-                            shift_ct(frameid_ON:frameid_ON+5) = 1;
+                            shift_ct(1:4) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
+                            shift_ct(frameid_ON:frameid_ON+4) = 1;
                         else
                             % phase for step (duty rate 50%):
                             shift_ct = 1:frames_per_period > (round(frames_per_period/2.));
@@ -346,10 +355,11 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                 end
                 
             end
-            ex.end = datestr(now, 'HH:MM:SS');
+            ex.t_end = datestr(now, 'HH:MM:SS');
             ex.duration = ex.end - ex.t_start;
-            ex.duration = etime(clock, ex.t1); % secs
-            disp(['Total duration of stimulus was ', num2str(ex.duration), ' secs']);
+            ex.duration = etime(clock, t1); % secs
+            fprintf('Total duration of stimulus was %.1f min (One repeat = %.1f secs).\n', ex.duration/60., ex.duration/ex.n_repeats);
+
             
           % Check for ESC keypress during the experiment
           ex = checkesc(ex);
@@ -360,6 +370,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
         % Save the experimental metadata
 %         savejson('', ex, fullfile(basedir, 'expt.json'));
 %         save(fullfile(basedir, 'exlog.mat'), 'ex');
+        save(fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_ex_', ex_name,'.mat']), 'ex');
 
         % Send results via Pushover
         sendexptresults(ex);

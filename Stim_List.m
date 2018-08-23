@@ -54,7 +54,6 @@ testscreen_colors;
 
 %% 0716 2018 typing stimulus (generalized checker stimulus) ~ 22 min
 ex_title = 'typing';
-stim = []; debug = true;
  n_repeats = 10;
   hp_flash = 2.; % secs
 hp_grating = 1.5;
@@ -62,30 +61,33 @@ hp_speed = 1.5;
 % ndims=[1,1]: flash mode. Impulse turn on and off.
 flash = struct('tag', 'flash', 'ndims', [1,1], 'sizeCenter', 0.6, 'half_period', hp_flash);
 annul = struct('tag', { 'Ann0.8', 'Ann1.2', 'Ann1.6'}, 'ndims', [1,1], 'sizeCenter', 0,...
-               'Annulus', {  0.8,      1.2,      1.6},...
+               'Annulus', {  1.0,      1.5,      2.0},...
                         'w_Annulus', .4, 'half_period', hp_flash);
 % moving annulus? 'Annulus', [1., 2.5]                   
 % Nonlinear spatial summation: RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
 % 14 bars / 640 um ~ width: 50 um
 grating = struct('tag', 'grating',...
                 'ndims', {[28,1], [14,1]},...% center size is redefined by the integer times grating?
-                'sizeCenter', 0.6, 'half_period', hp_grating, 'cycle', 3, 'phase_1st_cycle', 1);
-% bg texture input: long range > 1mm input can exist?
-bgtex = struct('tag', 'bgtex', 'half_period', hp_grating,...
-                'ndims', {[28,1]}, 'sizeCenter', 0.6, 'BG', 1.6,...
+                'sizeCenter', 0.6, 'half_period', hp_grating,...
+                'cycle', 3,... 
+                'phase_1st_cycle', 1);
+% bg texture input: long range > 1 mm input can exist?
+bgtex = struct('tag', {'bgtex','global','diff'}, 'half_period', hp_grating,...
+                'ndims', [14,1], 'sizeCenter', 0.6, 'BG', 1.6,...
                 'draw_center', {false,  true,   true},...% {B , C+B, C+B}
                       'cycle', {    3,     2,      2},... 
             'phase_1st_cycle', {    1,    [],     []},...
                       'delay', {    0,     0,   0.25});  % {global, global, diff}
 % Speed tuning: population picture of amacrine cells
 speed = struct('tag', 'speed', 'half_period', hp_speed,...
-                'ndims', {[28,1]}, 'sizeCenter', 0.6,...%'BG', 1.6,... 
+                'ndims', [14,1], 'sizeCenter', 0.6,...%'BG', 1.6,... 
                 'phase_1st_cycle', { 1, [], [], []},...
                           'cycle', { 2,  1,  1,  1},... 
                 'shift_per_frame', {.25, .50, 0.75, 1.}); % in px. ~ 1/speed. 1 px * 21um * 60 Hz = 1260 um/s
 %            
 blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
 %
+stim = [];
 stim = addStruct(stim, flash);
 stim = addStruct(stim, annul);
 stim = addStruct(stim, grating);
@@ -95,15 +97,18 @@ stim = addStruct(stim, blank);
 %
 ex_typing = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
-%% Main recording: UV Natural movie
+%% Main recording: UV Natural movie. Synchronized inhibition during natural movies? 
 % 1.4 mm aperture : 2.7 mm [64 64] mov, 35 grid checkers  1.48 mm
 % 1.3 mm apergure : 1.36 mm [64 64] mov
-ex_title = 'UV_nat_movies_10mins';
+ex_title = 'Nat_movies_10mins';
+debug_exp = false;
 nm_params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'length', 10, 'repeat', 1,... 
                 'mov_id', [1, 2, 3, 4], 'startframe', 1, 'seed', 7,... 
-                'ndims', [100, 100], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]); % mask is mask for alpha blending. 
-                % nimds: subimage sampling dimension.
+                'ndims', [128, 128], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]); % mask is mask for alpha blending. 
+                % nimds: subimage sampling dimension. 
+                % Presentation dim = ndims * scale.
+                % dst rect (or aperture) size = m (integer) * Presentation dim.
 params= nm_params;
 %
 run_stims

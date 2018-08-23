@@ -52,7 +52,8 @@
 
       % wait for trigger
       ex = waitForTrigger(ex);
-      
+      %
+      t1 = clock;
       
       % Run the stimuli
       for stimidx = 1:length(stimuli)
@@ -83,7 +84,7 @@
       
       %
       ex.t_end = datestr(now, 'HH:MM:SS');
-      ex.duration_secs = etime(clock, ex.t1);
+      ex.duration_secs = etime(clock, t1);
       
       % Close windows and textures, clean up
       endexpt();
