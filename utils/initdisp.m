@@ -53,7 +53,7 @@ ex.disp.gray  = round((ex.disp.white + ex.disp.black) / 2);
 
 % Color gray vector (direction of gray) or color weight
 % For mouse experiment by JY
-ex.disp.grayvector = [0 1 .5];
+ex.disp.grayvector = [0 1 .4];
 %ex.disp.grayvector = [0 0 1];
 
 % White and black by the user-defined gray vector
@@ -79,8 +79,8 @@ if any([ex.disp.nominal_frate == 0, ex.disp.screen ==0, ex.debug==1])
     %[ex.disp.w ex.disp.rect]=Screen('OpenWindow', ex.disp.screen, backColor, [10 10 1000 1000]);
     [ex.disp.winptr, ex.disp.winrect] = PsychImaging('OpenWindow', ...
                         ex.disp.screen, ex.disp.bgcol, [0 10 1024 778]);
-    ex.rig_Name = 'test';                
-     
+    ex.rig_Name = 'test';
+    ex.debug = true;
 else
     %HideCursor;
     Screen('Preference', 'VisualDebugLevel', 3);
@@ -130,7 +130,7 @@ ex.disp.pdrect  = CenterRectOnPoint(ex.disp.pdsize, ...
 ex.disp.pdcolor = [1 0 0] * ex.disp.white;
 
 % the destination rectangle: size and offset
-aperturesize = 1.8; % mm
+aperturesize = 2.2; % mm
 ex.disp.aperturesize_mm = aperturesize;                 	% Size of stimulus aperture
 ex.disp.aperturesize    = aperturesize*10*PIXELS_PER_100_MICRONS(ex.rig_Name);                 	% Size of stimulus aperture
 ex.disp.offset_x = round( (x0/100) * PIXELS_PER_100_MICRONS(ex.rig_Name) );

@@ -7,6 +7,10 @@ function ex = initexptstruct(debug)
 % (c) bnaecker@stanford.edu 2014 
 % 22 Jan 2014 - wrote it
 
+if nargin < 1
+    debug = false;
+end
+
 % experiment fields
 ex = struct('stim', {[]}, 'disp', {[]}, 'key', {[]}, 'me', {[]});
 

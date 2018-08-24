@@ -55,12 +55,13 @@ testscreen_colors;
 %% 0716 2018 typing stimulus (generalized checker stimulus) ~ 22 min
 ex_title = 'typing';
  n_repeats = 10;
-  hp_flash = 2.; % secs
-hp_grating = 1.5;
-hp_speed = 1.5;
+  hp_flash = 1.5; % secs
+hp_grating = 1.;
+hp_speed = 1.;
+sizeCenter = 0.6;
 % ndims=[1,1]: flash mode. Impulse turn on and off.
-flash = struct('tag', 'flash', 'ndims', [1,1], 'sizeCenter', 0.6, 'half_period', hp_flash);
-annul = struct('tag', { 'Ann0.8', 'Ann1.2', 'Ann1.6'}, 'ndims', [1,1], 'sizeCenter', 0,...
+flash = struct('tag', 'flash', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
+annul = struct('tag', { 'Ann1.0', 'Ann1.5', 'Ann2.0'}, 'ndims', [1,1], 'sizeCenter', 0,...
                'Annulus', {  1.0,      1.5,      2.0},...
                         'w_Annulus', .4, 'half_period', hp_flash);
 % moving annulus? 'Annulus', [1., 2.5]                   
@@ -68,22 +69,22 @@ annul = struct('tag', { 'Ann0.8', 'Ann1.2', 'Ann1.6'}, 'ndims', [1,1], 'sizeCent
 % 14 bars / 640 um ~ width: 50 um
 grating = struct('tag', 'grating',...
                 'ndims', {[28,1], [14,1]},...% center size is redefined by the integer times grating?
-                'sizeCenter', 0.6, 'half_period', hp_grating,...
+                'sizeCenter', sizeCenter, 'half_period', hp_grating,...
                 'cycle', 3,... 
                 'phase_1st_cycle', 1);
 % bg texture input: long range > 1 mm input can exist?
 bgtex = struct('tag', {'bgtex','global','diff'}, 'half_period', hp_grating,...
-                'ndims', [14,1], 'sizeCenter', 0.6, 'BG', 1.6,...
+                'ndims', [14,1], 'sizeCenter', sizeCenter, 'BG', 1.6,...
                 'draw_center', {false,  true,   true},...% {B , C+B, C+B}
                       'cycle', {    3,     2,      2},... 
             'phase_1st_cycle', {    1,    [],     []},...
                       'delay', {    0,     0,   0.25});  % {global, global, diff}
 % Speed tuning: population picture of amacrine cells
 speed = struct('tag', 'speed', 'half_period', hp_speed,...
-                'ndims', [14,1], 'sizeCenter', 0.6,...%'BG', 1.6,... 
+                'ndims', [14,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
                 'phase_1st_cycle', { 1, [], [], []},...
                           'cycle', { 2,  1,  1,  1},... 
-                'shift_per_frame', {.25, .50, 0.75, 1.}); % in px. ~ 1/speed. 1 px * 21um * 60 Hz = 1260 um/s
+                'shift_per_frame', {.25, .50, 1., 2.}); % in px. ~ 1/speed. 1 px * 21um * 60 Hz = 1260 um/s
 %            
 blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
 %
@@ -91,9 +92,9 @@ stim = [];
 stim = addStruct(stim, flash);
 stim = addStruct(stim, annul);
 stim = addStruct(stim, grating);
-stim = addStruct(stim, bgtex);
-%stim = addStruct(stim, speed);
-stim = addStruct(stim, blank);
+% stim = addStruct(stim, bgtex);
+% stim = addStruct(stim, speed);
+% stim = addStruct(stim, blank);
 %
 ex_typing = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 

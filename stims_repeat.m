@@ -132,7 +132,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     ex.stim(k).L_optimized_px = Lchecker;
                     % display for grating stim
                     if any(s.ndims(1:2) > [1, 1]) % compare first 2 dims. 3 dim is color channel.
-                        fprintf('(Grating stimulus) Pixels per one checker: [%d, %d] ~ [%.0f, %.0f] um. Optimized checker size L = %.1f um\n', w_pixels_x, w_pixels_y, w_pixels_x*ex.disp.um_per_px, w_pixels_y*ex.disp.um_per_px, Lchecker*ex.disp.um_per_px);
+                        fprintf('(Grating) Px per checker: [%d, %d] ~ [%.0f, %.0f] um. Checker (center) size L = %.1f um\n', w_pixels_x, w_pixels_y, w_pixels_x*ex.disp.um_per_px, w_pixels_y*ex.disp.um_per_px, Lchecker*ex.disp.um_per_px);
                     end
                     ct_checker_rect = CenterRectOnPoint(...	
                               [0 0 Lchecker Lchecker], ...
@@ -249,11 +249,14 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                   src_rect_ct = [0 shift_ct(fi) nx     ny    + shift_ct(fi)];
                               end
                               
-                              % draw the BG texture & gray gap
+                              % draw the BG texture
                               if isfield(s, 'BG') && ~isempty(s.BG) && s.BG
-                                  Screen('DrawTexture', ex.disp.winptr, bg_texid, src_rect_bg, bg_dst_rect, 0, 0);
-                                  Screen('FillOval',    ex.disp.winptr, ex.disp.bgcol, gray_rect); % margin rect.
+                                  Screen('DrawTexture', ex.disp.winptr, bg_texid, src_rect_bg, bg_dst_rect, 0, 0);    
                               end
+                              % gray margin rect. Center will be drawn
+                              % through alpha blending. 
+                              Screen('FillOval',    ex.disp.winptr, ex.disp.bgcol, gray_rect); 
+                              
                               % Annulus
                               if sum(L_ann) > 0 % L_ann is either a value or a range [a, b].
                                     % dst rect for annulus
@@ -317,13 +320,15 @@ function ex = stims_repeat(stim, n_repeats, varargin)
 %                               if fi <4
 %                                frame_interval = vbl - vbl_old;
 %                               end
-                              
+                             
                               if (missed > 0)
                                     % A negative value means that dead- lines have been satisfied.
                                     % Positive values indicate a deadline-miss.
                                     if (fi > 1)
-                                        fprintf('(stim repeats) frame index %d: flip missed = %f\n', fi, missed);
                                         ex.disp.missed = ex.disp.missed + 1;
+                                        if ex.debug == false % display only when it is not in debug mode
+                                            fprintf('(stim repeats) frame index %d: flip missed = %f\n', fi, missed);
+                                        end
                                     end
                               end
                               
