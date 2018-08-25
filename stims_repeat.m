@@ -107,7 +107,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     L_ann_frames = linspace(L_ann(1), L_ann(end), frames_per_period);
                     
                     % dims
-                    L = s.sizeCenter * 1000 * ex.disp.pix_per_um;
+                    L = s.sizeCenter * 1000 * ex.disp.pix_per_um; % px
                     L_gray = (s.sizeCenter + gray_margin)*1000*ex.disp.pix_per_um;
                     
                     %
@@ -124,24 +124,24 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     w_pixels_x = ceil(L/nx);
                     w_pixels_y = ceil(L/ny);
                     w_pixels = min(w_pixels_x, w_pixels_y);
-                    %
+%                     % Num of checkers (px-norm.) within center
+%                     n_checkers = floor( L/w_pixels_x );                    
                     Lx = w_pixels_x * nx;
                     Ly = w_pixels_y * ny;
                     Lchecker = max(Lx, Ly);
                     %
                     ex.stim(k).L_optimized_px = Lchecker;
-                    % display for grating stim
+                    % dst for grating stim
                     if any(s.ndims(1:2) > [1, 1]) % compare first 2 dims. 3 dim is color channel.
-                        fprintf('(Grating) Px per checker: [%d, %d] ~ [%.0f, %.0f] um. Checker (center) size L = %.1f um\n', w_pixels_x, w_pixels_y, w_pixels_x*ex.disp.um_per_px, w_pixels_y*ex.disp.um_per_px, Lchecker*ex.disp.um_per_px);
+                        fprintf('(Grating) Px per checker: [%d, %d] ~ [%.0f, %.0f] um. Checker presentation size L = %.1f um\n', w_pixels_x, w_pixels_y, w_pixels_x*ex.disp.um_per_px, w_pixels_y*ex.disp.um_per_px, Lchecker*ex.disp.um_per_px);
                     end
                     ct_checker_rect = CenterRectOnPoint(...	
                               [0 0 Lchecker Lchecker], ...
                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
-                    
-                    % dst rect for center
-%                     ct_dst_rect = CenterRectOnPoint(...	
-%                               [0 0 L L], ...
-%                               ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
+                    % dst rect for center: Mask
+                    ct_dst_rect = CenterRectOnPoint(...	
+                              [0 0 L L], ...
+                              ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
                     % gray dst rect : rect for margin btw ct and bg
                     gray_rect = CenterRectOnPoint(...	
                               [0 0 L_gray L_gray], ...
@@ -182,7 +182,6 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         frames = s.noise_contrast * frames + (1-s.noise_contrast)/2.;
                     end
    
-                    
                     % The main stimulus
                     for kk =1:s.cycle
                         
@@ -279,7 +278,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                 % Clear 'dstRect' region of framebuffers alpha channel to zero: 
                                 Screen('FillRect', ex.disp.winptr, [0 0 0 0], ex.disp.dstrect); % Alpha 0 means completely clear. 
                                 %Screen('FillOval', ex.disp.winptr, [0 0 0 ex.disp.white], ct_dst_rect);  
-                                Screen('FillOval', ex.disp.winptr, [0 0 0 ex.disp.white], ct_checker_rect);  
+                                Screen('FillOval', ex.disp.winptr, [0 0 0 ex.disp.white], ct_dst_rect);  
                                 %
                                 Screen('Blendfunction', ex.disp.winptr, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, [1 1 1 1]);
                                 
@@ -361,7 +360,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                 
             end
             ex.t_end = datestr(now, 'HH:MM:SS');
-            ex.duration = ex.end - ex.t_start;
+            ex.duration = ex.t_end - ex.t_start;
             ex.duration = etime(clock, t1); % secs
             fprintf('Total duration of stimulus was %.1f min (One repeat = %.1f secs).\n', ex.duration/60., ex.duration/ex.n_repeats);
 

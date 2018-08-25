@@ -56,8 +56,8 @@ testscreen_colors;
 ex_title = 'typing';
  n_repeats = 10;
   hp_flash = 1.5; % secs
-hp_grating = 1.5;
-hp_speed = 1.5;
+hp_grating = 1.;
+hp_speed = 1.;
 sizeCenter = 0.6;
 % ndims=[1,1]: flash mode. Impulse turn on and off.
 flash = struct('tag', 'flash', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
@@ -96,23 +96,9 @@ stim = addStruct(stim, bgtex);
 stim = addStruct(stim, speed);
 stim = addStruct(stim, blank);
 %
-ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
+ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 1, 'mode', '');
 
-%% Repeat natural movies: Cell's reproducibility to natural movies? (1 min)
-% combination of multiple 'movies' (cell array in worksapce).
-% cell array in values -> struct array
-ex_title = 'Nat_movies_short_repeats';
-debug_exp = false;
-params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
-                'length', 0.3, 'repeat', 5,... 
-                    'mov_id',   {1, 3},... 
-                'startframe', {910, 450}, 'seed', 7,... 
-                'ndims', [128,128], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]);
-            
-% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
-run_stims
-
-%% Main recording: Natural movie. Synchronized inhibition during natural movies? 
+%% Main recording: UV Natural movie. Synchronized inhibition during natural movies? 
 % 1.4 mm aperture : 2.7 mm [64 64] mov, 35 grid checkers  1.48 mm
 % 1.3 mm apergure : 1.36 mm [64 64] mov
 ex_title = 'Nat_movies_10mins';
@@ -148,6 +134,19 @@ moving_bar('barColor', 'dark','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.
 %%
 moving_bar('barColor','white','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'angle_every', 45, 'N_repeat', 8 * n_repeats);
 
+%% Repeat natural movies: Cell's reproducibility to natural movies? (1 min)
+% combination of multiple 'movies' (cell array in worksapce).
+% cell array in values -> struct array
+ex_title = 'Cells_reliability_to_nat_movies';
+debug_exp = false;
+params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
+                'length', 0.2, 'repeat', 5,... 
+                    'mov_id',   {1, 3},... 
+                'startframe', {910, 450}, 'seed', 7,... 
+                'ndims', [128,128], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]);
+            
+% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
+run_stims
 
 %% Full-fild WN (Gaussian): Linear vs Nonlinear populations
 ex_title = 'Uniform_Whitenoise_UV';
