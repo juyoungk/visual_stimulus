@@ -304,7 +304,11 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                
                               % photodiode
                               if fi == 1
-                                  pd = ex.disp.pd_color;
+                                  if k == 1
+                                    pd = ex.disp.pd_color;
+                                  else
+                                    pd = ex.disp.pd_color * 0.6;
+                                  end
                               else
                                   pd = 0;
                               end
