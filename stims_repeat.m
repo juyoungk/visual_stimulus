@@ -39,11 +39,13 @@ function ex = stims_repeat(stim, n_repeats, varargin)
           
           % Initalize the visual display w/ offset position
           ex = initdisp(ex, 1500, -100);
-              stim_ifi = 1/framerate;                              % framerate and ifi I want 
-              stim_ifi = round(stim_ifi/ex.disp.ifi) * ex.disp.ifi % integer times of nominal ifi.
+              stim_ifi = 1/framerate;                              % framerate and ifi I ask 
+              stim_ifi = round(stim_ifi/ex.disp.ifi) * ex.disp.ifi; % integer times of nominal ifi.
               [stim(:).framerate] = deal(framerate);
               ex.framerate = framerate;
+              ex.stim_ifi = stim_ifi;
               ex.name = ex_name;
+              fprintf('\n exp: %s (stim ifi = %.3f', ex_name, stim_ifi);
               
           % wait for trigger
           ex = waitForTrigger(ex);
@@ -94,7 +96,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     
                     % frame numbers
                     frames_per_period = round(framerate * s.half_period * 2);
-                    frameid_ON = round(frames_per_period/2.) + 1; % frame id for pahse = 1 
+                    frameid_ON = round(frames_per_period/2.) + 1; % frame id for shift (or ON or id for phase =1).
                     
                     % Annulus stim
                     if isfield(s, 'Annulus') && ~isempty(s.Annulus)
@@ -182,48 +184,52 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         frames = s.noise_contrast * frames + (1-s.noise_contrast)/2.;
                     end
    
+                    % shift (or phase) trajectories
+                        
+                    % [1 1] flash: impulse shift 
+                    if all(s.ndims(1:2) == [1 1])
+                        shift_ct = 0.5 * ones(1, frames_per_period);
+                        shift_ct(1:4) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
+                        shift_ct(frameid_ON:frameid_ON+4) = 1;
+                    else
+                        % phase for step (duty rate 50%):
+                        shift_ct = 1:frames_per_period > (round(frames_per_period/2.)); % [0 0 .. 1 1 .. ]
+                    end
+                    shift_ct = double(shift_ct);
+
+                    % shfit w/ finite speed
+                    if isfield(s, 'shift_per_frame') && ~isempty(s.shift_per_frame)
+                        px_per_frame = s.shift_per_frame;
+                        % in phase?
+                        ph_per_frame = px_per_frame/w_pixels;
+
+                        % phase (= shift) trajectories
+                        ph1 = 1:(-ph_per_frame):0; ph1 = ph1(2:end);
+                        ph2 = 0:ph_per_frame:1;    ph2 = ph2(2:end);
+                        if length(ph1) > frames_per_period
+                            ph1 = ph1(1:frames_per_period);
+                            ph2 = ph2(1:frames_per_period);
+                        end
+                        numshift = length(ph1);
+                        fprintf('Shift will be done over %d frames (%.2f sec). Speed = .2f mm/s',...
+                            numshift, numshift*stim_ifi, px_per_frame*ex.disp.umperpx*framerate/1000. );
+                        %
+                        shift_ct(1:numshift) = ph1; 
+                        shift_ct(frameid_ON:frameid_ON+numshift-1) = ph2; 
+                    end
+
+                    % phase of the annulus: flashing vs moving
+                    if length(L_ann) == 2 % [a, b]: moving anuulus
+                        ann_phase = ones(1, frames_per_period);
+                    else % single annulus: flashing
+                        ann_phase = shift_ct; % same as center object
+                        ann_phase = circshift(ann_phase, round(s.delay*frames_per_period)); % flashing annulus
+                    end
+
+                    
                     % The main stimulus
                     for kk =1:s.cycle
-                        
-                        % phase profile or trajectories
-                        % phase for impulse (default for flashes)
-                        if all(s.ndims(1:2) == [1 1])
-                            shift_ct = 0.5 * ones(1, frames_per_period);
-                            shift_ct(1:4) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
-                            shift_ct(frameid_ON:frameid_ON+4) = 1;
-                        else
-                            % phase for step (duty rate 50%):
-                            shift_ct = 1:frames_per_period > (round(frames_per_period/2.));
-                        end
-                        shift_ct = double(shift_ct);
-                        
-                        % shfit w/ finite speed
-                        if isfield(s, 'shift_per_frame')
-                            px_per_frame = s.shift_per_frame;
-                            % in phase?
-                            ph_per_frame = px_per_frame/w_pixels;
                             
-                            % phase trajectories
-                            ph1 = 1:(-ph_per_frame):0; ph1 = ph1(2:end);
-                            ph2 = 0:ph_per_frame:1; ph2 = ph2(2:end);
-                            if length(ph1) > frames_per_period
-                                ph1 = ph1(1:frames_per_period);
-                                ph2 = ph2(1:frames_per_period);
-                            end
-                            numshift = length(ph1);
-                            %
-                            shift_ct(1:numshift) = ph1; 
-                            shift_ct(frameid_ON:frameid_ON+numshift-1) = ph2; 
-                        end
-                        
-                        % phase of the annulus: flashing vs moving
-                        if length(L_ann) == 2 % [a, b]: moving anuulus
-                            ann_phase = ones(1, frames_per_period);
-                        else % single annulus: flashing
-                            ann_phase = shift_ct; % same as center object
-                            ann_phase = circshift(ann_phase, round(s.delay*frames_per_period)); % flashing annulus
-                        end
-                        
                         % phase for 1st cycle: can be constant
                         if isfield(s, 'phase_1st_cycle') && ~isempty(s.phase_1st_cycle)
                             if kk == 1
@@ -306,14 +312,16 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                               if fi == 1
                                   if k == 1
                                     pd = ex.disp.pd_color;
+                                    pdrect = ex.disp.pdrect;
                                   else
-                                    pd = ex.disp.pd_color * 0.6;
+                                    pd = ex.disp.pd_color;
+                                    pdrect = ex.disp.pdrect2;
                                   end
                               else
                                   pd = 0;
                               end
                               %Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 0 0 1]);
-                              Screen('FillOval', ex.disp.winptr, pd, ex.disp.pdrect);
+                              Screen('FillOval', ex.disp.winptr, pd, pdrect);
                               %Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [s.color 1]);
 
                               % flip onto the screen

@@ -3,14 +3,16 @@ function ex = naturalmovie2(ex, replay, movies)
 %   - Movie can contain color channels. [frames, ros, cols, channels]
 %   - Movie files will be played in order. (0403 2018 JY)
 %   - No contrast option.
-%   - Repeat option.
+%   - has Repeat option.
 %   - startframe (same for all movies)
 %
 % ex = naturalmovie2(ex, replay, movies)
 %
-%   - movies : cell array
+%   - movies : cell array (loaded in Matlab WorkSpace)
 %
 % Required parameters:
+%   mov_id: can indicate a partial set of movies or specify special mode. 
+%            0: all movies
 %   length : float (length of the experiment in minutes)
 %   framerate : float (rough framerate, in Hz)
 %   ndims : [int, int] (dimensions of the stimulus)
@@ -26,12 +28,15 @@ function ex = naturalmovie2(ex, replay, movies)
 % 
 % Movie file format: [frame, rows, cols]. already rescaled. 
   
-  % movie input from WorkSpace
   if nargin < 3
-      movies = [];
+        movies = cell(1, 1);
+  end
+  %
+  if ~iscell(movies)
+      movies = {movies};
   end
   
-  % 
+  % Load stim parameters including mov dir.
   if replay
 
         % load experiment properties
@@ -69,13 +74,10 @@ function ex = naturalmovie2(ex, replay, movies)
         Screen('FillOval', ex.disp.winptr, 0, ex.disp.pdrect);
         vbl = Screen('Flip', ex.disp.winptr, vbl + flipint);
   end
-
-  % Movie input
-  if ~isempty(movies)
-      % movie from input WS variables      
-      nummovies = numel(movies);
-  else
-      % movie from files
+   
+  % Load movies data from files if 'moviedir' is given.
+  if isfield(me,'moviedir') && ~isempty(me.moviedir)
+      % Load movies from files.
       files = dir(fullfile(me.moviedir, me.movext));
       nummovies = length(files);
       if nummovies < 1
@@ -89,11 +91,21 @@ function ex = naturalmovie2(ex, replay, movies)
       end
   end
   
+  %
+  if all(cellfun('isempty', movies))
+      % empty movies
+      disp('movies are empty.');
+      % random pattern?
+  end
+  %
+  nummovies = numel(movies);
+  
   % Numframes & Timestamps (replay doesn't need this information)
   if ~replay
       totframes = 0;
       for i = 1:nummovies
         [nframes, ~, ~, ~] = size(movies{i});
+        fprintf('mov %d frames: %5d \n', i, nframes);
         totframes = totframes + nframes;
       end
       % frames by duration (if it exists)
@@ -104,7 +116,9 @@ function ex = naturalmovie2(ex, replay, movies)
       end
       % Final numframes
       numframes = min(nframes_length, totframes);
-      fprintf('%d/%d frames will be presented. (%.1f sec long movie)\n', numframes, totframes, me.length*60);
+      %fprintf('%d/%d frames will be presented. (%.1f sec long movie)\n', numframes, totframes, me.length*60);
+      fprintf('%.1f sec long (%d frames) movie is requested. (Total %d frames in all movies.)\n',...
+                me.length*60, (me.length*60)*ex.stim{end}.framerate, totframes);
       ex.stim{end}.numframes = numframes;
       % store timestamps
       ex.stim{end}.timestamps = zeros(numframes,1);
@@ -116,12 +130,41 @@ function ex = naturalmovie2(ex, replay, movies)
     Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [c_mask 1]);
   end
   
-  % scale factor: larger patch, gradual jitter
+  % scale factor: larger patch (w/ factor of >1), gradual jitter
   s_factor = me.scale;
   ndims_scaled = me.ndims;
-  ndims_scaled(1) = me.ndims(1) * s_factor;
-  ndims_scaled(2) = me.ndims(2) * s_factor;
-  Ndims = size(me.ndims, 2);
+  ndims_scaled(1) = ceil(me.ndims(1) * s_factor); % Actual num of pixels of stimulus frame.
+  ndims_scaled(2) = ceil(me.ndims(2) * s_factor); % Should be integer.
+  Ndims = size(me.ndims, 2); % dim vector is a col vector. 2 means along cols.
+  % src rect dim
+  % PTB rect dimension [x y], Matlab img dimension [row col].
+  src_x = ndims_scaled(2);
+  src_y = ndims_scaled(1);
+  if src_x == 1; src_x = src_y; end; % 1-D spacial case.
+  if src_y == 1; src_y = src_x; end;
+  
+  % src rect
+  srcrect = [0 0 src_x src_y]; 
+
+    % isotropic pixel size (integer) along x and y
+    L = ex.disp.aperturesize;
+    px = min( ceil(L/ndims_scaled(2)), ceil(L/ndims_scaled(1)) );
+    stim1px_um = px * ex.disp.umperpix;
+    fprintf('1 stim px --> %d display px. (%.0f um)\n', px, stim1px_um);
+    ex.disp.stim1px_um = stim1px_um;
+
+    % dst rect as integer multiples of the frame size (source rect).
+    Lx = px * src_x;
+    Ly = px * src_y;
+    %
+    dstrect = CenterRectOnPoint(...	
+                    [0 0 Lx Ly], ...
+                    ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
+
+    % display size info
+    ex.disp.aperturesize_movies_mm = [Lx Ly] * ex.disp.umperpix/1000.;
+    fprintf('stim dim (size): [%d %d] (%.1f %.1f)[mm]\n', ndims_scaled(2), ndims_scaled(1),...
+        ex.disp.aperturesize_movies_mm(1), ex.disp.aperturesize_movies_mm(2)); 
   
   % jitter amp
   jitter_amp = me.jitter_var/s_factor; 
@@ -137,7 +180,7 @@ function ex = naturalmovie2(ex, replay, movies)
   end
   if mov_ids == 0 % 0 means all movies
       mov_ids = 1:nummovies;
-  end    
+  end
   
   % repeat number
   if isfield(me, 'repeat')
@@ -147,7 +190,7 @@ function ex = naturalmovie2(ex, replay, movies)
   end
   disp(['Natural movies will be repeated by ', num2str(n_repeats), ' times.']);
   
-  % start frame
+  % start frame (applied for all mov_ids) 
   if isfield(me, 'startframe')
       startframe = me.startframe;
   else
@@ -161,7 +204,7 @@ function ex = naturalmovie2(ex, replay, movies)
       fprintf('%d/%d presentation of natural movies (%.1f secs long).\n', rr, n_repeats, me.length * 60);
       rs = getrng(rs.Seed);
       
-      if rr>1 && replay % no repeat for replay
+      if rr>1 && replay % no repeat for replay mode
           break;
       end
       
@@ -175,25 +218,15 @@ function ex = naturalmovie2(ex, replay, movies)
         movNumFrames = size(mov, 1);
         % color mov or gray mov?
         
-
-        % # of pixels in display for 1 pixel in stimulus frame.
-        % isotropic pixel size (integer) along x and y
-        L = ex.disp.aperturesize;
-        px = min( ceil(L/ndims_scaled(2)), ceil(L/ndims_scaled(1)) );  
-        % Define dst rect as integer multiples of the frame size.
-        Lx = px * ndims_scaled(2);
-        Ly = px * ndims_scaled(1);
-        ex.disp.aperturesize_movies_mm = [Lx Ly]*ex.disp.umperpix/1000.;
-
-        dstrect = CenterRectOnPoint(...	
-                        [0 0 Lx Ly], ...
-                        ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
-            
+           
         for fi = startframe:movNumFrames % stimulus frame id in current movie
+              
               % frame id as total 
               ti = ti + 1;
+              
               % frame id in movie (you might want to pick random frame)
               current_frame = fi; 
+              
               % image
               img = squeeze(mov(current_frame,:,:,:)); % looping over last dim (colors) in intesity mov wouldn't matter.
               [rows, cols] = size(img);
@@ -254,27 +287,29 @@ function ex = naturalmovie2(ex, replay, movies)
 
               % draw the texture, then kill it
               % winptr: win pointer. dstrect can define the actual size.
-              Screen('DrawTexture', ex.disp.winptr, texid, [], dstrect, 0, 0); 
+              Screen('DrawTexture', ex.disp.winptr, texid, srcrect, dstrect, 0, 0); 
               Screen('Close', texid);
 
               % update the photodiode with the top left pixel on the first frame
               if fi == startframe
                 pd = ex.disp.white;
+                pdrect = ex.disp.pdrect;
               %elseif mod(fi, me.jumpevery) == 1
               elseif mod(fi - startframe, me.jumpevery) == 0
                 pd = ex.disp.white * 0.4;
+                pdrect = ex.disp.pdrect2;
               else
                 pd = 0;
               end
               Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 0 0 1]);
-              Screen('FillOval', ex.disp.winptr, pd, ex.disp.pdrect);
+              Screen('FillOval', ex.disp.winptr, pd, pdrect);
               Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [c_mask 1]);
 
               % flip onto the screen
               Screen('DrawingFinished', ex.disp.winptr);
               [vbl, ~, ~, missed] = Screen('Flip', ex.disp.winptr, vbl + flipint);
-              if (missed > 0)
-                    % A negative value means that dead- lines have been satisfied.
+              if (missed > 0) && ~contains(ex.rig_name,'test')
+                    % A negative value means that deadlines have been satisfied.
                     % Positive values indicate a deadline-miss.
                     if (ti > 1)
                         fprintf('(NaturalMovie2) frame index %d (%.2f sec): flip missed = %f\n', ti, ti/me.framerate, missed);
@@ -288,7 +323,7 @@ function ex = naturalmovie2(ex, replay, movies)
               % check for ESC
               ex = checkkb(ex);
               if ex.key.keycode(ex.key.esc)
-                fprintf('ESC pressed. Quitting.')
+                fprintf('ESC pressed. Quitting..\n')
                 FLAG_stop = true;
                 break;
               end
@@ -296,6 +331,7 @@ function ex = naturalmovie2(ex, replay, movies)
             end % Flip or Replay
 
             if ti == numframes
+                % ti is the total frame numbers played.
                  FLAG_stop = true;
                  break;
             end
@@ -327,7 +363,6 @@ for c = 1:n_channels
 end
 
 end
-
 
 function C = color_weight(A, color)
 % color as a weight vector.

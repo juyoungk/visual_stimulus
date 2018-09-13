@@ -1,7 +1,7 @@
 %% Load movie files in Workspace
 %moviedir = '../database/matfiles/fish_2xds/';
-%moviedir = '/Users/peterfish/Movies/';
-moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
+moviedir = '/Users/peterfish/Movies/';
+%moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
 %movext   = '*.mat';
 movext   = '*intensity.mat';
 %movies = getMovFiles(moviedir, movext);
@@ -61,8 +61,8 @@ hp_speed = 1.5;
 sizeCenter = 0.6;
 % ndims=[1,1]: flash mode. Impulse turn on and off.
 flash = struct('tag', 'flash', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
-annul = struct('tag', { 'Ann1.0', 'Ann1.5', 'Ann2.0'}, 'ndims', [1,1], 'sizeCenter', 0,...
-               'Annulus', {  1.0,      1.5,      2.0},...
+annul = struct('tag', { 'Ann1.2', 'Ann1.6'}, 'ndims', [1,1], 'sizeCenter', 0,...
+               'Annulus', {1.2,  1.6},...
                         'w_Annulus', .4, 'half_period', hp_flash);
 % moving annulus? 'Annulus', [1., 2.5]                   
 % Nonlinear spatial summation: RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
@@ -84,19 +84,33 @@ speed = struct('tag', 'speed', 'half_period', hp_speed,...
                 'ndims', [14,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
                 'phase_1st_cycle', { 1, [], [], []},...
                           'cycle', { 2,  1,  1,  1},... 
-                'shift_per_frame', {.25, .50, 1., 2.}); % in px. ~ 1/speed. 1 px * 21um * 60 Hz = 1260 um/s
+                'shift_per_frame', {.25, .50, 1., 2.}); % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s
 %            
 blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
 %
 stim = [];
 stim = addStruct(stim, flash);
 stim = addStruct(stim, annul);
-stim = addStruct(stim, grating);
+% stim = addStruct(stim, grating);
 stim = addStruct(stim, bgtex);
 stim = addStruct(stim, speed);
 stim = addStruct(stim, blank);
 %
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
+
+%% 1D moving texture
+ex_title = 'mov_1d_bar_tex';
+debug_exp = false;
+params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
+                'repeat', 1, 'length', 3,... % mins 
+                    'mov_id',   {1, 3},... 
+                'startframe', {910, 450}, 'seed', 7,...
+                'ndims', [1, 128], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]); 
+% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
+run_stims
+
+
+
 
 %% Repeat natural movies: Cell's reproducibility to natural movies? (1 min)
 % combination of multiple 'movies' (cell array in worksapce).
@@ -104,11 +118,11 @@ ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 ex_title = 'Nat_movies_short_repeats';
 debug_exp = false;
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
-                'length', 0.3, 'repeat', 5,... 
+                'length', 0.3, 'repeat', 1,... 
                     'mov_id',   {1, 3},... 
                 'startframe', {910, 450}, 'seed', 7,... 
-                'ndims', [128,128], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]);
-            
+                'ndims', [128, 128], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]); 
+% 1 stim px bar ~ um?             
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
 run_stims
 
@@ -147,7 +161,6 @@ n_repeats = 10;
 moving_bar('barColor', 'dark','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'angle_every', 45, 'N_repeat', 8 * n_repeats); 
 %%
 moving_bar('barColor','white','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'angle_every', 45, 'N_repeat', 8 * n_repeats);
-
 
 %% Full-fild WN (Gaussian): Linear vs Nonlinear populations
 ex_title = 'Uniform_Whitenoise_UV';

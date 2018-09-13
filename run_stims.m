@@ -19,9 +19,16 @@
     %%
     try
       
+      if ~exist('params', 'var')
+        error('Var ''params'' should be defined at WorkSpace');
+      end
+      
       % id for FOV or Exp.
-      loc_id = input(['\nNEW EXPERIMENT: ', ex_title, '\nFOV or Loc name? (e.g. 1 or 2 ..) ']); 
-      [params(:).name] = deal(['loc',loc_id, '_', ex_title]);  
+      loc_id = input(['\nNEW EXPERIMENT: ', ex_title, '\nFOV or Loc name? (e.g. 1 or 2 ..) ']);
+      if isempty(loc_id)
+          loc_id=999;
+      end
+      [params(:).name] = deal(['loc',num2str(loc_id), '_', ex_title]);  
         
       % Construct an experimental structure array
       ex = initexptstruct(debug_exp);
@@ -66,6 +73,9 @@
         
         % run this stimulus
         if strcmp(ex.stim{stimidx}.function, 'naturalmovie2')
+            if ~exist('movies', 'var')
+                movies = []; % should be cell array?
+            end
             eval(['ex = ' ex.stim{stimidx}.function '(ex, false, movies);']);
         else
             eval(['ex = ' ex.stim{stimidx}.function '(ex, false);']);
@@ -93,7 +103,7 @@
 
         % Save the experimental metadata
         savejson('', ex, fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_expt__', str_name,'.json']));
-                    save(fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_exlog_', str_name,'.mat']), 'ex');
+        save(fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_exlog_', str_name,'.mat']), 'ex');
 
         % Send results via Pushover
         sendexptresults(ex);
