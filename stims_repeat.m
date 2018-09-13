@@ -212,7 +212,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         end
                         numshift = length(ph1);
                         fprintf('Shift will be done over %d frames (%.2f sec). Speed = .2f mm/s',...
-                            numshift, numshift*stim_ifi, px_per_frame*ex.disp.umperpx*framerate/1000. );
+                            numshift, numshift*stim_ifi, px_per_frame*ex.disp.um_per_px*framerate/1000. );
                         %
                         shift_ct(1:numshift) = ph1; 
                         shift_ct(frameid_ON:frameid_ON+numshift-1) = ph2; 

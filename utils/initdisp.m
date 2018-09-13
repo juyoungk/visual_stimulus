@@ -120,11 +120,11 @@ ex.disp.um_per_px = ex.disp.umperpix; % different name
 % Describe photodiode
 ex.disp.pdscale = 0.95;					% Scale factor for the photodiode signal
 ex.disp.pdctr   = [0.93 0.15];
-ex.disp.pdsize  = SetRect(0, 0, 600, 600); % session trigger
+ex.disp.pdsize  = SetRect(0, 0, 200, 200); % session trigger
 ex.disp.pdrect  = CenterRectOnPoint(ex.disp.pdsize, ...
   ex.disp.winrect(3) * ex.disp.pdctr(1), ...
   ex.disp.winrect(4) * ex.disp.pdctr(2));  
-ex.disp.pdsize2  = SetRect(0, 0, 300, 300); % stim trigger
+ex.disp.pdsize2  = SetRect(0, 0, 150, 150); % stim trigger
 ex.disp.pdrect2  = CenterRectOnPoint(ex.disp.pdsize2, ...
   ex.disp.winrect(3) * ex.disp.pdctr(1), ...
   ex.disp.winrect(4) * ex.disp.pdctr(2));

@@ -147,7 +147,7 @@ function ex = naturalmovie2(ex, replay, movies)
   srcrect = [0 0 src_x src_y]; 
 
     % isotropic pixel size (integer) along x and y
-    L = ex.disp.aperturesize;
+    L = ex.disp.aperturesize; % px
     px = min( ceil(L/ndims_scaled(2)), ceil(L/ndims_scaled(1)) );
     stim1px_um = px * ex.disp.umperpix;
     fprintf('1 stim px --> %d display px. (%.0f um)\n', px, stim1px_um);
@@ -163,8 +163,8 @@ function ex = naturalmovie2(ex, replay, movies)
 
     % display size info
     ex.disp.aperturesize_movies_mm = [Lx Ly] * ex.disp.umperpix/1000.;
-    fprintf('stim dim (size): [%d %d] (%.1f %.1f)[mm]\n', ndims_scaled(2), ndims_scaled(1),...
-        ex.disp.aperturesize_movies_mm(1), ex.disp.aperturesize_movies_mm(2)); 
+    fprintf('stim dim (size): [%d %d] (%.1f %.1f)[mm] (%.1f mm was given as aperture size)\n', ndims_scaled(2), ndims_scaled(1),...
+        ex.disp.aperturesize_movies_mm(1), ex.disp.aperturesize_movies_mm(2), ex.disp.aperturesize_mm); 
   
   % jitter amp
   jitter_amp = me.jitter_var/s_factor; 

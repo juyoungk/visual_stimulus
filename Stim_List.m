@@ -1,7 +1,7 @@
 %% Load movie files in Workspace
 %moviedir = '../database/matfiles/fish_2xds/';
-moviedir = '/Users/peterfish/Movies/';
-%moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
+%moviedir = '/Users/peterfish/Movies/';
+moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
 %movext   = '*.mat';
 movext   = '*intensity.mat';
 %movies = getMovFiles(moviedir, movext);
@@ -96,7 +96,7 @@ stim = addStruct(stim, bgtex);
 stim = addStruct(stim, speed);
 stim = addStruct(stim, blank);
 %
-ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
+ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 1, 'mode', 'snap');
 
 %% 1D moving texture
 ex_title = 'mov_1d_bar_tex';
@@ -105,11 +105,10 @@ params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,..
                 'repeat', 1, 'length', 3,... % mins 
                     'mov_id',   {1, 3},... 
                 'startframe', {910, 450}, 'seed', 7,...
-                'ndims', [1, 128], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]); 
+                'ndims', [1, 110], 'scale', 0.5, 'jitter_var', 0.5,...
+                'c_mask', [0, 1, 1]); 
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
 run_stims
-
-
 
 
 %% Repeat natural movies: Cell's reproducibility to natural movies? (1 min)
