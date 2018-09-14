@@ -80,8 +80,9 @@ bgtex = struct('tag', {'bgtex','global','diff'}, 'half_period', hp_grating,...
             'phase_1st_cycle', {    1,    [],     []},...
                       'delay', {    0,     0,   0.25});  % {global, global, diff}
 % Speed tuning: population picture of amacrine cells
+% frame rate
 speed = struct('tag', 'speed', 'half_period', hp_speed,...
-                'ndims', [14,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'ndims', [7,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
                 'phase_1st_cycle', { 1, [], [], []},...
                           'cycle', { 2,  1,  1,  1},... 
                 'shift_per_frame', {.25, .50, 1., 2.}); % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s
@@ -89,14 +90,14 @@ speed = struct('tag', 'speed', 'half_period', hp_speed,...
 blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
 %
 stim = [];
-stim = addStruct(stim, flash);
-stim = addStruct(stim, annul);
-% stim = addStruct(stim, grating);
-stim = addStruct(stim, bgtex);
+%stim = addStruct(stim, flash);
+%stim = addStruct(stim, annul);
+%stim = addStruct(stim, grating);
+%stim = addStruct(stim, bgtex);
 stim = addStruct(stim, speed);
 stim = addStruct(stim, blank);
 %
-ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 1, 'mode', 'snap');
+ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 1, 'mode', '');
 
 %% 1D moving texture
 ex_title = 'mov_1d_bar_tex';

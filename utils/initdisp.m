@@ -117,21 +117,19 @@ ex.disp.pix_per_um = ex.disp.pix_per_100um/100.;
 ex.disp.umperpix = 1./ex.disp.pix_per_um;
 ex.disp.um_per_px = ex.disp.umperpix; % different name
 
-% Describe photodiode
+% Describe photodiode (Not for Juyoung's upright scope DLP setting)
 ex.disp.pdscale = 0.95;					% Scale factor for the photodiode signal
 ex.disp.pdctr   = [0.93 0.15];
-ex.disp.pdsize  = SetRect(0, 0, 200, 200); % session trigger
+ex.disp.pdsize  = SetRect(0, 0, 600, 600); 
 ex.disp.pdrect  = CenterRectOnPoint(ex.disp.pdsize, ...
   ex.disp.winrect(3) * ex.disp.pdctr(1), ...
   ex.disp.winrect(4) * ex.disp.pdctr(2));  
-ex.disp.pdsize2  = SetRect(0, 0, 150, 150); % stim trigger
-ex.disp.pdrect2  = CenterRectOnPoint(ex.disp.pdsize2, ...
-  ex.disp.winrect(3) * ex.disp.pdctr(1), ...
-  ex.disp.winrect(4) * ex.disp.pdctr(2));
+
 % Juyoung PD setting
-%[ex.disp.pdrect, ex.disp.pd_color] = DefinePD_shift(ex.disp.winptr);
-[ex.disp.pdrect, ex.disp.pd_color] = DefinePD_shift_ex(ex);
-ex.disp.pdcolor = [1 0 0] * ex.disp.white;
+[ex.disp.pdrect,  ex.disp.pd_color] = DefinePD_shift_ex(ex, 'size', 800); % session (big)   trigger
+[ex.disp.pdrect2, ~]                = DefinePD_shift_ex(ex, 'size', 500); %    stim (small) trigger
+ex.disp.pdcolor  = [1 0 0] * ex.disp.white;
+ex.disp.pdcolor2 = ex.disp.pdcolor;
 
 % the destination rectangle: size and offset
 aperturesize = 2.2; % mm

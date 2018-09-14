@@ -30,6 +30,9 @@ function ex = stims_repeat(stim, n_repeats, varargin)
 
           % id for FOV or Exp.
           loc_id = input(['\nNEW EXPERIMENT: ', ex_title, '\nFOV or Loc name? (e.g. 1 or 2 ..) ']);
+          if isempty(loc_id)
+              loc_id = 99;
+          end
           ex_name = ['loc',num2str(loc_id), '_', ex_title];
             
           % Construct an experimental structure array
@@ -45,7 +48,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
               ex.framerate = framerate;
               ex.stim_ifi = stim_ifi;
               ex.name = ex_name;
-              fprintf('\n exp: %s (stim ifi = %.3f', ex_name, stim_ifi);
+              fprintf('\nexp: %s (stim ifi = %.3f)\n\n', ex_name, stim_ifi);
               
           % wait for trigger
           ex = waitForTrigger(ex);
@@ -135,7 +138,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     ex.stim(k).L_optimized_px = Lchecker;
                     % dst for grating stim
                     if any(s.ndims(1:2) > [1, 1]) % compare first 2 dims. 3 dim is color channel.
-                        fprintf('(Grating) Px per checker: [%d, %d] ~ [%.0f, %.0f] um. Checker presentation size L = %.1f um\n', w_pixels_x, w_pixels_y, w_pixels_x*ex.disp.um_per_px, w_pixels_y*ex.disp.um_per_px, Lchecker*ex.disp.um_per_px);
+                        fprintf('[%d, %d] display px per checker ~ [%.0f, %.0f] um. Presentation size L = %.1f um\n',...
+                            w_pixels_x, w_pixels_y, w_pixels_x*ex.disp.um_per_px, w_pixels_y*ex.disp.um_per_px, Lchecker*ex.disp.um_per_px);
                     end
                     ct_checker_rect = CenterRectOnPoint(...	
                               [0 0 Lchecker Lchecker], ...
@@ -186,16 +190,17 @@ function ex = stims_repeat(stim, n_repeats, varargin)
    
                     % shift (or phase) trajectories
                         
-                    % [1 1] flash: impulse shift 
+                    % impulse or 50% duty cycle
                     if all(s.ndims(1:2) == [1 1])
-                        shift_ct = 0.5 * ones(1, frames_per_period);
-                        shift_ct(1:4) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
-                        shift_ct(frameid_ON:frameid_ON+4) = 1;
+                        % [1 1] flash: impulse shift 
+                        shift_profile = 0.5 * ones(1, frames_per_period);
+                        shift_profile(1:4) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
+                        shift_profile(frameid_ON:frameid_ON+4) = 1;
                     else
-                        % phase for step (duty rate 50%):
-                        shift_ct = 1:frames_per_period > (round(frames_per_period/2.)); % [0 0 .. 1 1 .. ]
+                        % default: shift profile (duty rate 50%):
+                        shift_profile = 1:frames_per_period > (round(frames_per_period/2.)); % [0 0 .. 1 1 .. ]
                     end
-                    shift_ct = double(shift_ct);
+                    shift_profile = double(shift_profile);
 
                     % shfit w/ finite speed
                     if isfield(s, 'shift_per_frame') && ~isempty(s.shift_per_frame)
@@ -211,25 +216,27 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                             ph2 = ph2(1:frames_per_period);
                         end
                         numshift = length(ph1);
-                        fprintf('Shift will be done over %d frames (%.2f sec). Speed = .2f mm/s',...
+                        fprintf('Shift will be done over %d frames (%5.2f sec). Speed = .2f mm/s \n',...
                             numshift, numshift*stim_ifi, px_per_frame*ex.disp.um_per_px*framerate/1000. );
                         %
-                        shift_ct(1:numshift) = ph1; 
-                        shift_ct(frameid_ON:frameid_ON+numshift-1) = ph2; 
+                        shift_profile(1:numshift) = ph1; 
+                        shift_profile(frameid_ON:frameid_ON+numshift-1) = ph2; 
                     end
 
                     % phase of the annulus: flashing vs moving
                     if length(L_ann) == 2 % [a, b]: moving anuulus
                         ann_phase = ones(1, frames_per_period);
                     else % single annulus: flashing
-                        ann_phase = shift_ct; % same as center object
+                        ann_phase = shift_profile; % same as center object
                         ann_phase = circshift(ann_phase, round(s.delay*frames_per_period)); % flashing annulus
                     end
-
                     
                     % The main stimulus
                     for kk =1:s.cycle
-                            
+                        
+                        % assign shift trajectory to cennter pattern.
+                        shift_ct = shift_profile;
+                        
                         % phase for 1st cycle: can be constant
                         if isfield(s, 'phase_1st_cycle') && ~isempty(s.phase_1st_cycle)
                             if kk == 1
