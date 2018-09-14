@@ -82,30 +82,30 @@ bgtex = struct('tag', {'bgtex','global','diff'}, 'half_period', hp_grating,...
 % Speed tuning: population picture of amacrine cells
 % frame rate
 speed = struct('tag', 'speed', 'half_period', hp_speed,...
-                'ndims', [7,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
-                'phase_1st_cycle', { 1, [], [], []},...
+                'ndims', [14,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'phase_1st_cycle', { 2, [], [], []},... % shift_max is curreently 2.
                           'cycle', { 2,  1,  1,  1},... 
                 'shift_per_frame', {.25, .50, 1., 2.}); % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s
 %            
 blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
 %
 stim = [];
-%stim = addStruct(stim, flash);
-%stim = addStruct(stim, annul);
+stim = addStruct(stim, flash);
+stim = addStruct(stim, annul);
 %stim = addStruct(stim, grating);
 %stim = addStruct(stim, bgtex);
 stim = addStruct(stim, speed);
 stim = addStruct(stim, blank);
 %
-ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 1, 'mode', '');
+ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
-%% 1D moving texture
+%% 1D moving texture (8 min X 3 ~ 24 min)
 ex_title = 'mov_1d_bar_tex';
-debug_exp = false;
+debug_exp = 0;
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
-                'repeat', 1, 'length', 3,... % mins 
-                    'mov_id',   {1, 3},... 
-                'startframe', {910, 450}, 'seed', 7,...
+                'repeat', 3, 'length', 5,... % mins 
+                    'mov_id', {1,3,4},... 
+                'seed', 7,...
                 'ndims', [1, 110], 'scale', 0.5, 'jitter_var', 0.5,...
                 'c_mask', [0, 1, 1]); 
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.

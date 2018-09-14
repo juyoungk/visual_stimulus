@@ -6,7 +6,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
 % noise: uniformly-distributed whitenoise only. ndims = 3 only.
 % gap between center and bg: 0.2mm
 % 
-    gray_margin = 0.3;
+    gray_margin = 0.25;
     p = ParseInput(varargin{:});
     if nargin < 2
         n_repeats = 3;
@@ -42,11 +42,11 @@ function ex = stims_repeat(stim, n_repeats, varargin)
           
           % Initalize the visual display w/ offset position
           ex = initdisp(ex, 1500, -100);
-              stim_ifi = 1/framerate;                              % framerate and ifi I ask 
+              stim_ifi = 1/framerate;                               % framerate and ifi I ask 
               stim_ifi = round(stim_ifi/ex.disp.ifi) * ex.disp.ifi; % integer times of nominal ifi.
               [stim(:).framerate] = deal(framerate);
               ex.framerate = framerate;
-              ex.stim_ifi = stim_ifi;
+              ex.stim_ifi_normalized = stim_ifi;
               ex.name = ex_name;
               fprintf('\nexp: %s (stim ifi = %.3f)\n\n', ex_name, stim_ifi);
               
@@ -209,15 +209,17 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         ph_per_frame = px_per_frame/w_pixels;
 
                         % phase (= shift) trajectories
-                        ph1 = 1:(-ph_per_frame):0; ph1 = ph1(2:end);
-                        ph2 = 0:ph_per_frame:1;    ph2 = ph2(2:end);
-                        if length(ph1) > frames_per_period
+                        shift_max = 2;
+                        shift_profile = shift_max * shift_profile;
+                        ph1 = shift_max:(-ph_per_frame):0; ph1 = ph1(2:end);
+                        ph2 = 0:ph_per_frame:shift_max;    ph2 = ph2(2:end);
+                        if length(ph1) > frames_per_period % should be compared to half frame numbers...
                             ph1 = ph1(1:frames_per_period);
                             ph2 = ph2(1:frames_per_period);
                         end
                         numshift = length(ph1);
-                        fprintf('Shift will be done over %d frames (%5.2f sec). Speed = .2f mm/s \n',...
-                            numshift, numshift*stim_ifi, px_per_frame*ex.disp.um_per_px*framerate/1000. );
+                        fprintf('Shift will be done over %d frames (%4.0f ms). Speed = %.2f mm/s \n',...
+                            numshift, numshift*stim_ifi*1000, px_per_frame*ex.disp.um_per_px*framerate/1000. );
                         %
                         shift_profile(1:numshift) = ph1; 
                         shift_profile(frameid_ON:frameid_ON+numshift-1) = ph2; 
@@ -317,7 +319,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                
                               % photodiode
                               if fi == 1
-                                  if k == 1
+                                  if k == 1 && kk == 1 
                                     pd = ex.disp.pd_color;
                                     pdrect = ex.disp.pdrect;
                                   else

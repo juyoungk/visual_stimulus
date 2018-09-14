@@ -100,12 +100,22 @@ function ex = naturalmovie2(ex, replay, movies)
   %
   nummovies = numel(movies);
   
+  % mov (or file) ID
+  if isfield(me, 'mov_id')
+      mov_ids = me.mov_id;
+  else
+      mov_ids = 1:nummovies;
+  end
+  if mov_ids == 0 % 0 means all movies
+      mov_ids = 1:nummovies;
+  end
+  
   % Numframes & Timestamps (replay doesn't need this information)
   if ~replay
       totframes = 0;
       for i = 1:nummovies
         [nframes, ~, ~, ~] = size(movies{i});
-        fprintf('mov %d frames: %5d \n', i, nframes);
+        fprintf('mov %d frames: %5d (~ %.0f sec long)\n', i, nframes, nframes/ex.stim{end}.framerate);
         totframes = totframes + nframes;
       end
       % frames by duration (if it exists)
@@ -117,8 +127,8 @@ function ex = naturalmovie2(ex, replay, movies)
       % Final numframes
       numframes = min(nframes_length, totframes);
       %fprintf('%d/%d frames will be presented. (%.1f sec long movie)\n', numframes, totframes, me.length*60);
-      fprintf('%.1f sec long (%d frames) movie is requested. (Total %d frames in all movies.)\n',...
-                me.length*60, (me.length*60)*ex.stim{end}.framerate, totframes);
+      fprintf('%.1f sec long (%.0f frames) movie is requested for movie ID %s. (Total %d frames in all movies.)\n',...
+                me.length*60, (me.length*60)*ex.stim{end}.framerate, num2str(mov_ids), totframes);
       ex.stim{end}.numframes = numframes;
       % store timestamps
       ex.stim{end}.timestamps = zeros(numframes,1);
@@ -171,16 +181,6 @@ function ex = naturalmovie2(ex, replay, movies)
   
   % margin for subpart (1:3 for left:right)
   m = 0.2;
-  
-  % mov (or file) ID
-  if isfield(me, 'mov_id')
-      mov_ids = me.mov_id;
-  else
-      mov_ids = 1:nummovies;
-  end
-  if mov_ids == 0 % 0 means all movies
-      mov_ids = 1:nummovies;
-  end
   
   % repeat number
   if isfield(me, 'repeat')
@@ -292,11 +292,11 @@ function ex = naturalmovie2(ex, replay, movies)
 
               % update the photodiode with the top left pixel on the first frame
               if fi == startframe
-                pd = ex.disp.white;
+                pd = ex.disp.pd_color;
                 pdrect = ex.disp.pdrect;
               %elseif mod(fi, me.jumpevery) == 1
               elseif mod(fi - startframe, me.jumpevery) == 0
-                pd = ex.disp.white * 0.4;
+                pd = ex.disp.pd_color;
                 pdrect = ex.disp.pdrect2;
               else
                 pd = 0;
