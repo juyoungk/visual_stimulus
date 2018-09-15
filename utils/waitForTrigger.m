@@ -38,8 +38,8 @@ if any(strcmp('m', {'m', 'manual'})) % ??? always true?
 		x, y, ex.disp.pdcolor);
 	Screen('FillOval', ex.disp.winptr, ex.disp.black, ex.disp.pdrect);
 	Screen('Flip', ex.disp.winptr);
-	while ~ex.key.keycode(ex.key.t) % KbCheck inside a loop ! 
-		% escape the loop by pressing 't'
+	while ~ex.key.keycode(ex.key.t) % escape the loop by pressing 't'
+		% KbCheck
         ex = checkkb(ex);
 	end
 else

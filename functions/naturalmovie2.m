@@ -28,6 +28,8 @@ function ex = naturalmovie2(ex, replay, movies)
 % 
 % Movie file format: [frame, rows, cols]. already rescaled. 
   
+  disp(' ');
+  
   if nargin < 3
         movies = cell(1, 1);
   end
@@ -109,16 +111,35 @@ function ex = naturalmovie2(ex, replay, movies)
   if mov_ids == 0 % 0 means all movies
       mov_ids = 1:nummovies;
   end
+   
+  % start frame (applied for all mov_ids) 
+  if isfield(me, 'startframe')
+      startframe = me.startframe;
+  else
+      startframe = 1;
+  end
+  
+  % repeat number
+  if isfield(me, 'repeat')
+      n_repeats = me.repeat;
+  else
+      n_repeats = 1;
+  end
+  %disp(['Natural movies will be repeated by ', num2str(n_repeats), ' times.']);
   
   % Numframes & Timestamps (replay doesn't need this information)
   if ~replay
       totframes = 0;
+      disp('Total movie list in folder:');
       for i = 1:nummovies
         [nframes, ~, ~, ~] = size(movies{i});
-        fprintf('mov %d frames: %5d (~ %.0f sec long)\n', i, nframes, nframes/ex.stim{end}.framerate);
-        totframes = totframes + nframes;
+        fprintf('mov %d:%5d (%4.0f sec) frames. %5d frames (%4.0f sec) can be played from the startframe %d. \n',... 
+                        i, nframes, nframes/ex.stim{end}.framerate, (nframes-startframe+1),  (nframes-startframe+1)/ex.stim{end}.framerate, startframe);
+        if any( mov_ids == i )
+            totframes = totframes + (nframes-startframe+1);
+        end
       end
-      % frames by duration (if it exists)
+      % frames requested by duration (if it exists)
       if isfield(me, 'length')
         nframes_length = floor((me.length * 60) * ex.stim{end}.framerate);
       else
@@ -126,9 +147,7 @@ function ex = naturalmovie2(ex, replay, movies)
       end
       % Final numframes
       numframes = min(nframes_length, totframes);
-      %fprintf('%d/%d frames will be presented. (%.1f sec long movie)\n', numframes, totframes, me.length*60);
-      fprintf('%.1f sec long (%.0f frames) movie is requested for movie ID %s. (Total %d frames in all movies.)\n',...
-                me.length*60, (me.length*60)*ex.stim{end}.framerate, num2str(mov_ids), totframes);
+      fprintf('\n%d frames (%4.1f sec) movie (ID: %s) will be played. (%4.1f sec long movie was requested.)\n', numframes, numframes/ex.stim{end}.framerate, num2str(mov_ids), me.length*60);
       ex.stim{end}.numframes = numframes;
       % store timestamps
       ex.stim{end}.timestamps = zeros(numframes,1);
@@ -182,26 +201,12 @@ function ex = naturalmovie2(ex, replay, movies)
   % margin for subpart (1:3 for left:right)
   m = 0.2;
   
-  % repeat number
-  if isfield(me, 'repeat')
-      n_repeats = me.repeat;
-  else
-      n_repeats = 1;
-  end
-  disp(['Natural movies will be repeated by ', num2str(n_repeats), ' times.']);
-  
-  % start frame (applied for all mov_ids) 
-  if isfield(me, 'startframe')
-      startframe = me.startframe;
-  else
-      startframe = 1;
-  end
    
   for rr = 1:n_repeats
       % initialization
       ti = 0; % frame index as total. increased when the frame starts. 
       FLAG_stop = false;
-      fprintf('%d/%d presentation of natural movies (%.1f secs long).\n', rr, n_repeats, me.length * 60);
+      fprintf('%d/%d presentation of natural movies (%.1f secs long).\n', rr, n_repeats, numframes/ex.stim{end}.framerate);
       rs = getrng(rs.Seed);
       
       if rr>1 && replay % no repeat for replay mode
@@ -336,8 +341,21 @@ function ex = naturalmovie2(ex, replay, movies)
                  break;
             end
         end
-        
       end % loop over mov files
+      
+      % gray movie for 2 second before repeat.
+      for gi = 1:( ex.stim{end}.framerate * 2 ) % 2 secs
+          %Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.dstrect);
+          Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, dstrect);
+          [vbl, ~, ~, ~] = Screen('Flip', ex.disp.winptr, vbl + flipint);
+          % check for ESC
+          ex = checkkb(ex);
+          if ex.key.keycode(ex.key.esc)
+            fprintf('ESC pressed. Quitting..\n')
+            break;
+          end
+      end
+      
   end % loop over repeats
   
   if ~replay

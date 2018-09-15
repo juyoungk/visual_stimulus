@@ -91,7 +91,7 @@ blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 
 %
 stim = [];
 stim = addStruct(stim, flash);
-stim = addStruct(stim, annul);
+%stim = addStruct(stim, annul);
 %stim = addStruct(stim, grating);
 %stim = addStruct(stim, bgtex);
 stim = addStruct(stim, speed);
@@ -100,17 +100,28 @@ stim = addStruct(stim, blank);
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
 %% 1D moving texture (8 min X 3 ~ 24 min)
-ex_title = 'mov_1d_bar_tex';
+ex_title = 'natmov_1d_tex';
 debug_exp = 0;
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
-                'repeat', 3, 'length', 5,... % mins 
+                'repeat', 3, 'length', 5,...    % mins. for each movie.  
                     'mov_id', {1,3,4},... 
-                'seed', 7,...
+                'seed', 7, 'startframe', 1,...  % different seed number?
                 'ndims', [1, 110], 'scale', 0.5, 'jitter_var', 0.5,...
                 'c_mask', [0, 1, 1]); 
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
 run_stims
 
+%% Repeatibility: 1D moving texture (20s movie) * 5
+ex_title = 'natmov_1d_tex_15s_5rep';
+debug_exp = 0;
+params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
+                'repeat', 5, 'length', 0.25,... % mins 
+                    'mov_id', {3},... 
+                'seed', 7, 'startframe', 450,...
+                'ndims', [1, 110], 'scale', 0.5, 'jitter_var', 0.5,...
+                'c_mask', [0, 1, 1]); 
+% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
+run_stims
 
 %% Repeat natural movies: Cell's reproducibility to natural movies? (1 min)
 % combination of multiple 'movies' (cell array in worksapce).
@@ -118,7 +129,7 @@ run_stims
 ex_title = 'Nat_movies_short_repeats';
 debug_exp = false;
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
-                'length', 0.3, 'repeat', 1,... 
+                'length', 0.3, 'repeat', 3,... 
                     'mov_id',   {1, 3},... 
                 'startframe', {910, 450}, 'seed', 7,... 
                 'ndims', [128, 128], 'scale', 0.5, 'jitter_var', 0.5, 'c_mask', [0, 1, 1]); 

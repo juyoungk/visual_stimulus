@@ -78,7 +78,7 @@ if any([ex.disp.nominal_frate == 0, ex.disp.screen ==0, ex.debug==1])
     ex.disp.ifi=0.01176568031;
     %[ex.disp.w ex.disp.rect]=Screen('OpenWindow', ex.disp.screen, backColor, [10 10 1000 1000]);
     [ex.disp.winptr, ex.disp.winrect] = PsychImaging('OpenWindow', ...
-                        ex.disp.screen, ex.disp.bgcol, [0 10 1024 778]);
+                        ex.disp.screen, ex.disp.bgcol, [0 10 1024 778]); 
     ex.rig_name = 'test';
     ex.debug = true;
 else
@@ -132,7 +132,7 @@ ex.disp.pdcolor  = [1 0 0] * ex.disp.white;
 ex.disp.pdcolor2 = ex.disp.pdcolor;
 
 % the destination rectangle: size and offset
-aperturesize = 2.2; % mm
+aperturesize = 2.3; % mm
 ex.disp.aperturesize_mm = aperturesize;                 	% Size of stimulus aperture
 ex.disp.aperturesize    = aperturesize*10*PIXELS_PER_100_MICRONS(ex.rig_name);                 	% Size of stimulus aperture
 ex.disp.offset_x = round( (x0/100) * PIXELS_PER_100_MICRONS(ex.rig_name) );
