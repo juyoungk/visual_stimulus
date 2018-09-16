@@ -93,8 +93,8 @@ stim = [];
 stim = addStruct(stim, flash);
 %stim = addStruct(stim, annul);
 %stim = addStruct(stim, grating);
-%stim = addStruct(stim, bgtex);
-stim = addStruct(stim, speed);
+stim = addStruct(stim, bgtex);
+%stim = addStruct(stim, speed);
 stim = addStruct(stim, blank);
 %
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
