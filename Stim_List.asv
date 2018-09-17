@@ -99,7 +99,7 @@ stim = addStruct(stim, blank);
 %
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
-%% 1D moving texture (7 min X 3 ~ 24 min)
+%% 1D moving texture (8 min X 3 ~ 24 min)
 ex_title = 'natmov_1d_tex';
 debug_exp = 0;
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 

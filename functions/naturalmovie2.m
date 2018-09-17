@@ -150,7 +150,7 @@ function ex = naturalmovie2(ex, replay, movies)
       fprintf('\n%d frames (%4.1f sec) movie (ID: %s) will be played. (%4.1f sec long movie was requested.)\n', numframes, numframes/ex.stim{end}.framerate, num2str(mov_ids), me.length*60);
       ex.stim{end}.numframes = numframes;
       % store timestamps
-      ex.stim{end}.timestamps = zeros(numframes,1);
+      ex.stim{end}.timestamps = zeros(numframes, n_repeats);
   end
 
   % write_mask
@@ -323,7 +323,7 @@ function ex = naturalmovie2(ex, replay, movies)
               end
 
               % save the timestamp
-              ex.stim{end}.timestamps(ti) = vbl;
+              ex.stim{end}.timestamps(ti, rr) = vbl;
 
               % check for ESC
               ex = checkkb(ex);
