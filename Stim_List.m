@@ -99,12 +99,24 @@ stim = addStruct(stim, blank);
 %
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
-%% 1D moving texture (7 min X 3 ~ 24 min)
+%% 1D moving texture (5 repeats)
+ex_title = 'natmov_1d_tex_mov3_5reps';
+debug_exp = 0;
+params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
+                'repeat', 5, 'length', 1,...    % mins. for each movie.  
+                    'mov_id', {3},... 
+                'seed', 7, 'startframe', 1,...  % different seed number?
+                'ndims', [1, 110], 'scale', 0.5, 'jitter_var', 0.5,...
+                'c_mask', [0, 1, 1]); 
+% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
+run_stims
+
+%% 1D moving texture (6 min X 3 ~ 18 min)
 ex_title = 'natmov_1d_tex';
 debug_exp = 0;
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'repeat', 3, 'length', 5,...    % mins. for each movie.  
-                    'mov_id', {3,4,1},... 
+                    'mov_id', {4,1},... 
                 'seed', 7, 'startframe', 1,...  % different seed number?
                 'ndims', [1, 110], 'scale', 0.5, 'jitter_var', 0.5,...
                 'c_mask', [0, 1, 1]); 
