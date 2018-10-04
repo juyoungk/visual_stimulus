@@ -115,7 +115,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     L = s.sizeCenter * 1000 * ex.disp.pix_per_um; % px
                     L_gray = (s.sizeCenter + gray_margin)*1000*ex.disp.pix_per_um;
                     
-                    %
+                    % [row col] convention
                     nx = s.ndims(2);
                     ny = s.ndims(1);
                     % dim+1 checkers
