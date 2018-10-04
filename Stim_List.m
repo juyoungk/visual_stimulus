@@ -1,7 +1,7 @@
 %% Load movie files in Workspace
 %moviedir = '../database/matfiles/fish_2xds/';
-%moviedir = '/Users/peterfish/Movies/';
-moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
+moviedir = '/Users/peterfish/Movies/';
+%moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
 %movext   = '*.mat';
 movext   = '*intensity.mat';
 %movies = getMovFiles(moviedir, movext);
@@ -100,13 +100,13 @@ stim = addStruct(stim, blank);
 %
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
-%% 1D moving texture (5 repeats): only for 30s
+%% Reliability: 1D moving texture (5 repeats): only for 24s
 ex_title = 'natmov_1d_tex_mov3_5reps';
 debug_exp = 0;
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
-                'repeat', 5, 'length', 0.5,...    % mins. for each movie.  
+                'repeat', 5, 'length', 0.4,...    % mins. for each movie.  
                     'mov_id', {3},... 
-                'seed', 7, 'startframe', 1,...
+                'seed', 3, 'startframe', 300,...
                 'ndims', [110, 1], 'scale', 0.5, 'jitter_var', 0.5,...
                 'c_mask', [0, 1, 1]); 
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
@@ -118,19 +118,7 @@ debug_exp = 0;
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'repeat', 1, 'length', 5,...    % mins. for each movie.  
                     'mov_id', {3,3,4,1,4,1},... 
-                'seed', {7,8,7,7,8,8}, 'startframe', 1,...  % different seed number?
-                'ndims', [110, 1], 'scale', 0.5, 'jitter_var', 0.5,...
-                'c_mask', [0, 1, 1]); 
-% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
-run_stims
-
-%% Repeatibility: 1D moving texture (20s movie) * 5
-ex_title = 'natmov_1d_tex_15s_5rep';
-debug_exp = 0;
-params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
-                'repeat', 5, 'length', 0.25,... % mins 
-                    'mov_id', {3},... 
-                'seed', 7, 'startframe', 450,...
+                'seed', {1,3,7,7,8,8}, 'startframe', 200,...  % different seed number?
                 'ndims', [110, 1], 'scale', 0.5, 'jitter_var', 0.5,...
                 'c_mask', [0, 1, 1]); 
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
