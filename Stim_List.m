@@ -1,7 +1,7 @@
 %% Load movie files in Workspace
 %moviedir = '../database/matfiles/fish_2xds/';
-moviedir = '/Users/peterfish/Movies/';
-%moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
+%moviedir = '/Users/peterfish/Movies/';
+moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
 %movext   = '*.mat';
 movext   = '*intensity.mat';
 %movies = getMovFiles(moviedir, movext);
@@ -55,8 +55,8 @@ testscreen_colors;
 %% 0716 2018 typing stimulus (generalized checker stimulus) ~ 22 min
 ex_title = 'typing';
  n_repeats = 10;
-  hp_flash = 1.5; % secs
-hp_grating = 1.5;
+  hp_flash = 2; % secs
+hp_grating = 2;
 hp_speed = 1.5;
 sizeCenter = 0.6;
 % ndims=[1,1]: flash mode. Impulse turn on and off.
@@ -123,6 +123,27 @@ params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,..
                 'c_mask', [0, 1, 1]); 
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
 run_stims
+
+%% 0716 2018 typing stimulus (generalized checker stimulus) ~ 22 min
+ex_title = 'speed';
+ n_repeats = 10;
+hp_speed = 1.5;
+sizeCenter = 0.6;
+
+% frame rate
+speed = struct('tag', 'speed', 'half_period', hp_speed,...
+                'ndims', [14,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'phase_1st_cycle', { 2, [], [], []},... % shift_max is curreently 2.
+                          'cycle', { 2,  1,  1,  1},... 
+                'shift_per_frame', {.25, .50, 1., 2.}); % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s
+%            
+blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
+%
+stim = [];
+stim = addStruct(stim, speed);
+stim = addStruct(stim, blank);
+%
+ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
 %% Repeat natural movies: Cell's reproducibility to natural movies? (1 min)
 % combination of multiple 'movies' (cell array in worksapce).
