@@ -103,7 +103,7 @@
 
         % Save the experimental metadata
         savejson('', ex, fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_expt__', str_name,'.json']));
-        save(fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_exlog_', str_name,'.mat']), 'ex');
+        save(fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_ex_', str_name,'.mat']), 'ex');
 
         % Send results via Pushover
         sendexptresults(ex);

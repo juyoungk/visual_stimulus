@@ -116,8 +116,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     L_gray = (s.sizeCenter + gray_margin)*1000*ex.disp.pix_per_um;
                     
                     %
-                    nx = s.ndims(1);
-                    ny = s.ndims(2);
+                    nx = s.ndims(2);
+                    ny = s.ndims(1);
                     % dim+1 checkers
                     checkers_center = gen_checkers(nx+1, ny+1); % 0 and 1 checkers
                     checkers_center = color_matrix(checkers_center, s.color .* ex.disp.whitecolor);
