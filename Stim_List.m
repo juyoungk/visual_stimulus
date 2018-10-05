@@ -110,6 +110,9 @@ params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,..
                 'ndims', [110, 1], 'scale', 0.5, 'jitter_var', 0.5,...
                 'c_mask', [0, 1, 1]); 
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
+                % nimds: subimage sampling dimension. 
+                % Presentation dim = ndims * scale.
+                % dst rect (or aperture) size = m (integer) * Presentation dim.
 run_stims
 
 %% 1D moving texture (single trial)

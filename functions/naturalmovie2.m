@@ -206,7 +206,7 @@ function ex = naturalmovie2(ex, replay, movies)
       % initialization
       ti = 0; % frame index as total. increased when the frame starts. 
       FLAG_stop = false;
-      fprintf('%d/%d presentation of natural movies (%.1f secs long).\n', rr, n_repeats, numframes/ex.stim{end}.framerate);
+      fprintf('%d/%d presentation of natural movies (%.1f secs long).\n', rr, n_repeats, numframes/me.framerate);
       rs = getrng(rs.Seed);
       
       if rr>1 && replay % no repeat for replay mode
