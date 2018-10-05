@@ -71,7 +71,7 @@ for stimidx = 1:length(ex.stim)
           disp(['Scale factor ', num2str(me.scale),' was used.']);
       end
       
-      % for structured stimuli, I don't set the ndims as a parameter
+      % presentation dimention for h5 file creation in advance.
       if ~isfield(me, 'ndims')
           me.ndims = [50 50];
       else
