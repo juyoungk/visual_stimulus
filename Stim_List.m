@@ -54,7 +54,7 @@ testscreen_colors;
 
 %% 0716 2018 typing stimulus (generalized checker stimulus) ~ 22 min
 ex_title = 'typing';
- n_repeats = 10;
+ n_repeats = 8;
   hp_flash = 2; % secs
 hp_grating = 2;
 hp_speed = 1.5;

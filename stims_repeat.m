@@ -194,7 +194,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     if all(s.ndims(1:2) == [1 1])
                         % [1 1] flash: impulse shift 
                         shift_profile = 0.5 * ones(1, frames_per_period);
-                        numPulseFrames = 4;
+                        numPulseFrames = 5;
                         shift_profile(1:numPulseFrames) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
                         shift_profile(frameid_ON:frameid_ON+numPulseFrames-1) = 1;
                     else
