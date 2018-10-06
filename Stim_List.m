@@ -129,7 +129,7 @@ run_stims
 
 %% 0716 2018 typing stimulus (generalized checker stimulus) ~ 22 min
 ex_title = 'speed';
- n_repeats = 10;
+ n_repeats = 8;
 hp_speed = 1.5;
 sizeCenter = 0.6;
 
