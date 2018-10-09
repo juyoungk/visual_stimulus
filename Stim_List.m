@@ -1,7 +1,7 @@
 %% Load movie files in Workspace
 %moviedir = '../database/matfiles/fish_2xds/';
-moviedir = '/Users/peterfish/Movies/';
-%moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
+%moviedir = '/Users/peterfish/Movies/';
+moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
 %movext   = '*.mat';
 movext   = '*intensity.mat';
 %movies = getMovFiles(moviedir, movext);
@@ -60,7 +60,7 @@ hp_grating = 2;
 hp_speed = 1.5;
 sizeCenter = 0.6;
 % ndims=[1,1]: flash mode. Impulse turn on and off.
-flash = struct('tag', 'flash', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
+flash = struct('tag', 'flash pulse', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
 annul = struct('tag', { 'Ann1.2', 'Ann1.6'}, 'ndims', [1,1], 'sizeCenter', 0,...
                'Annulus', {1.2,  1.6},...
                         'w_Annulus', .4, 'half_period', hp_flash);
@@ -106,7 +106,7 @@ debug_exp = 0;
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'repeat', 5, 'length', 0.4,...    % mins. for each movie.  
                     'mov_id', {3},... 
-                'seed', 3, 'startframe', 300,... 
+                'seed', 3, 'startframe', 400,... 
                 'ndims', [55 , 1], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
                 'c_mask', [0, 1, 1]);
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
@@ -117,7 +117,7 @@ run_stims
 
 %% 1D moving texture (single trial long movie)
 ex_title = 'natmov_1d_tex';
-debug_exp = 0;
+debug_exp = 0; % debug mode 2: space-time visualization (not replay)
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'repeat', 1, 'length', 5,...    % mins. for each movie.  
                     'mov_id', {3,3,4,1,4,1},... 

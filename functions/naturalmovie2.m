@@ -213,19 +213,20 @@ function ex = naturalmovie2(ex, replay, movies)
   
   % margin for subpart (1:3 for left:right)
   m = 0.2;
-  
    
   for rr = 1:n_repeats
+      
+      if rr>1 && any([replay, ex.debug == 2]) % no repeat for replay mode
+          break;
+      end
+      
       % initialization
       ti = 0; % frame index as total. increased when the frame starts. 
       FLAG_stop = false;
       fprintf('%d/%d presentation of natural movies (%.1f secs long).\n', rr, n_repeats, numframes/me.framerate);
       rs = getrng(rs.Seed);
       
-      if rr>1 && replay % no repeat for replay mode
-          break;
-      end
-      
+
       for fileidx = mov_ids % loop over movie files
 
         if FLAG_stop % if frames number reaches to the specified movie duration
@@ -282,11 +283,22 @@ function ex = naturalmovie2(ex, replay, movies)
             frameRedirected = color_matrix(frame, ex.disp.grayvector);
 
             if replay
-              % write the frame to the hdf5 file
-              % mask effect
-              %frame = uint8(color_weight(frame, c_mask));
+              % write the frame to the hdf5 file (no mask or weight factor)
               h5write(ex.filename, [ex.group '/stim'], frame, [ones(1, Ndims), ti], [ndims_presentation, 1]);
+              
             else
+              
+              % Debug mode 2: space-time visualization of movie for 1D
+              if ex.debug == 2 && any(me.ndims == 1)
+                  % memory size for the visualization:
+                  if ti == 1
+                      mov_mat = zeros(me.ndims(1), numframes);
+                  end
+                  mov_mat(:, ti) = frame;
+                  continue;
+              end
+                
+                
               % make the texture
               texid = Screen('MakeTexture', ex.disp.winptr, frameRedirected);
               %texid = Screen('MakeTexture', ex.disp.winptr, frameRedirected, optimizeForDrawAngle=0, specialFlags=4);
@@ -353,9 +365,19 @@ function ex = naturalmovie2(ex, replay, movies)
                  break;
             end
         end
+        
+        if ex.debug == 2 && any(me.ndims == 1)
+            figure;
+            imagesc(mov_mat);
+            str = sprintf('mov ID: %d, seed %d, startframe; %d', fileidx, me.seed, startframe);
+            title(str);
+            colorbar
+        end
+        
+        
       end % loop over mov files
       
-      % gray movie for 2 second before repeat.
+      % gray movie for 2 second between repeats.
       for gi = 1:( ex.stim{end}.framerate * 2 ) % 2 secs
           %Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.dstrect);
           Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, dstrect);

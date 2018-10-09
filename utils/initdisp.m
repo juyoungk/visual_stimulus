@@ -80,7 +80,9 @@ if any([ex.disp.nominal_frate == 0, ex.disp.screen ==0, ex.debug==1])
     [ex.disp.winptr, ex.disp.winrect] = PsychImaging('OpenWindow', ...
                         ex.disp.screen, ex.disp.bgcol, [0 10 1024 778]); 
     ex.rig_name = 'test';
-    ex.debug = true;
+    if ex.debug == false
+        ex.debug = true;
+    end
 else
     %HideCursor;
     Screen('Preference', 'VisualDebugLevel', 3);
