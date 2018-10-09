@@ -64,20 +64,15 @@ for stimidx = 1:length(ex.stim)
       % group name
       group = ['/expt' num2str(stimidx)];
 
-      % scale factor
-      if ~isfield(me, 'scale')
-          me.scale = 1;
-      else
-          disp(['Scale factor ', num2str(me.scale),' was used.']);
+      % Default scale factor for sampling stimulus movie
+      if ~isfield(me, 'sampling_scale')
+          me.sampling_scale = 1;
       end
       
       % presentation dimention for h5 file creation in advance.
       if ~isfield(me, 'ndims')
+          disp('''ndims'' was not defined in ''ex'' struct.');
           me.ndims = [50 50];
-      else
-          % scaling only for first 2 dimensions (rows & cols)
-          me.ndims(1) = me.ndims(1) * me.scale;
-          me.ndims(2) = me.ndims(2) * me.scale;
       end
 
       % store the stimulus pixel values

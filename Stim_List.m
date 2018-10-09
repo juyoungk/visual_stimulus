@@ -1,7 +1,7 @@
 %% Load movie files in Workspace
 %moviedir = '../database/matfiles/fish_2xds/';
-%moviedir = '/Users/peterfish/Movies/';
-moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
+moviedir = '/Users/peterfish/Movies/';
+%moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
 %movext   = '*.mat';
 movext   = '*intensity.mat';
 %movies = getMovFiles(moviedir, movext);
@@ -81,7 +81,6 @@ bgtex = struct('tag', {'bgtex','global','diff'}, 'half_period', hp_grating,...
             'phase_1st_cycle', {    1,    [],     []},...
                       'delay', {    0,     0,   0.25});  % {global, global, diff}
 % Speed tuning: population picture of amacrine cells
-% frame rate
 speed = struct('tag', 'speed', 'half_period', hp_speed,...
                 'ndims', [14,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
                 'phase_1st_cycle', { 2, [], [], []},... % shift_max is curreently 2.
@@ -95,56 +94,60 @@ stim = addStruct(stim, flash);
 %stim = addStruct(stim, annul);
 %stim = addStruct(stim, grating);
 stim = addStruct(stim, bgtex);
-%stim = addStruct(stim, speed);
 stim = addStruct(stim, blank);
 %
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
 %% Reliability: 1D moving texture (5 repeats): only for 24s
+% 'ndims': presentation (stimulus) space
+% 'jitter': variance of jitter in presentation space.
 ex_title = 'natmov_1d_tex_mov3_5reps';
 debug_exp = 0;
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'repeat', 5, 'length', 0.4,...    % mins. for each movie.  
                     'mov_id', {3},... 
-                'seed', 3, 'startframe', 300,...
-                'ndims', [110, 1], 'scale', 0.5, 'jitter_var', 0.5,...
-                'c_mask', [0, 1, 1]); 
+                'seed', 3, 'startframe', 300,... 
+                'ndims', [55 , 1], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
+                'c_mask', [0, 1, 1]);
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
                 % nimds: subimage sampling dimension. 
                 % Presentation dim = ndims * scale.
                 % dst rect (or aperture) size = m (integer) * Presentation dim.
 run_stims
 
-%% 1D moving texture (single trial)
+%% 1D moving texture (single trial long movie)
 ex_title = 'natmov_1d_tex';
 debug_exp = 0;
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'repeat', 1, 'length', 5,...    % mins. for each movie.  
                     'mov_id', {3,3,4,1,4,1},... 
                 'seed', {1,3,7,7,8,8}, 'startframe', 200,...  % different seed number?
-                'ndims', [110, 1], 'scale', 0.5, 'jitter_var', 0.5,...
+                'ndims', [55 , 1], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
                 'c_mask', [0, 1, 1]); 
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
 run_stims
 
-%% 0716 2018 typing stimulus (generalized checker stimulus) ~ 22 min
+%% Speed tuning: population picture of amacrine cells
 ex_title = 'speed';
  n_repeats = 8;
 hp_speed = 1.5;
 sizeCenter = 0.6;
-
-% frame rate
+%
+start = struct('tag', 'start screen', 'half_period', hp_speed,...
+                'ndims', [14,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'phase_1st_cycle', 2,... % shift_max is curreently 2.
+                          'cycle', 1);
+%       
 speed = struct('tag', 'speed', 'half_period', hp_speed,...
                 'ndims', [14,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
-                'phase_1st_cycle', { 2, [], [], []},... % shift_max is curreently 2.
-                          'cycle', { 2,  1,  1,  1},... 
+                'phase_1st_cycle', { [], [], [], []},... % shift_max is curreently 2.
+                          'cycle', { 1,  1,  1,  1},... 
                 'shift_per_frame', {.25, .50, 1., 2.}); % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s
-%            
-blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
+
 %
 stim = [];
+stim = addStruct(stim, start);
 stim = addStruct(stim, speed);
-stim = addStruct(stim, blank);
 %
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 

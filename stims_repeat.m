@@ -68,7 +68,10 @@ function ex = stims_repeat(stim, n_repeats, varargin)
           vbl = GetSecs();
           
             for i = 1:n_repeats
-
+                
+                % PD trigger will happen at the start of the k-th stimulus 
+                stim_trigger_k = 1;
+                
                 for k = 1:numStim % current stim
                     
                     s = stim(k);
@@ -92,6 +95,15 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     end
                     if ~isfield(s, 'tag')
                         s.tag = '';
+                    end
+                    
+                    % start screen: 1. push the (big) stim trigger to next k 2. plays only once.
+                    if contains(s.tag, 'start screen')
+                        stim_trigger_k = 2;
+                        if i > 1
+                            continue;
+                            % play next stimulus
+                        end
                     end
                     
                     % Print where I am
@@ -191,7 +203,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     % shift (or phase) trajectories
                         
                     % impulse or 50% duty cycle
-                    if all(s.ndims(1:2) == [1 1])
+                    if all(s.ndims(1:2) == [1 1]) && contains(s.tag, 'pulse')
                         % [1 1] flash: impulse shift 
                         shift_profile = 0.5 * ones(1, frames_per_period);
                         numPulseFrames = 5;
@@ -320,7 +332,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                
                               % photodiode
                               if fi == 1
-                                  if k == 1 && kk == 1 
+                                  if k == stim_trigger_k && kk == 1 % repeat start PD 
                                     pd = ex.disp.pd_color;
                                     pdrect = ex.disp.pdrect;
                                   else

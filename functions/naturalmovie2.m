@@ -5,6 +5,7 @@ function ex = naturalmovie2(ex, replay, movies)
 %   - No contrast option.
 %   - has Repeat option.
 %   - startframe (same for all movies)
+%   - 
 %
 % ex = naturalmovie2(ex, replay, movies)
 %
@@ -24,8 +25,6 @@ function ex = naturalmovie2(ex, replay, movies)
 % Optional parameters:
 %   seed : int (for the random number generator. Default: 0)
 %
-% Runs a natural movie from specified natural_movie_frames.mat file
-% 
 % Movie file format: [frame, rows, cols]. already rescaled. 
   
   disp(' ');
@@ -49,6 +48,7 @@ function ex = naturalmovie2(ex, replay, movies)
         rs = getrng(me.seed);
         
         % how to replay same movie with movies input?
+        
   else
         % shorthand for parameters
         me = ex.stim{end}.params;
@@ -127,6 +127,18 @@ function ex = naturalmovie2(ex, replay, movies)
   end
   %disp(['Natural movies will be repeated by ', num2str(n_repeats), ' times.']);
   
+  if isfield(me, 'sampling_scale')
+      sampling_scale = me.sampling_scale; 
+  else
+      sampling_scale = 1;
+      ex.stim{end}.sampling_scale = 1;
+  end
+  if sampling_scale < 1
+      disp('sampling dims are lower than presentation dims. Are you sure?');
+  end
+  % scale factor from sampling to presentation
+  downsampling = (1/sampling_scale);
+  
   % Numframes & Timestamps (replay doesn't need this information)
   if ~replay
       totframes = 0;
@@ -159,16 +171,17 @@ function ex = naturalmovie2(ex, replay, movies)
     Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [c_mask 1]);
   end
   
-  % scale factor: larger patch (w/ factor of >1), gradual jitter
-  s_factor = me.scale;
-  ndims_scaled = me.ndims;
-  ndims_scaled(1) = ceil(me.ndims(1) * s_factor); % Actual num of pixels of stimulus frame.
-  ndims_scaled(2) = ceil(me.ndims(2) * s_factor); % Should be integer.
+  % 
+  ndims_presentation = me.ndims;
+  ndims_sampling = me.ndims * sampling_scale;
+%   ndims_presentation(1) = ceil(me.ndims(1) * s_factor); % Actual num of pixels of stimulus frame.
+%   ndims_presentation(2) = ceil(me.ndims(2) * s_factor); % Should be integer.
+ 
   Ndims = size(me.ndims, 2); % dim vector is a col vector. 2 means along cols.
   % src rect dim
   % PTB rect dimension [x y], Matlab img dimension [row col].
-  src_x = ndims_scaled(2);
-  src_y = ndims_scaled(1);
+  src_x = ndims_presentation(2);
+  src_y = ndims_presentation(1);
   if src_x == 1; src_x = src_y; end; % 1-D spacial case.
   if src_y == 1; src_y = src_x; end;
   
@@ -177,7 +190,7 @@ function ex = naturalmovie2(ex, replay, movies)
 
     % isotropic pixel size (integer) along x and y
     L = ex.disp.aperturesize; % px
-    px = min( ceil(L/ndims_scaled(2)), ceil(L/ndims_scaled(1)) );
+    px = min( ceil(L/ndims_presentation(2)), ceil(L/ndims_presentation(1)) );
     stim1px_um = px * ex.disp.umperpix;
     fprintf('1 stim px --> %d display px. (%.0f um)\n', px, stim1px_um);
     ex.disp.stim1px_um = stim1px_um;
@@ -192,11 +205,11 @@ function ex = naturalmovie2(ex, replay, movies)
 
     % display size info
     ex.disp.aperturesize_movies_mm = [Lx Ly] * ex.disp.umperpix/1000.;
-    fprintf('stim dim (size): [%d %d] (%.1f %.1f)[mm] (%.1f mm was given as aperture size)\n', ndims_scaled(2), ndims_scaled(1),...
+    fprintf('stim dim (size): [%d %d] (%.1f %.1f)[mm] (%.1f mm was given as aperture size)\n', ndims_presentation(2), ndims_presentation(1),...
         ex.disp.aperturesize_movies_mm(1), ex.disp.aperturesize_movies_mm(2), ex.disp.aperturesize_mm); 
   
-  % jitter amp
-  jitter_amp = me.jitter_var/s_factor; 
+  % jitter amp in sampling domain 
+  jitter_amp = me.jitter * sampling_scale; 
   
   % margin for subpart (1:3 for left:right)
   m = 0.2;
@@ -239,8 +252,8 @@ function ex = naturalmovie2(ex, replay, movies)
             if mod(fi - startframe, me.jumpevery) == 0
             %% Saccade: Pick new subpart. It should happen first.
                   % possible range for initial points
-                  ii = max(round(size(img,1)*(1-m) - me.ndims(1)), 1);
-                  jj = max(round(size(img,2)*(1-m) - me.ndims(2)), 1);
+                  ii = max(round(size(img,1)*(1-m) - ndims_sampling(1)), 1);
+                  jj = max(round(size(img,2)*(1-m) - ndims_sampling(2)), 1);
                   % location for the subpart
                   i_row = randi(rs, ii) + round(0.25*m*size(img,1)) - 1;
                   i_col = randi(rs, jj) + round(0.25*m*size(img,2)) - 1;
@@ -248,21 +261,21 @@ function ex = naturalmovie2(ex, replay, movies)
             else 
             %% Jitter      
                   % jitter from the previous x, y locations.
-                  i_row = max(min(size(img,1) - me.ndims(1), i_row + round(jitter_amp * randn(rs, 1))), 1);
-                  i_col = max(min(size(img,2) - me.ndims(2), i_col + round(jitter_amp * randn(rs, 1))), 1);
+                  i_row = max(min(size(img,1) - ndims_sampling(1), i_row + round(jitter_amp * randn(rs, 1))), 1);
+                  i_col = max(min(size(img,2) - ndims_sampling(2), i_col + round(jitter_amp * randn(rs, 1))), 1);
             end
             % check the end points.
-            i_row_end = min(i_row + me.ndims(1) - 1, rows);
-            i_col_end = min(i_col + me.ndims(2) - 1, cols);
+            i_row_end = min(i_row + ndims_sampling(1) - 1, rows);
+            i_col_end = min(i_col + ndims_sampling(2) - 1, cols);
 
             % subpart of the image
-                %frame = img(xstart:(xstart + me.ndims(1) - 1), ystart:(ystart + me.ndims(2) - 1)) * me.contrast + (1 - me.contrast) * ex.disp.gray;
+                %frame = img(xstart:(xstart + ndims_sampling(1) - 1), ystart:(ystart + ndims_sampling(2) - 1)) * me.contrast + (1 - me.contrast) * ex.disp.gray;
             % no contrast option.
             %  .* ex.disp.whitecolor ? white direction....
             frame = img(i_row:i_row_end, i_col:i_col_end,   :);
 
             % downsampling (more natural fixational eye movement with same variance)
-            frame = uint8(imresize(frame, s_factor, 'bilinear'));
+            frame = uint8(imresize(frame, downsampling, 'bilinear'));
             
             % Color weithgt or redirection for gray scale. (only for
             % gray-scle mov. Further dev is needed.)
@@ -272,8 +285,7 @@ function ex = naturalmovie2(ex, replay, movies)
               % write the frame to the hdf5 file
               % mask effect
               %frame = uint8(color_weight(frame, c_mask));
-              %h5write(ex.filename, [ex.group '/stim'], frame, [1, 1, 1, ti], [me.ndims*s_factor, 3, 1]);
-              h5write(ex.filename, [ex.group '/stim'], frame, [ones(1, Ndims), ti], [ndims_scaled, 1]);
+              h5write(ex.filename, [ex.group '/stim'], frame, [ones(1, Ndims), ti], [ndims_presentation, 1]);
             else
               % make the texture
               texid = Screen('MakeTexture', ex.disp.winptr, frameRedirected);
