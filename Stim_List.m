@@ -130,7 +130,7 @@ run_stims
 %% Speed tuning: population picture of amacrine cells
 ex_title = 'speed';
  n_repeats = 8;
-hp_speed = 1.5;
+hp_speed = 2.;
 sizeCenter = 0.6;
 %
 start = struct('tag', 'start screen', 'half_period', hp_speed,...
