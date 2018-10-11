@@ -222,7 +222,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         ph_per_frame = px_per_frame/w_pixels;
 
                         % phase (= shift) trajectories
-                        shift_max = 2;
+                        shift_max = 2; % w/ 3 px checker, 6 px travel
                         shift_profile = shift_max * shift_profile;
                         ph1 = shift_max:(-ph_per_frame):0; ph1 = ph1(2:end);
                         ph2 = 0:ph_per_frame:shift_max;    ph2 = ph2(2:end);
@@ -332,7 +332,10 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                
                               % photodiode
                               if fi == 1
-                                  if k == stim_trigger_k && kk == 1 % repeat start PD 
+                                  if k == 1 && stim_trigger_k > 1
+                                    pd = 0; % skip start screen trigger
+                                    pdrect = [];
+                                  elseif k == stim_trigger_k && kk == 1 % repeat start PD 
                                     pd = ex.disp.pd_color;
                                     pdrect = ex.disp.pdrect;
                                   else
