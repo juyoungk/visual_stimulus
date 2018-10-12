@@ -52,42 +52,42 @@ addpath('jsonlab/')
 testscreen_colors;
 %testscreen_annulus;
 
-%% Typing stimulus (generalized checker stimulus)
-ex_title = 'typing';
- n_repeats = 5;
-  hp_flash = 2; % secs
-hp_grating = 2;
+%% Flash stimulus 
+ex_title = 'flash';
+ n_repeats = 10;
+  hp_flash = 2.; % secs
 sizeCenter = 0.6;
-% ndims=[1,1]: flash mode. Impulse turn on and off.
-flash = struct('tag', 'flash pulse', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
-annul = struct('tag', { 'Ann1.2', 'Ann1.6'}, 'ndims', [1,1], 'sizeCenter', 0,...
-               'Annulus', {1.2,  1.6},...
-                        'w_Annulus', .4, 'half_period', hp_flash);
-% moving annulus? 'Annulus', [1., 2.5]                   
-% Nonlinear spatial summation: RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
-% 14 bars / 640 um ~ width: 50 um
-grating = struct('tag', 'grating',...
-                'ndims', {[28,1], [14,1]},...% center size is redefined by the integer times grating?
-                'sizeCenter', sizeCenter, 'half_period', hp_grating,...
-                'cycle', 3,... 
-                'phase_1st_cycle', 1);
-% bg texture input: long range > 1 mm input can exist?
-% [row col] convension. [14, 1] is along up-down direction (Dorsal-Ventral)
+%
+start = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash*0.5, 'phase_1st_cycle', 1);
+flash = struct('tag', 'flash',        'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
+%
+stim = [];
+stim = addStruct(stim, start);
+stim = addStruct(stim, flash);
+%
+ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
+
+%% Step motion stimulus 
+ex_title = 'tex steps';
+ n_repeats = 8;
+hp_grating = 2.5;
+sizeCenter = 0.6;
+%
+start = struct('tag', 'start screen', 'half_period', hp_grating,...
+                'ndims', [14,1], 'sizeCenter', sizeCenter, 'BG', 1.6,...
+                'draw_center', false, 'phase_1st_cycle', 1); % shift_max is curreently 2.
+                          
 bgtex = struct('tag', {'bgtex','global','diff'}, 'half_period', hp_grating,...
                 'ndims', [14,1], 'sizeCenter', sizeCenter, 'BG', 1.6,...
                 'draw_center', {false,  true,   true},...% {B , C+B, C+B}
-                      'cycle', {    3,     2,      2},... 
-            'phase_1st_cycle', {    1,    [],     []},...
+                      'cycle', 2,... 
                       'delay', {    0,     0,   0.25});  % {global, global, diff}
-%            
-blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
+% bg texture input: long range > 1 mm input can exist?
+% [row col] convension. [14, 1] is along up-down direction (Dorsal-Ventral)
 %
 stim = [];
-stim = addStruct(stim, flash);
-%stim = addStruct(stim, annul);
-%stim = addStruct(stim, grating);
+stim = addStruct(stim, start);
 stim = addStruct(stim, bgtex);
-stim = addStruct(stim, blank);
 %
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
@@ -143,6 +143,49 @@ stim = addStruct(stim, start);
 stim = addStruct(stim, speed);
 %
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
+
+%%
+%%
+%% Typing stimulus (generalized checker stimulus)
+ex_title = 'typing';
+ n_repeats = 5;
+  hp_flash = 2; % secs
+hp_grating = 2;
+sizeCenter = 0.6;
+
+% ndims=[1,1]: flash mode. Impulse turn on and off.
+flash = struct('tag', 'flash pulse', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
+annul = struct('tag', { 'Ann1.2', 'Ann1.6'}, 'ndims', [1,1], 'sizeCenter', 0,...
+               'Annulus', {1.2,  1.6},...
+                        'w_Annulus', .4, 'half_period', hp_flash);
+% moving annulus? 'Annulus', [1., 2.5]                   
+% Nonlinear spatial summation: RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
+% 14 bars / 640 um ~ width: 50 um
+grating = struct('tag', 'grating',...
+                'ndims', {[28,1], [14,1]},...% center size is redefined by the integer times grating?
+                'sizeCenter', sizeCenter, 'half_period', hp_grating,...
+                'cycle', 3,... 
+                'phase_1st_cycle', 1);
+% bg texture input: long range > 1 mm input can exist?
+% [row col] convension. [14, 1] is along up-down direction (Dorsal-Ventral)
+bgtex = struct('tag', {'bgtex','global','diff'}, 'half_period', hp_grating,...
+                'ndims', [14,1], 'sizeCenter', sizeCenter, 'BG', 1.6,...
+                'draw_center', {false,  true,   true},...% {B , C+B, C+B}
+                      'cycle', {    3,     2,      2},... 
+            'phase_1st_cycle', {    1,    [],     []},...
+                      'delay', {    0,     0,   0.25});  % {global, global, diff}
+%            
+blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
+%
+stim = [];
+%stim = addStruct(stim, flash);
+%stim = addStruct(stim, annul);
+%stim = addStruct(stim, grating);
+stim = addStruct(stim, bgtex);
+stim = addStruct(stim, blank);
+%
+ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
+
 
 %% Repeat natural movies: Cell's reproducibility to natural movies? (1 min)
 % combination of multiple 'movies' (cell array in worksapce).

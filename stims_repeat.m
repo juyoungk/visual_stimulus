@@ -70,7 +70,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
             for i = 1:n_repeats
                 
                 % PD trigger will happen at the start of the k-th stimulus 
-                stim_trigger_k = 1;
+                repeat_trigger_k = 1;
                 
                 for k = 1:numStim % current stim
                     
@@ -97,17 +97,17 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         s.tag = '';
                     end
                     
+                    % Print where I am
+                    fprintf('(stim repeats %d/%d) %8s stimulus (%2d/%d)\n', i, n_repeats, s.tag, k, numStim);
+                    
                     % start screen: 1. push the (big) stim trigger to next k 2. plays only once.
                     if contains(s.tag, 'start screen')
-                        stim_trigger_k = 2;
-                        if i > 1
-                            continue;
-                            % play next stimulus
+                        repeat_trigger_k = repeat_trigger_k + 1;
+                        if i > 1 % only play once, not repeating.
+                            continue; % Go to next stimulus
                         end
                     end
                     
-                    % Print where I am
-                    fprintf('(stim repeats %d/%d) %8s stimulus (%2d/%d)\n', i, n_repeats, s.tag, k, numStim);
                     
                     % frame numbers
                     frames_per_period = round(framerate * s.half_period * 2);
@@ -282,7 +282,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                               end
                               % gray margin rect. Center will be drawn
                               % through alpha blending. 
-                              Screen('FillOval',    ex.disp.winptr, ex.disp.bgcol, gray_rect); 
+                              Screen('FillOval', ex.disp.winptr, ex.disp.bgcol, gray_rect); 
+                              %[vbl_temp, ~, ~] = Screen('Flip', ex.disp.winptr, 0); 
                               
                               % Annulus
                               if sum(L_ann) > 0 % L_ann is either a value or a range [a, b].
@@ -313,7 +314,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                               % Draw center pattern
                               %if all(s.ndims == [1,1]) && (shift_ct(fi) == 0.5)
                               if s.draw_center
-                                  if shift_ct(fi) == 0.5 % 0.5 phase shift means gray or bg color. 
+                                  if shift_ct(fi) == 0.5 % 0.5 phase shift means gray or bg color.
                                     Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ct_checker_rect);  
                                   else
                                     Screen('DrawTexture', ex.disp.winptr, ct_texid, src_rect_ct, ct_checker_rect, 0, 0);
@@ -332,14 +333,14 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                
                               % photodiode
                               if fi == 1
-                                  if k == 1 && stim_trigger_k > 1
+                                  if k < repeat_trigger_k
                                     pd = 0; % skip start screen trigger
-                                    pdrect = [];
-                                  elseif k == stim_trigger_k && kk == 1 % repeat start PD 
+                                    pdrect = ex.disp.pdrect;
+                                  elseif k == repeat_trigger_k && kk == 1 % repeat trigger 
                                     pd = ex.disp.pd_color;
                                     pdrect = ex.disp.pdrect;
                                   else
-                                    pd = ex.disp.pd_color;
+                                    pd = ex.disp.pd_color;                % stim trigger 
                                     pdrect = ex.disp.pdrect2;
                                   end
                               else
