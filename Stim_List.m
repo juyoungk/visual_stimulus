@@ -52,12 +52,11 @@ addpath('jsonlab/')
 testscreen_colors;
 %testscreen_annulus;
 
-%% 0716 2018 typing stimulus (generalized checker stimulus) ~ 22 min
+%% Typing stimulus (generalized checker stimulus)
 ex_title = 'typing';
- n_repeats = 8;
+ n_repeats = 5;
   hp_flash = 2; % secs
 hp_grating = 2;
-hp_speed = 1.5;
 sizeCenter = 0.6;
 % ndims=[1,1]: flash mode. Impulse turn on and off.
 flash = struct('tag', 'flash pulse', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
@@ -96,7 +95,7 @@ ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 % 'ndims': presentation (stimulus) space
 % 'jitter': variance of jitter in presentation space.
 ex_title = 'natmov_1d_tex_mov3_5reps';
-debug_exp = 2;
+debug_exp = 0;
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'repeat', 5, 'length', 0.4,...    % mins. for each movie.  
                     'mov_id', {3},... 
