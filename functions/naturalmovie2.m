@@ -75,7 +75,23 @@ function ex = naturalmovie2(ex, replay, movies)
         % darken the photodiode
         Screen('FillOval', ex.disp.winptr, 0, ex.disp.pdrect);
         vbl = Screen('Flip', ex.disp.winptr, vbl + flipint);
+        
+        
   end
+  
+  if isfield(me, 'sampling_scale')
+      sampling_scale = me.sampling_scale; 
+  else
+      sampling_scale = 1;
+      if ~replay
+        ex.stim{end}.sampling_scale = 1;
+      end
+  end
+  if sampling_scale < 1
+      disp('sampling dims are lower than presentation dims. Are you sure?');
+  end
+  % scale factor from sampling to presentation
+  downsampling = (1/sampling_scale);
    
   % Load movies data from files if 'moviedir' is given.
   if isfield(me,'moviedir') && ~isempty(me.moviedir)
@@ -127,17 +143,10 @@ function ex = naturalmovie2(ex, replay, movies)
   end
   %disp(['Natural movies will be repeated by ', num2str(n_repeats), ' times.']);
   
-  if isfield(me, 'sampling_scale')
-      sampling_scale = me.sampling_scale; 
-  else
-      sampling_scale = 1;
-      ex.stim{end}.sampling_scale = 1;
+  % jitter_var is an old name.
+  if isfield(me, 'jitter_var')
+      me.jitter = me.jitter_var;
   end
-  if sampling_scale < 1
-      disp('sampling dims are lower than presentation dims. Are you sure?');
-  end
-  % scale factor from sampling to presentation
-  downsampling = (1/sampling_scale);
   
   % Numframes & Timestamps (replay doesn't need this information)
   if ~replay
