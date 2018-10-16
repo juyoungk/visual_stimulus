@@ -1,27 +1,15 @@
-%% Load movie files in Workspace
-%moviedir = '../database/matfiles/fish_2xds/';
-%moviedir = '/Users/peterfish/Movies/';
-moviedir = 'C:\Users\Administrator\Documents\MATLAB\database\Movies';
-%movext   = '*.mat';
-movext   = '*intensity.mat';
-%movies = getMovFiles(moviedir, movext);
+%% Commandwindow % Change focus to command window
+addpath('HelperFunctions/')
+addpath('functions/')
+addpath('utils/')
+addpath('jsonlab/')
+% screen initialization -> bg color and pd setting
+% offset location? % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen
+% basedir = fullfile('logs/', ex.today);
 
-% movie from files
-files = dir(fullfile(moviedir, movext));
-nummovies = length(files);
-if nummovies < 1
-  error('no movies (mat files) in designated folder');
-else 
-    for fileidx = 1:nummovies
-        disp([num2str(fileidx), ': ', files(fileidx).name]); 
-    end
-end
-% cell array for movies
-movies = cell(nummovies, 1);
-% load movie files
-for fileidx = 1:nummovies
-    movies(fileidx) = struct2cell(load(fullfile(moviedir, files(fileidx).name)));
-end
+%% Load movie files in Workspace
+load_mat_movie_files;
+
 %% Digital output??
 Deviceindex = PsychHID('Devices')
 port = 1 % or 0 (port A)
@@ -38,15 +26,6 @@ err=DaqDOut(DeviceIndex, port, data);
 % % Screen('ColorRange') for color range independent of system [0 t1]
 % calibration between LEDs: UV is ~12% brighter than Blue at 255 value.
 % Blue is brighter by ~25% in middle range color values.
-
-%% Commandwindow % Change focus to command window
-addpath('HelperFunctions/')
-addpath('functions/')
-addpath('utils/')
-addpath('jsonlab/')
-% screen initialization -> bg color and pd setting
-% offset location? % Modify screen.rect by OffsetRect(oldRect,x,y) @ InitScreen
-% basedir = fullfile('logs/', ex.today);
 
 %% Test screen (increasing disc?)
 testscreen_colors;

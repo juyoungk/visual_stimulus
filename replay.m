@@ -45,18 +45,23 @@ ex = loadjson(fullfile(cd, basedir, filename));
 % filename for the hdf5 file
 fname = ['stimulus_',which_expt,'.h5']; %fullfile(expanduser('~/Desktop/'), datestr(now, 'mmddyy'), 'stimulus.h5');
 basedir = 'C:\Users\Administrator\Documents\MATLAB\visual_stimulus\logs';
+basedir = 'logs';
 fname = fullfile(basedir, which_expt, fname)
 if exist(fname, 'file')
     delete(fname)
     disp('File deleted..');
 end
 %% replay experiments
-for stimidx = 1:length(ex.stim)
+numstim = length(ex.stim);
+for stimidx = 1:numstim
 
       % pull out the function and parameters
       % structure 'stim'
-      stim = ex.stim{stimidx};
-      %stim = expt.stim(stimidx); % 18-02-25 JKim ???
+      if numstim == 1
+          stim = ex.stim;
+      else
+          stim = ex.stim{stimidx};
+      end
       me = stim.params;
       stim.params.gray = ex.disp.gray;
       fields = fieldnames(me);
@@ -91,7 +96,6 @@ for stimidx = 1:length(ex.stim)
             eval(['ex = ' stim.function '(stim, true);']);
         end
       
-% 
 %       if strcmp(stim.function, 'naturalmovie2')
 %         h5create(fname, [group '/stim'], [me.ndims, 3, stim.numframes], 'Datatype', 'uint8');
 %         %h5create(fname, [group '/stim'], [me.ndims, 3, stim.numframes], 'Datatype', 'uint8');
@@ -100,9 +104,11 @@ for stimidx = 1:length(ex.stim)
 %         h5create(fname, [group '/stim'], [me.ndims, stim.numframes], 'Datatype', 'uint8');
 %         eval(['ex = ' stim.function '(stim, true);']);
 %       end
-
+      
+      % repeat numbers
+        
       % store the timestamps
-      h5create(fname, [group '/timestamps'], stim.numframes);
+      h5create(fname, [group '/timestamps'], stim.numframes); % [ , num of repeats]
       h5write(fname, [group '/timestamps'], stim.timestamps - stim.timestamps(1));
 
       % store metadata

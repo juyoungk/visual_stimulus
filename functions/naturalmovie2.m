@@ -375,7 +375,8 @@ function ex = naturalmovie2(ex, replay, movies)
             end
         end
         
-        if ex.debug == 2 && any(me.ndims == 1)
+        if isfield(ex, 'debug') && ex.debug == 2 && any(me.ndims == 1)
+            % 1D stimulus visualization mode (debug mode 2)
             figure;
             imagesc(mov_mat);
             str = sprintf('mov ID: %d, seed %d, startframe; %d', fileidx, me.seed, startframe);
@@ -383,8 +384,11 @@ function ex = naturalmovie2(ex, replay, movies)
             colorbar
         end
         
-        
       end % loop over mov files
+      
+      if replay
+          break;
+      end
       
       % gray movie for 2 second between repeats.
       for gi = 1:( ex.stim{end}.framerate * 2 ) % 2 secs
