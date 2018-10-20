@@ -31,9 +31,9 @@ end
 disp('');
 
 % File select
-which_ex = input('Which ex (json) file would you like to replay? ');
-filename = files(which_ex).name;
-ex = loadjson(fullfile(cd, basedir, filename));
+which_ex  = input('Which ex (json) file would you like to replay? ');
+filename  = files(which_ex).name;
+ex_replay = loadjson(fullfile(cd, basedir, filename));
 
 %%
 % if exist(fullfile(cd, basedir, 'expt.json'), 'file') == 2
@@ -52,23 +52,24 @@ if exist(fname, 'file')
     disp('File deleted..');
 end
 %% replay experiments
-numstim = length(ex.stim);
+numstim = length(ex_replay.stim);
 for stimidx = 1:numstim
 
       % pull out the function and parameters
       % structure 'stim'
       if numstim == 1
-          stim = ex.stim;
+          stim = ex_replay.stim;
       else
-          stim = ex.stim{stimidx};
+          stim = ex_replay.stim{stimidx};
       end
       me = stim.params;
-      stim.params.gray = ex.disp.gray;
+      stim.params.gray = ex_replay.disp.gray;
       fields = fieldnames(me);
 
       % group name
-      group = ['/expt' num2str(stimidx)];
-
+      disp(['stim id: ', num2str(stimidx)]);
+      group = ['/expt', num2str(stimidx)];
+        
       % Default scale factor for sampling stimulus movie
       if ~isfield(me, 'sampling_scale')
           me.sampling_scale = 1;
@@ -83,11 +84,12 @@ for stimidx = 1:numstim
       % store the stimulus pixel values
       stim.filename = fname; %fname;
       stim.group = group;
-      stim.disp = ex.disp; % for relay. not saved in h5 file. 
+      stim.disp = ex_replay.disp; % for relay. not saved in h5 file. 
 
       % REPLAY: h5write at stim.filename.
       % check if filename has been used.
       h5create(fname, [group '/stim'], [me.ndims, stim.numframes], 'Datatype', 'uint8');
+      h5disp(fname);
       
       % pass 'stim' instead of 'ex'.
         if contains(stim.function, 'naturalmovie2')
@@ -106,10 +108,14 @@ for stimidx = 1:numstim
 %       end
       
       % repeat numbers
-        
+      if ~isfield(me, 'repeat')
+          me.repeat = 1;
+      end
+      
       % store the timestamps
-      h5create(fname, [group '/timestamps'], stim.numframes); % [ , num of repeats]
-      h5write(fname, [group '/timestamps'], stim.timestamps - stim.timestamps(1));
+      h5create(fname, [group '/timestamps'], [stim.numframes, me.repeat]); % [ , num of repeats]
+      %h5write(fname, [group '/timestamps'], stim.timestamps - stim.timestamps(1));
+      h5write(fname, [group '/timestamps'], stim.timestamps);
 
       % store metadata
       h5writeatt(fname, group, 'function', stim.function);
@@ -122,9 +128,9 @@ end
 % group 'disp'
 group = '/disp';
 h5create(fname, group, [1, 1], 'Datatype', 'uint8');
-fields = fieldnames(ex.disp);
+fields = fieldnames(ex_replay.disp);
 for idx = 1:length(fields)
-    value = getfield(ex.disp, fields{idx});
+    value = getfield(ex_replay.disp, fields{idx});
     if isnumeric(value)
         h5writeatt(fname, group, fields{idx}, value);
     end

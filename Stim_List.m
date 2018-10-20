@@ -82,8 +82,8 @@ params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,..
                 'ndims', [55 , 1], 'jitter', 0.0, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
                 'c_mask', [0, 1, 1]);
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
-                % nimds: subimage sampling dimension. 
-                % Presentation dim = ndims * scale.
+                % nimds: presenntation dimension. 
+                % subimage sampling dim = ndims * scale.
                 % dst rect (or aperture) size = m (integer) * Presentation dim.
 run_stims
 
