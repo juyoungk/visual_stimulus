@@ -74,12 +74,12 @@ ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 % 'ndims': presentation (stimulus) space
 % 'jitter': variance of jitter in presentation space.
 ex_title = 'natmov_1d_tex_mov3_5reps';
-debug_exp = 0;
+debug_exp = 0; % debug mode 2: space-time visualization (not replay)
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'repeat', 5, 'length', 0.4,...    % mins. for each movie.  
                     'mov_id', {3},... 
                 'seed', 3, 'startframe', 400,... 
-                'ndims', [55 , 1], 'jitter', 0.0, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
+                'ndims', [55 , 1], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
                 'c_mask', [0, 1, 1]);
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
                 % nimds: presenntation dimension. 
@@ -89,7 +89,7 @@ run_stims
 
 %% 1D moving texture (single trial long movie)
 ex_title = 'natmov_1d_tex';
-debug_exp = 0; % debug mode 2: space-time visualization (not replay)
+debug_exp = 0; 
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'repeat', 1, 'length', 5,...    % mins. for each movie.  
                     'mov_id', {3,3,4,1,4,1},... 

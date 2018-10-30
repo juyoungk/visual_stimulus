@@ -379,6 +379,8 @@ function ex = naturalmovie2(ex, replay, movies)
             % 1D stimulus visualization mode (debug mode 2)
             figure;
             imagesc(mov_mat);
+            axis off
+            colormap(gray)
             str = sprintf('mov ID: %d, seed %d, startframe; %d', fileidx, me.seed, startframe);
             title(str);
             colorbar
