@@ -10,12 +10,6 @@ addpath('jsonlab/')
 %% Load movie files in Workspace
 load_mat_movie_files;
 
-%% Digital output??
-Deviceindex = PsychHID('Devices')
-port = 1 % or 0 (port A)
-data = 255;
-err=DaqDOut(DeviceIndex, port, data);
-
 %% gammaTable for DLP
 % ScreenNum = 0;
 % [gammaTable0, dacbits, reallutsize] =Screen('ReadNormalizedGammaTable', ScreenNum);
@@ -102,18 +96,19 @@ run_stims
 %% Speed tuning: population picture of amacrine cells
 ex_title = 'speed';
  n_repeats = 8;
-hp_speed = 2.;
+hp_speed = 2;
 sizeCenter = 0.6;
 %
 start = struct('tag', 'start screen', 'half_period', hp_speed,...
                 'ndims', [14,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
-                'phase_1st_cycle', 2,... % shift_max is curreently 2.
+                'phase_1st_cycle', 0,... % shift_max is curreently 2.
                           'cycle', 1);
 
 speed = struct('tag', 'speed', 'half_period', hp_speed,...
                 'ndims', [14,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
                 'phase_1st_cycle', [],... % shift_max is curreently 2.
-                          'cycle', 1,... 
+                          'cycle', 1,...
+                      'shift_max', {10, 20, 40, 80, 160},...  % in phase. 
                 'shift_per_frame', {.25, .50, 1., 2., 3.}); % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
 
 %
@@ -284,7 +279,11 @@ movie(m);
 % differential step stimulus
 % Bar width = 100 um
 %OMS_diff_Grating_Phase_Scan; % Arrow? next session (e.g. phase)
-                             % Esc throws an error.
-%%                             
+                             % Esc throws an error.                           
+%% Digital output??
+Deviceindex = PsychHID('Devices')
+port = 1 % or 0 (port A)
+data = 255;
+err=DaqDOut(DeviceIndex, port, data);
 
 

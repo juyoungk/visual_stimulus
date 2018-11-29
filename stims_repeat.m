@@ -3,7 +3,13 @@ function ex = stims_repeat(stim, n_repeats, varargin)
 %PTB. Stimulus can be [n m] grating or annulus. Flash is a [1 1] case of
 %grating and turn on/off by shifting [2 1] grating. 
 %
-% noise: uniformly-distributed whitenoise only. ndims = 3 only.
+%Phase shift is always along the x axis.
+%
+%   noise: uniformly-distributed whitenoise only. ndims = 3 only.
+%
+%   shift_per_frame: always x direction.
+%   shift_max: 
+%
 % gap between center and bg: 0.2mm
 % 
     gray_margin = 0.25;
@@ -93,8 +99,11 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     if ~isfield(s, 'draw_center') || isempty(s.draw_center)
                         s.draw_center = true;
                     end
-                    if ~isfield(s, 'tag')
+                    if ~isfield(s, 'tag') || isempty(s.tag)
                         s.tag = '';
+                    end
+                    if ~isfield(s, 'shift_max') || isempty(s.shift_max)
+                        s.shift_max = 0;
                     end
                     
                     % Print where I am
@@ -107,7 +116,6 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                             continue; % Go to next stimulus
                         end
                     end
-                    
                     
                     % frame numbers
                     frames_per_period = round(framerate * s.half_period * 2);
@@ -130,8 +138,9 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     % [row col] convention
                     nx = s.ndims(2);
                     ny = s.ndims(1);
+                    
                     % dim+1 checkers
-                    checkers_center = gen_checkers(nx+1, ny+1); % 0 and 1 checkers
+                    checkers_center = gen_checkers(nx + 1, ny + 1 + s.shift_max); % 0 and 1 checkers
                     checkers_center = color_matrix(checkers_center, s.color .* ex.disp.whitecolor);
                     
                     % make the texture
@@ -210,8 +219,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         shift_profile(1:numPulseFrames) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
                         shift_profile(frameid_ON:frameid_ON+numPulseFrames-1) = 1;
                     else
-                        % default: shift profile (duty rate 50%):
-                        shift_profile = 1:frames_per_period > (round(frames_per_period/2.)); % [0 0 .. 1 1 .. ]
+                        % default: shift profile (duty rate 50%): [0 0 .. 1 1 .. ]
+                        shift_profile = 1:frames_per_period > (round(frames_per_period/2.));
                     end
                     shift_profile = double(shift_profile);
 
@@ -220,9 +229,12 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         px_per_frame = s.shift_per_frame;
                         % in phase?
                         ph_per_frame = px_per_frame/w_pixels;
-
+                        
                         % phase (= shift) trajectories
-                        shift_max = 2; % w/ 3 px checker, 6 px travel
+                        shift_max = s.shift_max;
+                        if shift_max == 0
+                            shift_max = 2; % moving over one period.
+                        end
                         shift_profile = shift_max * shift_profile;
                         ph1 = shift_max:(-ph_per_frame):0; ph1 = ph1(2:end);
                         ph2 = 0:ph_per_frame:shift_max;    ph2 = ph2(2:end);
@@ -233,9 +245,13 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         numshift = length(ph1);
                         fprintf('Shift will be done over %d frames (%4.0f ms). Speed = %.2f mm/s \n',...
                             numshift, numshift*stim_ifi*1000, px_per_frame*ex.disp.um_per_px*framerate/1000. );
+                        if numshift > frames_per_period/2.
+                            numshift = frames_per_period/2.;
+                            fprintf('Full shift over %d phase would take longer than a half repeat period. Numshift was lowered.', shift_max);
+                        end 
                         %
-                        shift_profile(1:numshift) = ph1; 
-                        shift_profile(frameid_ON:frameid_ON+numshift-1) = ph2; 
+                        shift_profile(1:numshift) = ph1(1:numshift); 
+                        shift_profile(frameid_ON:frameid_ON+numshift-1) = ph2(end-numshift+1:end);
                     end
 
                     % phase of the annulus: flashing vs moving
