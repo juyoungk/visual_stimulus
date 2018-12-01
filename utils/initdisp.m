@@ -53,7 +53,7 @@ ex.disp.gray  = round((ex.disp.white + ex.disp.black) / 2);
 
 % Color gray vector (direction of gray) or color weight
 % For mouse experiment by JY
-ex.disp.grayvector = [0 1 .4];
+ex.disp.grayvector = [0 1 .8];
 %ex.disp.grayvector = [0 0 1];
 
 % White and black by the user-defined gray vector
@@ -134,7 +134,7 @@ ex.disp.pdcolor  = [1 0 0] * ex.disp.white;
 ex.disp.pdcolor2 = ex.disp.pdcolor;
 
 % the destination rectangle: size and offset
-aperturesize = 2.3; % mm
+aperturesize = 2.5; % mm
 ex.disp.aperturesize_mm = aperturesize;                 	% Size of stimulus aperture
 ex.disp.aperturesize    = aperturesize*10*PIXELS_PER_100_MICRONS(ex.rig_name);                 	% Size of stimulus aperture
 ex.disp.offset_x = round( (x0/100) * PIXELS_PER_100_MICRONS(ex.rig_name) );

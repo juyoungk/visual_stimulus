@@ -147,8 +147,10 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     ct_texid = Screen('MakeTexture', ex.disp.winptr, uint8(checkers_center));
                     
                     % texture dst rect (integer times checkers)
-                    w_pixels_x = ceil(L/nx);
-                    w_pixels_y = ceil(L/ny);
+                    w_pixels_x = round(L/nx);
+                    w_pixels_y = round(L/ny);
+                    % if isfield(s, 'w_pixel') || ~isempty(s.w_pixel)
+                    % end
                     w_pixels = min(w_pixels_x, w_pixels_y);
 %                     % Num of checkers (px-norm.) within center
 %                     n_checkers = floor( L/w_pixels_x );                    
