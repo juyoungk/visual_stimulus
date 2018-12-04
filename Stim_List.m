@@ -100,37 +100,37 @@ hp_speed = 2.5;
 sizeCenter = 0.6;
 %
 start = struct('tag', 'start screen', 'half_period', hp_speed,...
-                'ndims', [7,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
                 'phase_1st_cycle', 0,... % shift_max is curreently 2.
                           'cycle', 1);
 
 speed = struct('tag', 'speed', 'half_period', hp_speed,...
-                'ndims', [7,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
                 'phase_1st_cycle', [],... % shift_max is curreently 2.
                           'cycle', 1,...
                       'shift_max', {  6,  12,  18, 24,  36,  48},...  % in phase. 1.6s transition
-                'shift_per_frame', {.25, .50, .75,  1., 1.5, 2.}); % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
+                'shift_per_frame', {.25, .50, .75,  1., 1.5, 2}); % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
 
 %
 stim = [];
-stim = addStruct(stim, start);
+%stim = addStruct(stim, start);
 stim = addStruct(stim, speed);
 %
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
-%% Speed tuning: 1200 um aperture
+%% Speed tuning: 2400 um aperture
 ex_title = 'speed';
  n_repeats = 10;
 hp_speed = 2.5;
 sizeCenter = 2.4;
 %
 start = struct('tag', 'start screen', 'half_period', hp_speed,...
-                'ndims', [28,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'ndims', [40,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
                 'phase_1st_cycle', 0,... % shift_max is curreently 2.
                           'cycle', 1);
 
 speed = struct('tag', 'speed', 'half_period', hp_speed,...
-                'ndims', [28,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'ndims', [40,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
                 'phase_1st_cycle', [],... % shift_max is curreently 2.
                           'cycle', 1,...
                       'shift_max', {6,  12,  18, 24,  36,  48},...  % in phase. 1.6s transition
@@ -142,9 +142,6 @@ stim = addStruct(stim, start);
 stim = addStruct(stim, speed);
 %
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
-
-
-
 %% Typing stimulus (generalized checker stimulus)
 ex_title = 'typing';
  n_repeats = 5;

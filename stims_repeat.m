@@ -7,12 +7,13 @@ function ex = stims_repeat(stim, n_repeats, varargin)
 %
 %   noise: uniformly-distributed whitenoise only. ndims = 3 only.
 %
+%   ndims : [row col] convention
 %   shift_per_frame: always x direction.
 %   shift_max: 
 %
 % gap between center and bg: 0.2mm
 % 
-    gray_margin = 0.25;
+    gray_margin = 0.20;
     p = ParseInput(varargin{:});
     if nargin < 2
         n_repeats = 3;
@@ -103,7 +104,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         s.tag = '';
                     end
                     if ~isfield(s, 'shift_max') || isempty(s.shift_max)
-                        s.shift_max = 0;
+                        s.shift_max = 1;
                     end
                     
                     % Print where I am
@@ -139,24 +140,26 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     nx = s.ndims(2);
                     ny = s.ndims(1);
                     
+                    % dst rect (integer times checkers) for texture
+                    w_pixels_x = ceil(L/nx);
+                    w_pixels_y = ceil(L/ny);
+                        % if isfield(s, 'w_pixel') || ~isempty(s.w_pixel)
+                        % end
+                    w_pixels = min(w_pixels_x, w_pixels_y);
+                    %
+                    Lx = w_pixels_x * nx;
+                    Ly = w_pixels_y * ny;
+                    Lchecker = max(Lx, Ly);
+                    
                     % dim+1 checkers
-                    checkers_center = gen_checkers(nx + 1, ny + 1 + s.shift_max); % 0 and 1 checkers
+                    
+                    %checkers_center = GetCheckers( (nx+1) * w_pixels, (ny+s.shift_max) * w_pixels, w_pixels, 1, 0.5); 
+                    checkers_center = gen_checkers(nx + 1, ny + s.shift_max); % 0 and 1 checkers 
                     checkers_center = color_matrix(checkers_center, s.color .* ex.disp.whitecolor);
                     
                     % make the texture
                     ct_texid = Screen('MakeTexture', ex.disp.winptr, uint8(checkers_center));
                     
-                    % texture dst rect (integer times checkers)
-                    w_pixels_x = round(L/nx);
-                    w_pixels_y = round(L/ny);
-                    % if isfield(s, 'w_pixel') || ~isempty(s.w_pixel)
-                    % end
-                    w_pixels = min(w_pixels_x, w_pixels_y);
-%                     % Num of checkers (px-norm.) within center
-%                     n_checkers = floor( L/w_pixels_x );                    
-                    Lx = w_pixels_x * nx;
-                    Ly = w_pixels_y * ny;
-                    Lchecker = max(Lx, Ly);
                     %
                     ex.stim(k).L_optimized_px = Lchecker;
                     % dst for grating stim
@@ -229,7 +232,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     % shfit w/ finite speed
                     if isfield(s, 'shift_per_frame') && ~isempty(s.shift_per_frame)
                         px_per_frame = s.shift_per_frame;
-                        % in phase?
+                        % shift in terms of grating phase
                         ph_per_frame = px_per_frame/w_pixels;
                         
                         % phase (= shift) trajectories
@@ -245,8 +248,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                             ph2 = ph2(1:frames_per_period);
                         end
                         numshift = length(ph1);
-                        fprintf('Shift will be done over %d frames (%4.0f ms). Speed = %.2f mm/s \n',...
-                            numshift, numshift*stim_ifi*1000, px_per_frame*ex.disp.um_per_px*framerate/1000. );
+                        fprintf('     Shift of %.2f px/frame will be done over %d frames (%4.0f ms). Speed = %.2f mm/s \n',...
+                            px_per_frame, numshift, numshift*stim_ifi*1000, px_per_frame*ex.disp.um_per_px*framerate/1000. );
                         if numshift > frames_per_period/2.
                             numshift = frames_per_period/2.;
                             fprintf('Full shift over %d phase would take longer than a half repeat period. Numshift was lowered.', shift_max);
@@ -290,8 +293,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                   src_rect_bg = [shift_bg(fi) 0 nx_bg + shift_bg(fi)  ny_bg];
                                   src_rect_ct = [shift_ct(fi) 0    nx + shift_ct(fi)  ny   ];
                               else
-                                  src_rect_bg = [0 shift_bg(fi) nx_bg  ny_bg + shift_bg(fi)];
-                                  src_rect_ct = [0 shift_ct(fi) nx     ny    + shift_ct(fi)];
+                                  src_rect_bg = [0 shift_bg(fi) nx_bg  shift_bg(fi) + ny_bg]; %* w_pixels;
+                                  src_rect_ct = [0 shift_ct(fi) nx     shift_ct(fi) + ny];    %* w_pixels;
                               end
                               
                               % draw the BG texture
@@ -324,6 +327,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                 Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [0 0 0 1]);
                                 % Clear 'dstRect' region of framebuffers alpha channel to zero: 
                                 Screen('FillRect', ex.disp.winptr, [0 0 0 0], ex.disp.dstrect); % Alpha 0 means completely clear. 
+                                Screen('FillRect', ex.disp.winptr, [0 0 0 0]); % Alpha 0 means completely clear. 
                                 %Screen('FillOval', ex.disp.winptr, [0 0 0 ex.disp.white], ct_dst_rect);  
                                 Screen('FillOval', ex.disp.winptr, [0 0 0 ex.disp.white], ct_dst_rect);  
                                 %
