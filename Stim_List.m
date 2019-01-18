@@ -27,9 +27,9 @@ testscreen_colors;
 
 %% Flash stimulus 
 ex_title = 'flash';
- n_repeats = 10;
+ n_repeats = 20;
   hp_flash = 2.; % secs
-sizeCenter = 0.6;
+sizeCenter = .6;
 %
 start = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash*0.5, 'phase_1st_cycle', 1);
 flash = struct('tag', 'flash',        'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
@@ -44,7 +44,7 @@ ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 ex_title = 'tex steps';
  n_repeats = 8;
 hp_grating = 2.5;
-sizeCenter = 0.6;
+sizeCenter = .6;
 %
 start = struct('tag', 'start screen', 'half_period', hp_grating,...
                 'ndims', [14,1], 'sizeCenter', sizeCenter, 'BG', 1.6,...
@@ -113,7 +113,7 @@ speed = struct('tag', 'speed', 'half_period', hp_speed,...
 
 %
 stim = [];
-%stim = addStruct(stim, start);
+stim = addStruct(stim, start);
 stim = addStruct(stim, speed);
 %
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
