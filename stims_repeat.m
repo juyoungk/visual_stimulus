@@ -287,7 +287,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         for fi = 1:frames_per_period
                               
                               % bg color for entire presentation field.
-                              Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.dstrect);
+                              %Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.dstrect);
                             
                               if nx > 1
                                   src_rect_bg = [shift_bg(fi) 0 nx_bg + shift_bg(fi)  ny_bg];

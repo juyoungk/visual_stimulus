@@ -26,6 +26,10 @@ else
 end
 ex.disp.offset_x_um = x0;
 ex.disp.offset_y_um = y0;
+if ex.debug == 1
+    ex.disp.offset_x_um = 0;
+    ex.disp.offset_y_um = 0;
+end    
 
 % Make sure PTB is working, hide the on screen cursor
 AssertOpenGL;
@@ -53,7 +57,7 @@ ex.disp.gray  = round((ex.disp.white + ex.disp.black) / 2);
 
 % Color gray vector (direction of gray) or color weight
 % For mouse experiment by JY
-ex.disp.grayvector = [0 1 1];
+ex.disp.grayvector = [0 0.5 0]; %[red, UV, blue]
 %ex.disp.grayvector = [0 0 1];
 
 % White and black by the user-defined gray vector
@@ -115,7 +119,11 @@ Screen('TextSize', ex.disp.winptr, 24);
 % Microns per pixel
 %ex.disp.umperpix = 100 / 4.7;
 ex.disp.pix_per_100um = PIXELS_PER_100_MICRONS(ex.rig_name);
+if ex.debug == 1
+    %ex.disp.pix_per_um = 3 * ex.disp.pix_per_um;
+end
 ex.disp.pix_per_um = ex.disp.pix_per_100um/100.;
+
 ex.disp.umperpix = 1./ex.disp.pix_per_um;
 ex.disp.um_per_px = ex.disp.umperpix; % different name
 
@@ -134,7 +142,7 @@ ex.disp.pdcolor  = [1 0 0] * ex.disp.white;
 ex.disp.pdcolor2 = ex.disp.pdcolor;
 
 % the destination rectangle: size and offset
-aperturesize = 1.2; % mm
+aperturesize = 2.0; % mm
 ex.disp.aperturesize_mm = aperturesize;                 	% Size of stimulus aperture
 ex.disp.aperturesize    = aperturesize*10*PIXELS_PER_100_MICRONS(ex.rig_name);                 	% Size of stimulus aperture
 ex.disp.offset_x = round( (x0/100) * PIXELS_PER_100_MICRONS(ex.rig_name) );

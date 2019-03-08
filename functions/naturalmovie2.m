@@ -241,12 +241,27 @@ function ex = naturalmovie2(ex, replay, movies)
         if FLAG_stop % if frames number reaches to the specified movie duration
             break;
         end
+
         %mov = movies{randi(rs, nummovies)};
-        mov = movies{fileidx};    
+        mov = movies{fileidx};
         movNumFrames = size(mov, 1);
         % color mov or gray mov?
         
-           
+        % gray movie for 2 second between movies.
+        if ~replay
+            for gi = 1:( ex.stim{end}.framerate * 2 ) % 2 secs
+                %Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.dstrect);
+                Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, dstrect);
+                [vbl, ~, ~, ~] = Screen('Flip', ex.disp.winptr, vbl + flipint);
+                % check for ESC
+                ex = checkkb(ex);
+                if ex.key.keycode(ex.key.esc)
+                    fprintf('ESC pressed. Quitting..\n')
+                    break;
+                end
+            end
+        end
+
         for fi = startframe:movNumFrames % stimulus frame id in current movie
               
               % frame id as total 
@@ -390,19 +405,6 @@ function ex = naturalmovie2(ex, replay, movies)
       
       if replay
           break;
-      end
-      
-      % gray movie for 2 second between repeats.
-      for gi = 1:( ex.stim{end}.framerate * 2 ) % 2 secs
-          %Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.dstrect);
-          Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, dstrect);
-          [vbl, ~, ~, ~] = Screen('Flip', ex.disp.winptr, vbl + flipint);
-          % check for ESC
-          ex = checkkb(ex);
-          if ex.key.keycode(ex.key.esc)
-            fprintf('ESC pressed. Quitting..\n')
-            break;
-          end
       end
       
   end % loop over repeats
