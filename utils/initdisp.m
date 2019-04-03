@@ -58,7 +58,7 @@ ex.disp.gray  = round((ex.disp.white + ex.disp.black) / 2);
 % Color gray vector (direction of gray) or color weight
 % For mouse experiment by JY
 ex.disp.grayvector = [0 0.5 0]; %[red, UV, blue]
-%ex.disp.grayvector = [0 0 1];
+ex.disp.grayvector = [0 1 1]; %2019 0401 w/ ND4 filter
 
 % White and black by the user-defined gray vector
 ex.disp.whitecolor = round(ex.disp.white * ex.disp.grayvector);
@@ -66,10 +66,14 @@ ex.disp.blackcolor = round(ex.disp.black * ex.disp.grayvector);
 ex.disp.graycolor  = round(ex.disp.gray  * ex.disp.grayvector);
 
 % Check 'ex' struct for background color
-if ~isfield(ex.disp, 'bgcol')
+if isfield(ex.disp, 'bgcol')
+  % bgcol was predefined.
+else
   %ex.disp.bgcol = 127.5 .* ones(1, 3);
-  ex.disp.bgcol = ex.disp.blackcolor;
+  %ex.disp.bgcol = ex.disp.blackcolor;
+  ex.disp.bgcol = ex.disp.graycolor; % Not as a screen setting, but for other codes. 
 end
+fprintf('Bg color is set to [%.0f %.0f %.0f].\n', ex.disp.bgcol);
 
 % Initialize the OpenGL pipeline, set debugging
 InitializeMatlabOpenGL;
@@ -99,7 +103,6 @@ else
         ex.disp.screen, ex.disp.bgcol);
     ex.rig_name = '2P_new_rig_Olympus_4x';
 end
-ex.disp.bgcol = ex.disp.graycolor; % Not as a screen setting, but for other codes. 
 %oldtxtsize = Screen('TextSize', ex.disp.winptr, 10);
 
 % Setup alpha-blending
@@ -143,6 +146,7 @@ ex.disp.pdcolor2 = ex.disp.pdcolor;
 
 % the destination rectangle: size and offset
 aperturesize = 2.0; % mm
+disp(['Aperturesize is ', num2str(aperturesize)]);
 ex.disp.aperturesize_mm = aperturesize;                 	% Size of stimulus aperture
 ex.disp.aperturesize    = aperturesize*10*PIXELS_PER_100_MICRONS(ex.rig_name);                 	% Size of stimulus aperture
 ex.disp.offset_x = round( (x0/100) * PIXELS_PER_100_MICRONS(ex.rig_name) );

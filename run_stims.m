@@ -4,6 +4,7 @@
 %   1. stimuli as struct array, not cell array.
 %   2. create today's directory
 %
+% Replay of naturalscenes? Excute function 'replay'
     commandwindow
     %%
     addpath('jsonlab/')
@@ -53,7 +54,8 @@
       end
         
       % bg color
-      ex.disp.bgcol = 0; 
+      ex.disp.bgcol = 0; % default will be gray.
+      
       % Initalize the visual display w/ offset position
       ex = initdisp(ex, 1500, -100);
 
@@ -102,7 +104,7 @@
       if ~debug_exp
 
         % Save the experimental metadata
-        savejson('', ex, fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_expt__', str_name,'.json']));
+        savejson('', ex, fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_ex_', str_name,'.json']));
         save(fullfile(basedir, [datestr(now, 'HH_MM_SS'), '_ex_', str_name,'.mat']), 'ex');
 
         % Send results via Pushover

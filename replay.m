@@ -32,8 +32,10 @@ disp('');
 
 % File select
 which_ex  = input('Which ex (json) file would you like to replay? ');
-filename  = files(which_ex).name;
-ex_replay = loadjson(fullfile(cd, basedir, filename));
+ex_filename  = files(which_ex).name;
+ex_replay = loadjson(fullfile(cd, basedir, ex_filename));
+ex_filename = strsplit(ex_filename,'.');
+ex_filename = ex_filename{1};
 
 %%
 % if exist(fullfile(cd, basedir, 'expt.json'), 'file') == 2
@@ -43,7 +45,7 @@ ex_replay = loadjson(fullfile(cd, basedir, filename));
 % end
 
 % filename for the hdf5 file
-fname = ['stimulus_',which_expt,'.h5']; %fullfile(expanduser('~/Desktop/'), datestr(now, 'mmddyy'), 'stimulus.h5');
+fname = ['stimulus_',ex_filename,'.h5']; %fullfile(expanduser('~/Desktop/'), datestr(now, 'mmddyy'), 'stimulus.h5');
 basedir = 'C:\Users\Administrator\Documents\MATLAB\visual_stimulus\logs';
 basedir = 'logs';
 fname = fullfile(basedir, which_expt, fname)
@@ -89,7 +91,6 @@ for stimidx = 1:numstim
       % REPLAY: h5write at stim.filename.
       % check if filename has been used.
       h5create(fname, [group '/stim'], [me.ndims, stim.numframes], 'Datatype', 'uint8');
-      h5disp(fname);
       
       % pass 'stim' instead of 'ex'.
         if contains(stim.function, 'naturalmovie2')
@@ -137,3 +138,4 @@ for idx = 1:length(fields)
     %disp([fields{idx}, ': done']);
 end
 
+h5disp(fname);

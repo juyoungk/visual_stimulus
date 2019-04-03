@@ -1,4 +1,4 @@
-function ex = whitenoise(ex, replay)
+function ex = grayscreen(ex, replay)
 %
 % ex = whitenoise(ex, replay)
 %
@@ -31,13 +31,6 @@ function ex = whitenoise(ex, replay)
     % initialize the VBL timestamp
     vbl = GetSecs();
 
-    % initialize random seed
-    if isfield(me, 'seed')
-      rs = getrng(me.seed);
-    else
-      rs = getrng();
-    end
-    ex.stim{end}.seed = rs.Seed;
 
     % compute flip times from the desired frame rate and length
     if me.framerate > ex.disp.frate

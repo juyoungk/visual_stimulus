@@ -76,7 +76,6 @@ function ex = naturalmovie2(ex, replay, movies)
         Screen('FillOval', ex.disp.winptr, 0, ex.disp.pdrect);
         vbl = Screen('Flip', ex.disp.winptr, vbl + flipint);
         
-        
   end
   
   if isfield(me, 'sampling_scale')
@@ -211,6 +210,13 @@ function ex = naturalmovie2(ex, replay, movies)
     dstrect = CenterRectOnPoint(...	
                     [0 0 Lx Ly], ...
                     ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
+                
+    % rect for interleaving flashes
+    Center_L = 0.6; % mm
+    Center_px = Center_L * ex.disp.pix_per_um * 1000;
+    flash_rect = CenterRectOnPoint(...	
+                    [0 0 Center_px Center_px], ...
+                    ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);             
 
     % display size info
     ex.disp.aperturesize_movies_mm = [Lx Ly] * ex.disp.umperpix/1000.;
@@ -235,29 +241,56 @@ function ex = naturalmovie2(ex, replay, movies)
       fprintf('%d/%d presentation of natural movies (%.1f secs long).\n', rr, n_repeats, numframes/me.framerate);
       rs = getrng(rs.Seed);
       
-
       for fileidx = mov_ids % loop over movie files
 
         if FLAG_stop % if frames number reaches to the specified movie duration
             break;
         end
-
         %mov = movies{randi(rs, nummovies)};
         mov = movies{fileidx};
         movNumFrames = size(mov, 1);
         % color mov or gray mov?
         
-        % gray movie for 2 second between movies.
+        %% start stimulus - gray with flash pulses.
         if ~replay
-            for gi = 1:( ex.stim{end}.framerate * 2 ) % 2 secs
-                %Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ex.disp.dstrect);
-                Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, dstrect);
-                [vbl, ~, ~, ~] = Screen('Flip', ex.disp.winptr, vbl + flipint);
-                % check for ESC
-                ex = checkkb(ex);
-                if ex.key.keycode(ex.key.esc)
-                    fprintf('ESC pressed. Quitting..\n')
-                    break;
+            half_period_for_flash = 2; % secs
+            numPulseFrames = 2;
+            n_frames_per_cycle = ex.stim{end}.framerate * half_period_for_flash * 2;
+            i_frame_off = round(n_frames_per_cycle/2.) + 1;
+            pd = ex.disp.pd_color;
+            
+            % gray only for one cycle. 
+            for n_cycle = 1:4
+                for gi = 1:n_frames_per_cycle 
+                    % Gray screen (not bgcol) in aperture. bgcol is usually
+                    % black for natural movie stimulus.
+                    Screen('FillRect', ex.disp.winptr, ex.disp.graycolor, dstrect);
+                    
+                    if ismember(gi, 1:numPulseFrames) && n_cycle > 1 % skip the flash for 1st cycle
+                        Screen('FillOval', ex.disp.winptr, ex.disp.whitecolor, flash_rect);
+                        
+                        if n_cycle == 2
+                            pdrect = ex.disp.pdrect;
+                        else
+                            pdrect = ex.disp.pdrect2;
+                        end
+                        Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 0 0 1]);
+                        Screen('FillOval', ex.disp.winptr, pd, pdrect);
+                        Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [c_mask 1]);
+                    end
+                    
+                    if ismember(gi, i_frame_off:i_frame_off+numPulseFrames-1) && n_cycle > 1 % skip the flash for 1st cycle
+                        Screen('FillOval', ex.disp.winptr, ex.disp.blackcolor, flash_rect);
+                    end
+
+                    [vbl, ~, ~, ~] = Screen('Flip', ex.disp.winptr, vbl + flipint);
+
+                    % check for ESC
+                    ex = checkkb(ex);
+                    if ex.key.keycode(ex.key.esc)
+                        fprintf('ESC pressed. Quitting..\n')
+                        break;
+                    end
                 end
             end
         end
@@ -308,6 +341,7 @@ function ex = naturalmovie2(ex, replay, movies)
 
             if replay
               % write the frame to the hdf5 file (no mask or weight factor)
+              % ex.group : group id
               h5write(ex.filename, [ex.group '/stim'], frame, [ones(1, Ndims), ti], [ndims_presentation, 1]);
               
             else
@@ -321,7 +355,6 @@ function ex = naturalmovie2(ex, replay, movies)
                   mov_mat(:, ti) = frame;
                   continue;
               end
-                
                 
               % make the texture
               texid = Screen('MakeTexture', ex.disp.winptr, frameRedirected);

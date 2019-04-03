@@ -46,7 +46,8 @@ function ex = stims_repeat(stim, n_repeats, varargin)
           ex = initexptstruct(debug_exp);
           % Initialize the keyboard
           ex = initkb(ex);
-          
+          %
+          ex.disp.bgcol = 0;
           % Initalize the visual display w/ offset position
           ex = initdisp(ex, 1500, -100);
               stim_ifi = 1/framerate;                               % framerate and ifi I ask 
@@ -214,19 +215,18 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                         frames = s.noise_contrast * frames + (1-s.noise_contrast)/2.;
                     end
    
-                    % shift (or phase) trajectories
-                        
-                    % impulse or 50% duty cycle
+                    % Shift (or phase) trajectories : impulse or 50% duty cycle     
                     if all(s.ndims(1:2) == [1 1]) && contains(s.tag, 'pulse')
                         % [1 1] flash: impulse shift 
                         shift_profile = 0.5 * ones(1, frames_per_period);
-                        numPulseFrames = 5;
-                        shift_profile(1:numPulseFrames) = 0;                       % 2 frames = 1/15 sec for 30Hz presentation.
+                        numPulseFrames = 6; % ~ 100 ms @ 60 Hz 
+                        shift_profile(1:numPulseFrames) = 0;
                         shift_profile(frameid_ON:frameid_ON+numPulseFrames-1) = 1;
                     else
                         % default: shift profile (duty rate 50%): [0 0 .. 1 1 .. ]
                         shift_profile = 1:frames_per_period > (round(frames_per_period/2.));
                     end
+                    % make it double.
                     shift_profile = double(shift_profile);
 
                     % shfit w/ finite speed
@@ -337,7 +337,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                               %if all(s.ndims == [1,1]) && (shift_ct(fi) == 0.5)
                               if s.draw_center
                                   if shift_ct(fi) == 0.5 % 0.5 phase shift means gray or bg color.
-                                    Screen('FillRect', ex.disp.winptr, ex.disp.bgcol, ct_checker_rect);  
+                                    Screen('FillRect', ex.disp.winptr, ex.disp.graycolor, ct_checker_rect);  
                                   else
                                     Screen('DrawTexture', ex.disp.winptr, ct_texid, src_rect_ct, ct_checker_rect, 0, 0);
                                   end

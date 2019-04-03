@@ -26,37 +26,84 @@ testscreen_colors;
 %testscreen_annulus;
 
 
-%% Gray (flash phase 0.5) and then flash repeats
-ex_title = 'gray';
- n_repeats = 20;
-  hp_flash = 3.; % secs
-sizeCenter = 0.6;
-% gray 20s + flash repeats
-start = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', 150, 'phase_1st_cycle', 0.5);
-start2 = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash*0.5, 'phase_1st_cycle', 1);
-flash = struct('tag', 'flash',        'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
-%
-stim = [];
-stim = addStruct(stim, start);
-stim = addStruct(stim, start2);
-stim = addStruct(stim, flash);
-%
-ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
-
-%% Flash stimulus 
+%% Gray (flash phase 0.5) with early (30s) and late (300s) flash repeats: Reliability/Clustering
 ex_title = 'flash';
  n_repeats = 20;
   hp_flash = 3.; % secs
 sizeCenter = 0.6;
-%
-start = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash*0.5, 'phase_1st_cycle', 1);
+% Laser & gray 20s + flash repeats
+% Laser & gray 300s + flash repeats
+gray_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', 10, 'phase_1st_cycle', 0.5);
+white_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash*0.5, 'phase_1st_cycle', 1);
 flash = struct('tag', 'flash',        'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
 %
 stim = [];
-stim = addStruct(stim, start);
+stim = addStruct(stim, gray_screen);
+stim = addStruct(stim, white_screen);
 stim = addStruct(stim, flash);
 %
-ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 1, 'mode', '');
+ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
+
+%% Full-fild WN (Gaussian): Linear vs Nonlinear populations, Adapting vs non-adapting populations
+% contrast = STD/mean. 0.35 to 0.05 for Baccus and Meister 2002 
+% mean change --> temporal filter change?
+ex_title = 'FullField_WhiteNoise';
+debug_exp = false;
+% 2 contrast levels
+h_contrast = 0.35;
+l_contrast = 0.10;
+contrast = {h_contrast, l_contrast, h_contrast, l_contrast, h_contrast, l_contrast, h_contrast};
+duration = {      0.25,       0.25,       0.25,       0.25,       0.25,       0.25,          5}; % total 1.5 + 5 min.
+% PD trigger: every framerate(20) ~ 1s
+gr_screen = struct('function', 'grayscreen', 'length', duration, 'c_mask', [0, 1, 1]); 
+wn_params = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,... 
+                'ndims', [1,1], 'dist', 'gaussian', 'contrast', contrast,...
+                'length', duration, 'w_mean', 1, 'c_mask', [0, 1, 1]); 
+params = addStruct(gr_screen, wn_params);
+%
+run_stims
+
+%% 1D moving texture (single trial long movie)
+% ndims is a presentation size. [50, 1] for 1D.
+ex_title = 'natmov_1d_tex';
+debug_exp = 0; 
+params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
+                'repeat', 1, 'length', 5,...% mins. max duration for each movie.  
+                    'mov_id', {3,3,3,4,1,4,1},... 
+                'seed', {3,3,4,1,4,8,8}, 'startframe', 200,...  % different seed number?
+                'ndims', [50, 1], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
+                'c_mask', [0, 1, 1]); 
+% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
+run_stims
+
+%%
+replay
+
+%% Speed tuning: 600 um aperture (or 2400 um?)
+ex_title = 'speed';
+ n_repeats = 10;
+hp_speed = 2.5;
+sizeCenter = 0.6;
+ex_title = [ex_title, num2str(sizeCenter)];
+%
+start = struct('tag', 'start screen', 'half_period', hp_speed,...
+                'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'phase_1st_cycle', 0,... % shift_max is curreently 2.
+                          'cycle', 1);
+
+speed = struct('tag', 'speed', 'half_period', hp_speed,...
+                'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'phase_1st_cycle', [],... % shift_max is curreently 2.
+                          'cycle', 1,...
+                      'shift_max', {  6,  12,  18, 24,  36,  48},...  % in phase. 1.6s transition
+                'shift_per_frame', {.25, .50, .75,  1., 1.5, 2}); % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
+
+%
+stim = [];
+stim = addStruct(stim, start);
+stim = addStruct(stim, speed);
+%
+ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
 %% Step motion stimulus 
 ex_title = 'tex steps';
@@ -99,68 +146,9 @@ params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,..
                 % dst rect (or aperture) size = m (integer) * Presentation dim.
 run_stims
 
-%% 1D moving texture (single trial long movie)
-% ndims = [55, 1] for 1D
-ex_title = 'natmov_1d_tex';
-debug_exp = 0; 
-params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
-                'repeat', 1, 'length', 5,...    % mins. for each movie.  
-                    'mov_id', {3,3,3,4,1,4,1},... 
-                'seed', {3,3,4,1,4,8,8}, 'startframe', 200,...  % different seed number?
-                'ndims', [50, 1], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
-                'c_mask', [0, 1, 1]); 
-% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
-run_stims
 
-%% Speed tuning: 600 um aperture
-ex_title = 'speed';
- n_repeats = 10;
-hp_speed = 2.5;
-sizeCenter = 0.6;
-%
-start = struct('tag', 'start screen', 'half_period', hp_speed,...
-                'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
-                'phase_1st_cycle', 0,... % shift_max is curreently 2.
-                          'cycle', 1);
 
-speed = struct('tag', 'speed', 'half_period', hp_speed,...
-                'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
-                'phase_1st_cycle', [],... % shift_max is curreently 2.
-                          'cycle', 1,...
-                      'shift_max', {  6,  12,  18, 24,  36,  48},...  % in phase. 1.6s transition
-                'shift_per_frame', {.25, .50, .75,  1., 1.5, 2}); % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
 
-%
-stim = [];
-stim = addStruct(stim, start);
-stim = addStruct(stim, speed);
-%
-ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
-
-%% Speed tuning: 2400 um aperture
-ex_title = 'speed';
- n_repeats = 10;
-hp_speed = 2.5;
-sizeCenter = 2.4;
-%
-start = struct('tag', 'start screen', 'half_period', hp_speed,...
-                'ndims', [40,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
-                'phase_1st_cycle', 0,... % shift_max is curreently 2.
-                          'cycle', 1);
-
-speed = struct('tag', 'speed', 'half_period', hp_speed,...
-                'ndims', [40,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
-                'phase_1st_cycle', [],... % shift_max is curreently 2.
-                          'cycle', 1,...
-                      'shift_max', {6,  12,  18, 24,  36,  48},...  % in phase. 1.6s transition
-                'shift_per_frame', {.25, .50, .75,  1., 1.5, 2.}); % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
-
-%
-stim = [];
-stim = addStruct(stim, start);
-stim = addStruct(stim, speed);
-%
-ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 %% Typing stimulus (generalized checker stimulus)
 ex_title = 'typing';
  n_repeats = 5;
@@ -251,17 +239,6 @@ n_repeats = 10;
 moving_bar('barColor', 'dark','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'angle_every', 45, 'N_repeat', 8 * n_repeats); 
 %%
 moving_bar('barColor','white','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'angle_every', 45, 'N_repeat', 8 * n_repeats);
-
-%% Full-fild WN (Gaussian): Linear vs Nonlinear populations
-ex_title = 'Uniform_Whitenoise_UV';
-debug_exp = false;
-% Full-field (2 mean level) Gaussian Whitenoise [5 min each]: temporal filter change?
-wn_params = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,... 
-                'ndims', [1,1], 'dist', 'gaussian', 'contrast', 0.35,... 
-                'length', 5, 'w_mean', {1.0, 0.2}, 'c_mask', [0, 1, 0]); k = length(wn_params);
-params = wn_params;
-%
-run_stims
 
 %% Bar (color) whitenoise across the dorsal-ventral direction            
 ex_title = 'Bar_1d_wn_Color';
