@@ -154,6 +154,8 @@ ex.disp.offset_y = round( (y0/100) * PIXELS_PER_100_MICRONS(ex.rig_name) );
 ex.disp.dstrect      = CenterRectOnPoint(...	% Stimulus destination rectangle
   [0 0 ex.disp.aperturesize ex.disp.aperturesize], ...
   ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);
+% dstrect for integer-px-optimized size can be different
+% See function naturalmovie2.m.
 
 % missed flips
 ex.disp.missedflips = [];

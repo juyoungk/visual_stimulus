@@ -111,6 +111,9 @@ function ex = whitenoise(ex, replay)
     else
       error(['Distribution ' me.dist ': not recognized! Must be gaussian or binary.']);
     end
+    
+    frame = color_matrix(frame * weight_mean, ex.disp.graycolor);
+    frame = uint8(frame);
 
     if replay
       
@@ -119,11 +122,11 @@ function ex = whitenoise(ex, replay)
 %       else
           % write the frame to the hdf5 file
           %h5write(ex.filename, [ex.group '/stim'], uint8(ex.disp.gray * frame), [1, 1, fi], [me.ndims, 1]);
-          h5write(ex.filename, [ex.group '/stim'], uint8(ex.disp.gray * weight_mean * frame), [ones(1, Ndims), fi], [me.ndims, 1]);
+          h5write(ex.filename, [ex.group '/stim'], frame, [ones(1, Ndims), fi], [me.ndims, 1]);
     else
         
       % make the texture
-      texid = Screen('MakeTexture', ex.disp.winptr, uint8(ex.disp.gray * weight_mean * frame));
+      texid = Screen('MakeTexture', ex.disp.winptr, frame);
     
       % draw the texture, then kill it
       Screen('DrawTexture', ex.disp.winptr, texid, [], dstrect, 0, 0);
@@ -135,13 +138,15 @@ function ex = whitenoise(ex, replay)
       % update the photodiode with the top left pixel
       if fi == 1
         pd = ex.disp.pd_color;
+        pdrect = ex.disp.pdrect;
       elseif mod(fi, pd_period) == 1
-        pd = ex.disp.pd_color * 0.3;
+        pd = ex.disp.pd_color;
+        pdrect = ex.disp.pdrect2;
       else  
         pd = 0;
       end
       Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [1 0 0 1]);
-      Screen('FillOval', ex.disp.winptr, pd, ex.disp.pdrect);
+      Screen('FillOval', ex.disp.winptr, pd, pdrect);
       Screen('Blendfunction', ex.disp.winptr, GL_ONE, GL_ZERO, [c_mask 1]);
 
       % flip onto the scren
@@ -166,7 +171,7 @@ function ex = whitenoise(ex, replay)
       % check for ESC
       ex = checkkb(ex);
       if ex.key.keycode(ex.key.esc)
-        fprintf('ESC pressed. Quitting.')
+        fprintf('ESC pressed. Quitting.\n')
         break;
       end
         
@@ -175,3 +180,16 @@ function ex = whitenoise(ex, replay)
   end
   % pause(2);
 end
+
+function C = color_matrix(A, color)
+% color as a weight vector, form a 3D color matrix from 2D matrix A.
+n_channels = numel(color);
+
+C = zeros([size(A), n_channels]);
+
+for c = 1:n_channels
+    C(:,:,c) = color(c) * A(:,:);
+end
+
+end
+

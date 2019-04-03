@@ -31,7 +31,7 @@ ex_title = 'flash';
  n_repeats = 20;
   hp_flash = 3.; % secs
 sizeCenter = 0.6;
-% Laser & gray 20s + flash repeats
+% Laser & gray  20s + flash repeats
 % Laser & gray 300s + flash repeats
 gray_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', 10, 'phase_1st_cycle', 0.5);
 white_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash*0.5, 'phase_1st_cycle', 1);
@@ -49,21 +49,23 @@ ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 % mean change --> temporal filter change?
 ex_title = 'FullField_WhiteNoise';
 debug_exp = false;
+gr_duration = 2; % secs
 % 2 contrast levels
 h_contrast = 0.35;
 l_contrast = 0.10;
 contrast = {h_contrast, l_contrast, h_contrast, l_contrast, h_contrast, l_contrast, h_contrast};
 duration = {      0.25,       0.25,       0.25,       0.25,       0.25,       0.25,          5}; % total 1.5 + 5 min.
-% PD trigger: every framerate(20) ~ 1s
-gr_screen = struct('function', 'grayscreen', 'length', duration, 'c_mask', [0, 1, 1]); 
-wn_params = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,... 
+
+gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1]); % aperturesize gray screen
+wn_params = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,... % PD trigger: every framerate(20) ~ 1s
                 'ndims', [1,1], 'dist', 'gaussian', 'contrast', contrast,...
                 'length', duration, 'w_mean', 1, 'c_mask', [0, 1, 1]); 
 params = addStruct(gr_screen, wn_params);
+%params = wn_params;
 %
 run_stims
 
-%% 1D moving texture (single trial long movie)
+%% 1D naturalistic texture (single trial long movie)
 % ndims is a presentation size. [50, 1] for 1D.
 ex_title = 'natmov_1d_tex';
 debug_exp = 0; 
@@ -72,6 +74,19 @@ params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,..
                     'mov_id', {3,3,3,4,1,4,1},... 
                 'seed', {3,3,4,1,4,8,8}, 'startframe', 200,...  % different seed number?
                 'ndims', [50, 1], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
+                'c_mask', [0, 1, 1]); 
+% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
+run_stims
+
+%% Natural movies (single trial long movie)
+% ndims is a presentation size. [50, 1] for 1D.
+ex_title = 'natmov';
+debug_exp = 0; 
+params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
+                'repeat', 1, 'length', 5,...% mins. max duration for each movie.  
+                    'mov_id', {3,3,3,4,1,4,1},... 
+                'seed', {3,3,4,1,4,8,8}, 'startframe', 200,...  % different seed number?
+                'ndims', [50, 50], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
                 'c_mask', [0, 1, 1]); 
 % script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
 run_stims

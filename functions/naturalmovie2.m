@@ -25,7 +25,7 @@ function ex = naturalmovie2(ex, replay, movies)
 % Optional parameters:
 %   seed : int (for the random number generator. Default: 0)
 %
-% Movie file format: [frame, rows, cols]. already rescaled. 
+% Movie file format: [frame, rows, cols]. Needed rescaled to [0 255]?
   
   disp(' ');
   
@@ -329,7 +329,6 @@ function ex = naturalmovie2(ex, replay, movies)
             % subpart of the image
                 %frame = img(xstart:(xstart + ndims_sampling(1) - 1), ystart:(ystart + ndims_sampling(2) - 1)) * me.contrast + (1 - me.contrast) * ex.disp.gray;
             % no contrast option.
-            %  .* ex.disp.whitecolor ? white direction....
             frame = img(i_row:i_row_end, i_col:i_col_end,   :);
 
             % downsampling (more natural fixational eye movement with same variance)
@@ -337,6 +336,7 @@ function ex = naturalmovie2(ex, replay, movies)
             
             % Color weithgt or redirection for gray scale. (only for
             % gray-scle mov. Further dev is needed.)
+            % range is [0, 1] or [0, 255]?
             frameRedirected = color_matrix(frame, ex.disp.grayvector);
 
             if replay
