@@ -1,4 +1,4 @@
-function ex = initdisp(ex, x0, y0, varargin)
+ function ex = initdisp(ex, x0, y0, varargin)
 %
 % FUNCTION ex = initdisp(ex)
 %
@@ -139,8 +139,8 @@ ex.disp.pdrect  = CenterRectOnPoint(ex.disp.pdsize, ...
   ex.disp.winrect(4) * ex.disp.pdctr(2));  
 
 % Juyoung PD setting
-[ex.disp.pdrect,  ex.disp.pd_color] = DefinePD_shift_ex(ex, 'size', 800); % session (big)   trigger
-[ex.disp.pdrect2, ~]                = DefinePD_shift_ex(ex, 'size', 500); %    stim (small) trigger
+[ex.disp.pdrect,  ex.disp.pd_color] = DefinePD_shift_ex(ex, 'size', 900); % session (big)   trigger
+[ex.disp.pdrect2, ~]                = DefinePD_shift_ex(ex, 'size', 400); %    stim (small) trigger
 ex.disp.pdcolor  = [1 0 0] * ex.disp.white;
 ex.disp.pdcolor2 = ex.disp.pdcolor;
 
