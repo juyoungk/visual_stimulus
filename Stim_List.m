@@ -28,20 +28,31 @@ testscreen_colors;
 
 %% Gray (flash phase 0.5) with early (30s) and late (300s) flash repeats: Reliability/Clustering
 ex_title = 'flash';
- n_repeats = 20;
-  hp_flash = 3.; % secs
-sizeCenter = 0.6;
-% Laser & gray  20s + flash repeats
-% Laser & gray 300s + flash repeats
-gray_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', 1, 'phase_1st_cycle', 0.5);
-white_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash*0.5, 'phase_1st_cycle', 1);
-flash = struct('tag', 'flash',        'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
+sizeCenter = 1.2;
+%
+flash_duration = 1.; % secs
+flash_cycles   = 20;  % number of repeats
+% gray adapting screen durations
+short_adapting = 2;
+long_adapting = 2;
+%
+gray_short = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', short_adapting/2., 'phase_1st_cycle', 0.5);
+gray_long  = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', long_adapting/2., 'phase_1st_cycle', 0.5);
+%
+white_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', flash_duration/2., 'phase_1st_cycle', 1);
+flash = struct('tag', 'flash', 'ndims', [1,1], 'cycle', flash_cycles, 'sizeCenter', sizeCenter, 'half_period', flash_duration);
 %
 stim = [];
-stim = addStruct(stim, gray_screen);
+% 1st flash
+stim = addStruct(stim, gray_short);
+stim = addStruct(stim, white_screen);
+stim = addStruct(stim, flash);
+% 2nd flash
+stim = addStruct(stim, gray_long);
 stim = addStruct(stim, white_screen);
 stim = addStruct(stim, flash);
 %
+n_repeats = 1;
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
 %% Full-fild WN (Gaussian): Linear vs Nonlinear populations, Adapting vs non-adapting populations
@@ -49,13 +60,16 @@ ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 % mean change --> temporal filter change?
 ex_title = 'FullField_WhiteNoise';
 debug_exp = 0;
-gr_duration = 5; % secs
+gr_duration = 300; % secs
+wn_duration = 15/60. % min
+wn_long = 5; % min
 % 2 contrast levels
 h_contrast = 0.35;
-l_contrast = 0.10;
-contrast = {l_contrast, h_contrast, l_contrast, h_contrast, l_contrast, h_contrast, l_contrast, h_contrast};
-duration = {      0.25,       0.25,       0.25,       0.25,       0.25,       0.25,       0.25,          1}; % total 1.5 + 5 min.
-
+l_contrast = 0.08;
+contrast = { l_contrast,  h_contrast,  l_contrast,  h_contrast,  l_contrast,  h_contrast,  l_contrast, h_contrast};
+duration = {wn_duration, wn_duration, wn_duration, wn_duration, wn_duration, wn_duration, wn_duration,    wn_long}; % total 1.5 + 5 min.
+%seed = {
+%
 gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1]); % aperturesize gray screen
 wn_params = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,... % PD trigger: every framerate(20) ~ 1s
                 'ndims', [1,1], 'dist', 'gaussian', 'contrast', contrast,...
@@ -70,7 +84,7 @@ run_stims
 ex_title = 'natmov_1d_tex';
 debug_exp = 0;
 %
-gr_duration = 5; % secs
+gr_duration = 300; % secs
 gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1]); % aperturesize gray screen
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'repeat', 1, 'length', 5,...% mins. max duration for each movie.  
@@ -87,10 +101,10 @@ run_stims
 ex_title = 'natmov';
 debug_exp = 0; 
 %
-gr_duration = 3; % secs
+gr_duration = 300; % secs
 gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1]); % aperturesize gray screen
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
-                'repeat', 1, 'length', 0.1,...% mins. max duration for each movie.  
+                'repeat', 1, 'length', 5,...% mins. max duration for each movie.  
                     'mov_id', {3,3,3,4,1,4,1},... 
                 'seed', {3,3,4,1,4,8,8}, 'startframe', 200,...  % different seed number?
                 'ndims', [50, 50], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
@@ -104,25 +118,28 @@ replay
 
 %% Speed tuning: 600 um aperture (or 2400 um?)
 ex_title = 'speed';
- n_repeats = 10;
-hp_speed = 2.5;
+ n_repeats = 8;
+hp_speed = 3.;
 sizeCenter = 0.6;
 ex_title = [ex_title, num2str(sizeCenter)];
 %
-start = struct('tag', 'start screen', 'half_period', hp_speed,...
+gr_duration = 120;
+gray_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', gr_duration/2., 'phase_1st_cycle', 0.5);
+start = struct('tag', 'start screen', 'half_period', hp_speed/2.,...
                 'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
                 'phase_1st_cycle', 0,... % shift_max is curreently 2.
                           'cycle', 1);
 
 speed = struct('tag', 'speed', 'half_period', hp_speed,...
                 'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
-                'phase_1st_cycle', [],... % shift_max is curreently 2.
+                'phase_1st_cycle', [],...
                           'cycle', 1,...
-                      'shift_max', {  6,  12,  18, 24,  36,  48},...  % in phase. 1.6s transition
-                'shift_per_frame', {.25, .50, .75,  1., 1.5, 2}); % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
+                      'shift_max', {  6,  12,  18, 24,  36,  48},... % in phase. 1.6s transition
+                'shift_per_frame', {.25, .50, .75,  1., 1.5, 2});    % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
 
 %
 stim = [];
+stim = addStruct(stim, gray_screen);
 stim = addStruct(stim, start);
 stim = addStruct(stim, speed);
 %
@@ -175,15 +192,15 @@ run_stims
 %% Typing stimulus (generalized checker stimulus)
 ex_title = 'typing';
  n_repeats = 5;
-  hp_flash = 2; % secs
+  flash_duration = 2; % secs
 hp_grating = 2;
 sizeCenter = 0.6;
 
 % ndims=[1,1]: flash mode. Impulse turn on and off.
-flash = struct('tag', 'flash pulse', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', hp_flash);
+flash = struct('tag', 'flash pulse', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', flash_duration);
 annul = struct('tag', { 'Ann1.2', 'Ann1.6'}, 'ndims', [1,1], 'sizeCenter', 0,...
                'Annulus', {1.2,  1.6},...
-                        'w_Annulus', .4, 'half_period', hp_flash);
+                        'w_Annulus', .4, 'half_period', flash_duration);
 % moving annulus? 'Annulus', [1., 2.5]                   
 % Nonlinear spatial summation: RF or Dendritic field size of the bipolar cells ~ 23 um (W3 paper)
 % 14 bars / 640 um ~ width: 50 um
@@ -201,7 +218,7 @@ bgtex = struct('tag', {'bgtex','global','diff'}, 'half_period', hp_grating,...
             'phase_1st_cycle', {    1,    [],     []},...
                       'delay', {    0,     0,   0.25});  % {global, global, diff}
 %            
-blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', hp_flash); 
+blank = struct('tag', ' ', 'ndims', [1,1], 'color', [0 0 0], 'sizeCenter', 0.0, 'half_period', flash_duration); 
 %
 stim = [];
 %stim = addStruct(stim, flash);
