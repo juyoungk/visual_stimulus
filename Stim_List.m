@@ -25,16 +25,15 @@ load_mat_movie_files;
 testscreen_colors;
 %testscreen_annulus;
 
-
 %% Gray (flash phase 0.5) with early (30s) and late (300s) flash repeats: Reliability/Clustering
 ex_title = 'flash';
 sizeCenter = 1.2;
 %
-flash_duration = 1.; % secs
-flash_cycles   = 20;  % number of repeats
+flash_duration = 3.; % secs
+flash_cycles   = 10;  % number of repeats
 % gray adapting screen durations
-short_adapting = 2;
-long_adapting = 2;
+short_adapting = 30;
+long_adapting = 240;
 %
 gray_short = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', short_adapting/2., 'phase_1st_cycle', 0.5);
 gray_long  = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', long_adapting/2., 'phase_1st_cycle', 0.5);
@@ -61,11 +60,11 @@ ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 ex_title = 'FullField_WhiteNoise';
 debug_exp = 0;
 gr_duration = 300; % secs
-wn_duration = 15/60. % min
+wn_duration = 10/60. % min
 wn_long = 5; % min
 % 2 contrast levels
 h_contrast = 0.35;
-l_contrast = 0.08;
+l_contrast = 0.05;
 contrast = { l_contrast,  h_contrast,  l_contrast,  h_contrast,  l_contrast,  h_contrast,  l_contrast, h_contrast};
 duration = {wn_duration, wn_duration, wn_duration, wn_duration, wn_duration, wn_duration, wn_duration,    wn_long}; % total 1.5 + 5 min.
 %seed = {
@@ -84,7 +83,7 @@ run_stims
 ex_title = 'natmov_1d_tex';
 debug_exp = 0;
 %
-gr_duration = 300; % secs
+gr_duration = 240; % secs
 gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1]); % aperturesize gray screen
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'repeat', 1, 'length', 5,...% mins. max duration for each movie.  

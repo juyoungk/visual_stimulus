@@ -113,7 +113,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                     
                     % start screen: 1. push the (big) stim trigger to next k 2. plays only once.
                     if contains(s.tag, 'start screen')
-                        repeat_trigger_k = repeat_trigger_k + 1;
+                        repeat_trigger_k = k + 1; % set next k number for major pd trigger
                         if i > 1 % only play once, not repeating.
                             continue; % Go to next stimulus
                         end
@@ -358,7 +358,7 @@ function ex = stims_repeat(stim, n_repeats, varargin)
                                   if k < repeat_trigger_k
                                     pd = 0; % skip start screen trigger
                                     pdrect = ex.disp.pdrect;
-                                  elseif k == repeat_trigger_k && kk == 1 % repeat trigger 
+                                  elseif kk == 1 % cycle nunber 1 
                                     pd = ex.disp.pd_color;
                                     pdrect = ex.disp.pdrect;
                                   else
