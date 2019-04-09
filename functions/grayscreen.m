@@ -29,6 +29,19 @@ function ex = grayscreen(ex, replay)
   %
   numframes = me.length * framerate;
   
+  % ndims: optimize aperture size according to ndims.
+  if isfield(me, 'ndims')
+      ndims = me.ndims;
+  else
+      ndims = 50;
+  end
+  
+  L = pixel_multiple_aperture_size(ex.disp.aperturesize, ndims);
+  
+  dstrect = CenterRectOnPoint(...	
+                    [0 0 L L], ...
+                    ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
+    
   % weight factor for mean 
 %   if isfield(me, 'w_mean')
 %       weight_mean = me.w_mean;
@@ -47,7 +60,7 @@ function ex = grayscreen(ex, replay)
   for fi = 1:numframes
       
       % gray screen
-      Screen('FillRect', ex.disp.winptr, ex.disp.graycolor, ex.disp.dstrect);
+      Screen('FillRect', ex.disp.winptr, ex.disp.graycolor, dstrect);
       
       % pd
       if fi == 1

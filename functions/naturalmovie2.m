@@ -212,7 +212,7 @@ function ex = naturalmovie2(ex, replay, movies)
                     ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
                 
     % rect for interleaving flashes
-    Center_L = 0.6; % mm
+    Center_L = 0.8; % mm
     Center_px = Center_L * ex.disp.pix_per_um * 1000;
     flash_rect = CenterRectOnPoint(...	
                     [0 0 Center_px Center_px], ...

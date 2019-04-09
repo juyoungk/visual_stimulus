@@ -38,6 +38,14 @@ function ex = whitenoise(ex, replay)
       rs = getrng();
     end
     ex.stim{end}.seed = rs.Seed;
+    
+    if ~isfield(me, 'dist')
+        me.dist = 'gaussian';
+    end
+    
+    if ~isfield(me, 'contrast')
+        me.contrast = 0.35;
+    end
 
     % compute flip times from the desired frame rate and length
     if me.framerate > ex.disp.frate
