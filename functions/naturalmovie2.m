@@ -337,7 +337,7 @@ function ex = naturalmovie2(ex, replay, movies)
             % Color weithgt or redirection for gray scale. (only for
             % gray-scle mov. Further dev is needed.)
             % range is [0, 1] or [0, 255]?
-            frameRedirected = color_matrix(frame, ex.disp.grayvector);
+            frameRedirected = color_matrix(frame, uint8(ex.disp.grayvector)); % uint8 to grayvector 0425 2019
 
             if replay
               % write the frame to the hdf5 file (no mask or weight factor)

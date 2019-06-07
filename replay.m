@@ -71,6 +71,10 @@ for stimidx = 1:numstim
       % group name
       disp(['stim id: ', num2str(stimidx)]);
       group = ['/expt', num2str(stimidx)];
+      
+      if contains(stim.function, 'grayscreen')
+          continue;
+      end
         
       % Default scale factor for sampling stimulus movie
       if ~isfield(me, 'sampling_scale')

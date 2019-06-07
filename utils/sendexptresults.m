@@ -34,12 +34,14 @@ else
   % Check missed flips
   for stimidx = 1:length(ex.stim)
       
-      if iscell(ex.stim)
+      if iscell(ex.stim) && isfield(ex.stim{stimidx}, 'framerate') 
           frametime = 1 / (ex.stim{stimidx}.framerate); % inter-frame interval
           %frametime = 1 / (ex.disp.ifi*ex.stim{stimidx}.waitframes);
           %frametime = 1 / (ex.disp.ifi*ex.stim{stimidx}.params.waitframes); % 1001 Juyoung
-      elseif isstruct(ex.stim)
+      elseif isstruct(ex.stim)  && isfield(ex.stim(stimidx), 'framerate')
           frametime = 1 / (ex.stim(stimidx).framerate); % inter-frame interval
+      else
+          framerate = 30;
       end
 
       % fraction of missed flips

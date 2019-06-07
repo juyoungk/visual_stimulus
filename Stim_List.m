@@ -29,10 +29,10 @@ testscreen_colors;
 ex_title = 'flash';
 sizeCenter = 0.8;
 %
-flash_duration = 3; % secs
+flash_duration = 3; % sec1
 flash_cycles   = 10;  % number of repeats
 % gray adapting screen durations
-short_adapting = 30;
+short_adapting = 10; %30;
 long_adapting = 240;
 %
 gray_short = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', short_adapting/2., 'phase_1st_cycle', 0.5);
@@ -47,19 +47,40 @@ stim = addStruct(stim, gray_short);
 stim = addStruct(stim, white_screen); % half period
 stim = addStruct(stim, flash);
 % 2nd flash
-stim = addStruct(stim, gray_long);
-stim = addStruct(stim, white_screen);
-stim = addStruct(stim, flash);
+%stim = addStruct(stim, gray_long);
+%stim = addStruct(stim, white_screen);
+%stim = addStruct(stim, flash);
 %
 n_repeats = 1;
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
+
+%% WN (Gaussian):
+% contrast = STD/mean. 0.35 to 0.05 for Baccus and Meister 2002 
+% mean change --> temporal filter change?
+ex_title = 'GaussianCheckers';
+debug_exp = 0;
+gr_duration = 3; % secs
+wn_long = 10; % min
+% 2 contrast levels
+h_contrast = 0.35;
+contrast = {h_contrast};
+duration = { wn_long}; % total 1.5 + 5 min.
+%
+gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1], 'ndims', 50); % aperturesize gray screen
+wn_params = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,... % PD trigger: every framerate(20) ~ 1s
+                'ndims', [35,35,3], 'dist', 'gaussian', 'contrast', contrast,...
+                'length', duration, 'w_mean', 1, 'c_mask', [0, 1, 1]); 
+params = addStruct(gr_screen, wn_params);
+%params = wn_params;
+%
+run_stims
 
 %% Full-fild WN (Gaussian): Linear vs Nonlinear populations, Adapting vs non-adapting populations
 % contrast = STD/mean. 0.35 to 0.05 for Baccus and Meister 2002 
 % mean change --> temporal filter change?
 ex_title = 'FullField_WhiteNoise';
 debug_exp = 0;
-gr_duration = 300; % secs
+gr_duration = 180; % secs
 wn_duration = 15/60. % min
 wn_long = 5; % min
 % 2 contrast levels
@@ -107,10 +128,15 @@ gr_duration = 240; % secs
 wn_duration = 3; % min. fixed.
 na_duration = 5; % min. max for each movie.
 
-sequence = {'whitenoise', 'naturalmovie2', 'whitenoise', 'naturalmovie2', 'whitenoise', 'naturalmovie2'};
-duration = {wn_duration,      na_duration,  wn_duration,     na_duration,  wn_duration,   na_duration*2};
-mov_ids =  {          0,            [3,1],            0,            [3,4],           0,         [1,4,3]};
-seeds =    {          0,                3,            1,                4,           2,              8};
+% sequence = {'whitenoise', 'naturalmovie2', 'whitenoise', 'naturalmovie2', 'whitenoise', 'naturalmovie2'};
+% duration = {wn_duration,      na_duration,  wn_duration,     na_duration,  wn_duration,   na_duration*2};
+% mov_ids =  {          0,            [3,1],            0,            [4,3],           0,         [1,4,3]};
+% seeds =    {          0,                3,            1,                8,           2,              4};
+
+sequence = {'whitenoise', 'naturalmovie2', 'whitenoise', 'naturalmovie2'};
+duration = {wn_duration,      na_duration,  wn_duration,     na_duration};
+mov_ids =  {          0,            [3,1],            0,            [4,3]};
+seeds =    {          0,                3,            1,                8};
 
 gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1], 'ndims', 50); % aperturesize gray screen
 params = struct('function', sequence, 'framerate', 30, 'jumpevery', 60,... 
@@ -146,12 +172,12 @@ replay
 
 %% Speed tuning: 600 um aperture (or 2400 um?)
 ex_title = 'speed';
- n_repeats = 8;
+ n_repeats = 5;
 hp_speed = 3.;
 sizeCenter = 0.6;
 ex_title = [ex_title, num2str(sizeCenter)];
 %
-gr_duration = 120;
+gr_duration = 180;
 gray_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', gr_duration/2., 'phase_1st_cycle', 0.5);
 start = struct('tag', 'start screen', 'half_period', hp_speed/2.,...
                 'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 

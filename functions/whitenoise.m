@@ -27,7 +27,6 @@ function ex = whitenoise(ex, replay)
     % shortcut for parameters
     me = ex.stim{end}.params;
     
-
     % initialize the VBL timestamp
     vbl = GetSecs();
 
@@ -61,7 +60,7 @@ function ex = whitenoise(ex, replay)
     ex.stim{end}.numframes = numframes;
     
     % store timestamps
-    ex.stim{end}.timestamps = zeros(ex.stim{end}.numframes,1);
+    ex.stim{end}.timestamps = zeros(ex.stim{end}.numframes, 1);
     
     % Make HiDens masking texture
     %ex = get_hidens_mask(ex);
@@ -100,6 +99,8 @@ function ex = whitenoise(ex, replay)
   else
       weight_mean = 1;
   end
+
+  
   
   % loop over frames
   for fi = 1:numframes
@@ -120,19 +121,27 @@ function ex = whitenoise(ex, replay)
       error(['Distribution ' me.dist ': not recognized! Must be gaussian or binary.']);
     end
     
-    frame = color_matrix(frame * weight_mean, ex.disp.graycolor);
-    frame = uint8(frame);
-
     if replay
-      
 %       if ndims(frame) == 3
 %           h5write(ex.filename, [ex.group '/stim'], uint8(ex.disp.gray * frame), [1, 1, 1, fi], [[me.ndims, 3], 1]);
 %       else
           % write the frame to the hdf5 file
           %h5write(ex.filename, [ex.group '/stim'], uint8(ex.disp.gray * frame), [1, 1, fi], [me.ndims, 1]);
+          frame = uint8(frame);
           h5write(ex.filename, [ex.group '/stim'], frame, [ones(1, Ndims), fi], [me.ndims, 1]);
     else
-        
+        % apply grayvector
+        if Ndims < 3
+            frame = color_matrix(frame * weight_mean, ex.disp.graycolor); % 1D, 2D -> 3D matrix
+            Ndims = 3;
+            me.ndims = [me.ndims, 3];
+        elseif Ndims == 3
+            frame = color_weight(frame * weight_mean, ex.disp.graycolor); %
+        else
+            error('Too large dims (>3) for whitenoise presentation.');
+        end
+        frame = uint8(frame);
+
       % make the texture
       texid = Screen('MakeTexture', ex.disp.winptr, frame);
     
@@ -201,3 +210,19 @@ end
 
 end
 
+function C = color_weight(A, color)
+% color as a weight vector.
+    if ndims(A) ~= 3
+        error('Input A should have dim 3 color matrix');
+    end
+    n = numel(color);
+    n_channel = size(A, 3);
+    if n ~= n_channel
+        error('# of color channels should be same for A and color vector');
+    end
+    C = zeros(size(A));
+
+    for c = 1:n
+        C(:,:,c) = color(c) * A(:,:,c);
+    end
+end
