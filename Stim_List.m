@@ -32,7 +32,7 @@ sizeCenter = 0.8;
 flash_duration = 3; % sec1
 flash_cycles   = 10;  % number of repeats
 % gray adapting screen durations
-short_adapting = 10; %30;
+short_adapting = 30; %30;
 long_adapting = 240;
 %
 gray_short = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', short_adapting/2., 'phase_1st_cycle', 0.5);
@@ -47,9 +47,9 @@ stim = addStruct(stim, gray_short);
 stim = addStruct(stim, white_screen); % half period
 stim = addStruct(stim, flash);
 % 2nd flash
-%stim = addStruct(stim, gray_long);
-%stim = addStruct(stim, white_screen);
-%stim = addStruct(stim, flash);
+stim = addStruct(stim, gray_long);
+stim = addStruct(stim, white_screen);
+stim = addStruct(stim, flash);
 %
 n_repeats = 1;
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
@@ -124,7 +124,7 @@ run_stims
 ex_title = 'nat_vs_wn_2d';
 debug_exp = 0;
 %
-gr_duration = 240; % secs
+gr_duration = 200; % secs
 wn_duration = 3; % min. fixed.
 na_duration = 5; % min. max for each movie.
 
@@ -137,6 +137,7 @@ sequence = {'whitenoise', 'naturalmovie2', 'whitenoise', 'naturalmovie2'};
 duration = {wn_duration,      na_duration,  wn_duration,     na_duration};
 mov_ids =  {          0,            [3,1],            0,            [4,3]};
 seeds =    {          0,                3,            1,                8};
+%seeds =    {          1,                5,            1,                9};
 
 gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1], 'ndims', 50); % aperturesize gray screen
 params = struct('function', sequence, 'framerate', 30, 'jumpevery', 60,... 
