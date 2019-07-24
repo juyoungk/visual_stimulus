@@ -32,7 +32,7 @@ sizeCenter = 0.8;
 flash_duration = 3; % sec1
 flash_cycles   = 10;  % number of repeats
 % gray adapting screen durations
-short_adapting = 30; %30;
+short_adapting = 60; %30;
 long_adapting = 240;
 %
 gray_short = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', short_adapting/2., 'phase_1st_cycle', 0.5);
@@ -104,7 +104,7 @@ run_stims
 ex_title = 'natmov_1d_tex';
 debug_exp = 0;
 %
-gr_duration = 240; % secs. 
+gr_duration = 0; % secs. 
 gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1], 'ndims', 50); % aperturesize gray screen
 params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
                 'repeat', 1, 'length', 5,...% mins. max duration for each movie.  

@@ -212,11 +212,14 @@ function ex = naturalmovie2(ex, replay, movies)
                     ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y); 
                 
     % rect for interleaving flashes
-    Center_L = 0.8; % mm
+    Center_L = 1.2; % mm
     Center_px = Center_L * ex.disp.pix_per_um * 1000;
     flash_rect = CenterRectOnPoint(...	
                     [0 0 Center_px Center_px], ...
                     ex.disp.winctr(1)+ex.disp.offset_x, ex.disp.winctr(2)+ex.disp.offset_y);             
+    % temporal info for the gray flash 
+    half_period_for_flash = 2.5; % secs
+    numPulseFrames = 5;
 
     % display size info
     ex.disp.aperturesize_movies_mm = [Lx Ly] * ex.disp.umperpix/1000.;
@@ -253,8 +256,6 @@ function ex = naturalmovie2(ex, replay, movies)
         
         %% start stimulus - gray with flash pulses.
         if ~replay
-            half_period_for_flash = 2; % secs
-            numPulseFrames = 2;
             n_frames_per_cycle = ex.stim{end}.framerate * half_period_for_flash * 2;
             i_frame_off = round(n_frames_per_cycle/2.) + 1;
             pd = ex.disp.pd_color;
