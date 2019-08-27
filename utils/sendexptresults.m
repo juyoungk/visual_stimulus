@@ -80,5 +80,5 @@ fprintf(expStr);
 
 % Notify via pushover, only if experiment not quit early
 if ~(isa(ex.me, 'MException') && strcmp(ex.me.identifier, 'checkesc:escpressed'))
-  send('Experiment results', expStr);
+  %send('Experiment results', expStr);
 end

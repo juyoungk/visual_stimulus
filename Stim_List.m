@@ -27,13 +27,13 @@ testscreen_colors;
 
 %% Gray (flash phase 0.5) with early (30s) and late (300s) flash repeats: Reliability/Clustering
 ex_title = 'flash';
-sizeCenter = 0.8;
+sizeCenter = 0.70;
 %
-flash_duration = 3; % sec1
-flash_cycles   = 10;  % number of repeats
+flash_duration = 2; % sec1
+flash_cycles   = 500;  % number of repeats
 % gray adapting screen durations
-short_adapting = 60; %30;
-long_adapting = 240;
+short_adapting = 0; %30;
+long_adapting = 60;
 %
 gray_short = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', short_adapting/2., 'phase_1st_cycle', 0.5);
 gray_long  = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', long_adapting/2., 'phase_1st_cycle', 0.5);
@@ -53,6 +53,134 @@ stim = addStruct(stim, flash);
 %
 n_repeats = 1;
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
+
+%% Speed tuning: Motion flash? Compare with the flash clustering
+ex_title = 'speed';
+ n_repeats = 5;
+hp_speed = 3.;
+sizeCenter = .70;
+ex_title = [ex_title, num2str(sizeCenter)];
+%
+gr_duration = 60;
+gray_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', gr_duration/2., 'phase_1st_cycle', 0.5);
+start = struct('tag', 'start screen', 'half_period', hp_speed/2.,...
+                'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'phase_1st_cycle', 0,... % shift_max is curreently 2.
+                          'cycle', 1);
+
+speed = struct('tag', 'speed', 'half_period', hp_speed,...
+                'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'phase_1st_cycle', [],...
+                          'cycle', 1,...
+                      'shift_max', {  6,  12,  18, 24,  36,  48},... % in phase. 1.6s transition
+                'shift_per_frame', {.25, .50, .75,  1., 1.5, 2});    % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
+
+%
+stim = [];
+stim = addStruct(stim, gray_screen);
+stim = addStruct(stim, start);
+stim = addStruct(stim, speed);
+%
+ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
+
+%% Step motion stimulus: Probing nonlinearity and Peripheral inputs
+ex_title = 'tex steps';
+ n_repeats = 5;
+hp_grating = 3;
+sizeCenter = .70;
+gr_duration = 30;
+%
+gray_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', gr_duration/2., 'phase_1st_cycle', 0.5);
+start = struct('tag', 'start screen', 'half_period', hp_grating,...
+                'ndims', [14,1], 'sizeCenter', sizeCenter, 'BG', 1.6,...
+                'draw_center', false, 'phase_1st_cycle', 1); % shift_max is curreently 2.
+                          
+bgtex = struct('tag', {'bgtex','global','diff'}, 'half_period', hp_grating,...
+                'ndims', [14,1], 'sizeCenter', sizeCenter, 'BG', 1.6,...
+                'draw_center', {false,  true,   true},...% {B , C+B, C+B}
+                      'cycle', 2,... 
+                      'delay', {    0,     0,   0.25});  % {global, global, diff} delay for BG. 
+% bg texture input: long range > 1 mm input can exist?
+% [row col] convension. [14, 1] is along up-down direction (Dorsal-Ventral)
+%
+stim = [];
+stim = addStruct(stim, gray_screen);
+stim = addStruct(stim, start);
+stim = addStruct(stim, bgtex);
+%
+ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
+
+%% 1D naturalistic texture (single trial long movie): 1D model using natural scenes
+% ndims is a presentation size. [50, 1] for 1D.
+ex_title = 'natmov_1d_tex';
+debug_exp = 0;
+%
+gr_duration = 60; % secs. 
+gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1], 'ndims', 50); % aperturesize gray screen
+params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
+                'repeat', 1, 'length', 5,...% mins. max duration for each movie.  
+                'mov_id', {3,1,3,4,1,4,1},... 
+                  'seed', {3,3,4,1,4,8,8}, 'startframe', 200,...  % different seed number?
+                 'ndims', [50, 1], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
+                'c_mask', [0, 1, 1]);
+params = addStruct(gr_screen, params);
+% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
+run_stims
+
+%% 1D Nat mov vs whitenoise. 2D.
+% mov1 - honet
+% mov2 - Birds
+% mov3 - Falcon
+% mov4 - Mudskipper
+ex_title = 'nat_vs_wn_2d';
+debug_exp = 0;
+%
+gr_duration = 1; % secs
+wn_duration = 3; % min. fixed.
+na_duration = 5; % min. max for each movie.
+
+% sequence = {'whitenoise', 'naturalmovie2', 'whitenoise', 'naturalmovie2', 'whitenoise', 'naturalmovie2'};
+% duration = {wn_duration,      na_duration,  wn_duration,     na_duration,  wn_duration,   na_duration*2};
+% mov_ids =  {          0,            [3,1],            0,            [4,3],           0,         [1,4,3]};
+% seeds =    {          0,                3,            1,                8,           2,              4};
+
+sequence = {'whitenoise', 'naturalmovie2', 'whitenoise', 'naturalmovie2'};
+duration = {wn_duration,      na_duration,  wn_duration,     na_duration};
+mov_ids =  {          0,            [3,1],            0,            [4,3]};
+seeds =    {          0,                3,            1,                8};
+%seeds =    {          1,                5,            1,                9};
+
+gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1], 'ndims', 50); % aperturesize gray screen
+params = struct('function', sequence, 'framerate', 30, 'jumpevery', 60,... 
+                'repeat', 1, 'length', duration,...% mins. max duration for each movie.  
+                'mov_id', mov_ids, 'startframe', 200, 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
+                  'seed', seeds,... 
+                  'dist', 'gaussian', 'contrast', 0.35,...
+                 'ndims', [50, 1], ... 
+                'c_mask', [0, 1, 1]); 
+params = addStruct(gr_screen, params);
+% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
+run_stims
+
+%% Natural movies (single trial long movie): 2D model using natural scenes.
+% ndims is a presentation size. [50, 1] for 1D.
+ex_title = 'natmov';
+debug_exp = 0; 
+%
+gr_duration = 240; % secs
+gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1]); % aperturesize gray screen
+params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
+                'repeat', 1, 'length', 5,...% mins. max duration for each movie.  
+                'mov_id', {3,3,3,4,1,4,1},... 
+                  'seed', {3,3,4,1,4,8,8}, 'startframe', 200,...  % different seed number?
+                 'ndims', [50, 50], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
+                'c_mask', [0, 1, 1]); 
+params = addStruct(gr_screen, params);
+% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
+run_stims
+
+%%
+replay
 
 %% WN (Gaussian):
 % contrast = STD/mean. 0.35 to 0.05 for Baccus and Meister 2002 
@@ -99,131 +227,6 @@ params = addStruct(gr_screen, wn_params);
 %
 run_stims
 
-%% 1D naturalistic texture (single trial long movie): 1D model using natural scenes
-% ndims is a presentation size. [50, 1] for 1D.
-ex_title = 'natmov_1d_tex';
-debug_exp = 0;
-%
-gr_duration = 0; % secs. 
-gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1], 'ndims', 50); % aperturesize gray screen
-params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
-                'repeat', 1, 'length', 5,...% mins. max duration for each movie.  
-                'mov_id', {3,1,3,4,1,4,1},... 
-                  'seed', {3,3,4,1,4,8,8}, 'startframe', 200,...  % different seed number?
-                 'ndims', [50, 1], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
-                'c_mask', [0, 1, 1]);
-params = addStruct(gr_screen, params);
-% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
-run_stims
-
-%% Nat mov vs whitenoise. 2D.
-% mov1 - honet
-% mov2 - Birds
-% mov3 - Falcon
-% mov4 - Mudskipper
-ex_title = 'nat_vs_wn_2d';
-debug_exp = 0;
-%
-gr_duration = 200; % secs
-wn_duration = 3; % min. fixed.
-na_duration = 5; % min. max for each movie.
-
-% sequence = {'whitenoise', 'naturalmovie2', 'whitenoise', 'naturalmovie2', 'whitenoise', 'naturalmovie2'};
-% duration = {wn_duration,      na_duration,  wn_duration,     na_duration,  wn_duration,   na_duration*2};
-% mov_ids =  {          0,            [3,1],            0,            [4,3],           0,         [1,4,3]};
-% seeds =    {          0,                3,            1,                8,           2,              4};
-
-sequence = {'whitenoise', 'naturalmovie2', 'whitenoise', 'naturalmovie2'};
-duration = {wn_duration,      na_duration,  wn_duration,     na_duration};
-mov_ids =  {          0,            [3,1],            0,            [4,3]};
-seeds =    {          0,                3,            1,                8};
-%seeds =    {          1,                5,            1,                9};
-
-gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1], 'ndims', 50); % aperturesize gray screen
-params = struct('function', sequence, 'framerate', 30, 'jumpevery', 60,... 
-                'repeat', 1, 'length', duration,...% mins. max duration for each movie.  
-                'mov_id', mov_ids, 'startframe', 200, 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
-                  'seed', seeds,... 
-                  'dist', 'gaussian', 'contrast', 0.35,...
-                 'ndims', [50, 50], ... 
-                'c_mask', [0, 1, 1]); 
-params = addStruct(gr_screen, params);
-% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
-run_stims
-
-%% Natural movies (single trial long movie): 2D model using natural scenes.
-% ndims is a presentation size. [50, 1] for 1D.
-ex_title = 'natmov';
-debug_exp = 0; 
-%
-gr_duration = 240; % secs
-gr_screen = struct('function', 'grayscreen', 'length', gr_duration, 'c_mask', [0, 1, 1]); % aperturesize gray screen
-params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,... 
-                'repeat', 1, 'length', 5,...% mins. max duration for each movie.  
-                'mov_id', {3,3,3,4,1,4,1},... 
-                  'seed', {3,3,4,1,4,8,8}, 'startframe', 200,...  % different seed number?
-                 'ndims', [50, 50], 'jitter', 0.5, 'sampling_scale', 2,... % 'ndims' & 'jitter' in presentation (stimulus) domain.
-                'c_mask', [0, 1, 1]); 
-params = addStruct(gr_screen, params);
-% script for playing stimulus. 'params' & 'ex_title' should be defined in advance.
-run_stims
-
-%%
-replay
-
-%% Speed tuning: 600 um aperture (or 2400 um?)
-ex_title = 'speed';
- n_repeats = 5;
-hp_speed = 3.;
-sizeCenter = 0.6;
-ex_title = [ex_title, num2str(sizeCenter)];
-%
-gr_duration = 180;
-gray_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', gr_duration/2., 'phase_1st_cycle', 0.5);
-start = struct('tag', 'start screen', 'half_period', hp_speed/2.,...
-                'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
-                'phase_1st_cycle', 0,... % shift_max is curreently 2.
-                          'cycle', 1);
-
-speed = struct('tag', 'speed', 'half_period', hp_speed,...
-                'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
-                'phase_1st_cycle', [],...
-                          'cycle', 1,...
-                      'shift_max', {  6,  12,  18, 24,  36,  48},... % in phase. 1.6s transition
-                'shift_per_frame', {.25, .50, .75,  1., 1.5, 2});    % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
-
-%
-stim = [];
-stim = addStruct(stim, gray_screen);
-stim = addStruct(stim, start);
-stim = addStruct(stim, speed);
-%
-ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
-
-%% Step motion stimulus 
-ex_title = 'tex steps';
- n_repeats = 8;
-hp_grating = 2.5;
-sizeCenter = .6;
-%
-start = struct('tag', 'start screen', 'half_period', hp_grating,...
-                'ndims', [14,1], 'sizeCenter', sizeCenter, 'BG', 1.6,...
-                'draw_center', false, 'phase_1st_cycle', 1); % shift_max is curreently 2.
-                          
-bgtex = struct('tag', {'bgtex','global','diff'}, 'half_period', hp_grating,...
-                'ndims', [14,1], 'sizeCenter', sizeCenter, 'BG', 1.6,...
-                'draw_center', {false,  true,   true},...% {B , C+B, C+B}
-                      'cycle', 2,... 
-                      'delay', {    0,     0,   0.25});  % {global, global, diff}
-% bg texture input: long range > 1 mm input can exist?
-% [row col] convension. [14, 1] is along up-down direction (Dorsal-Ventral)
-%
-stim = [];
-stim = addStruct(stim, start);
-stim = addStruct(stim, bgtex);
-%
-ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
-
 %% Reliability: 1D moving texture (5 repeats): only for 24s
 % 'ndims': presentation (stimulus) space
 % 'jitter': variance of jitter in presentation space.
@@ -240,9 +243,6 @@ params = struct('function', 'naturalmovie2', 'framerate', 30, 'jumpevery', 60,..
                 % subimage sampling dim = ndims * scale.
                 % dst rect (or aperture) size = m (integer) * Presentation dim.
 run_stims
-
-
-
 
 %% Typing stimulus (generalized checker stimulus)
 ex_title = 'typing';
@@ -345,11 +345,6 @@ wn_params = struct('function', 'whitenoise', 'framerate', 20, 'seed', 0,...
 params = wn_params;
 %
 run_stims
-
-
-%%
-replay % for runjuyoung
-
 
 %% Whitenoise and natural movie stimulus
 % intensity factor = 0.7 @ initdisp (0306 2018)
