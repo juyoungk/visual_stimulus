@@ -30,9 +30,9 @@ ex_title = 'flash';
 sizeCenter = 0.70;
 %
 flash_duration = 2; % sec1
-flash_cycles   = 500;  % number of repeats
+flash_cycles   = 10;  % number of repeats
 % gray adapting screen durations
-short_adapting = 0; %30;
+short_adapting = 60; %30;
 long_adapting = 60;
 %
 gray_short = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', short_adapting/2., 'phase_1st_cycle', 0.5);
@@ -54,11 +54,40 @@ stim = addStruct(stim, flash);
 n_repeats = 1;
 ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
 
-%% Speed tuning: Motion flash? Compare with the flash clustering
-ex_title = 'speed';
- n_repeats = 5;
-hp_speed = 3.;
-sizeCenter = .70;
+%% Speed tuning (large grating): Motion flash? Compare with the flash clustering
+ex_title = 'speed_w320um';
+ n_repeats = 4;
+hp_speed = 5.;
+sizeCenter = .80;
+ex_title = [ex_title, num2str(sizeCenter)];
+%
+gr_duration = 60;
+gray_screen = struct('tag', 'start screen', 'ndims', [1,1], 'sizeCenter', sizeCenter, 'half_period', gr_duration/2., 'phase_1st_cycle', 0.5);
+start = struct('tag', 'start screen', 'half_period', hp_speed/2.,...
+                'ndims', [3,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'phase_1st_cycle', 0,... % shift_max is curreently 2.
+                          'cycle', 1);
+
+speed = struct('tag', 'speed', 'half_period', hp_speed,...
+                'ndims', [3,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
+                'phase_1st_cycle', [],...
+                          'cycle', 1,...
+                      'shift_max', { 4,  8,  12,  16,  24,  32},... % in phase. 1.6s transition, {  6,  12,  18, 24,  36,  48}
+                'shift_per_frame', {.25, .50, .75,  1., 1.5, 2});     % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
+
+%
+stim = [];
+stim = addStruct(stim, gray_screen);
+stim = addStruct(stim, start);
+stim = addStruct(stim, speed);
+%
+ex = stims_repeat(stim, n_repeats, 'title', ex_title, 'debug', 0, 'mode', '');
+
+%% Speed tuning (nonlinear activation): Motion flash? Compare with the flash clustering
+ex_title = 'speed_w85um';
+ n_repeats = 4;
+hp_speed = 5.;
+sizeCenter = .80;
 ex_title = [ex_title, num2str(sizeCenter)];
 %
 gr_duration = 60;
@@ -72,8 +101,8 @@ speed = struct('tag', 'speed', 'half_period', hp_speed,...
                 'ndims', [10,1], 'sizeCenter', sizeCenter,...%'BG', 1.6,... 
                 'phase_1st_cycle', [],...
                           'cycle', 1,...
-                      'shift_max', {  6,  12,  18, 24,  36,  48},... % in phase. 1.6s transition
-                'shift_per_frame', {.25, .50, .75,  1., 1.5, 2});    % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
+                      'shift_max', {  6,  12,  18, 24,  36,  48},... % in phase. 1.6s transition, {  6,  12,  18, 24,  36,  48}
+                'shift_per_frame', {.25, .50, .75,  1., 1.5, 2});     % in px.(~ speed). 1 px * 21um * 60 Hz = 1260 um/s.
 
 %
 stim = [];
@@ -132,10 +161,10 @@ run_stims
 % mov2 - Birds
 % mov3 - Falcon
 % mov4 - Mudskipper
-ex_title = 'nat_vs_wn_2d';
+ex_title = 'nat_vs_wn_1d';
 debug_exp = 0;
 %
-gr_duration = 1; % secs
+gr_duration = 30; % secs
 wn_duration = 3; % min. fixed.
 na_duration = 5; % min. max for each movie.
 
@@ -330,10 +359,11 @@ ex_ff_noise = stims_repeat(stim_noise, n_repeats, 'framerate', framerate, 'debug
 %% Moving Bar: Probing Wide-field effect.
 % A bar of width 160 mm (2.4º) moving at 500 mm per s (7.5º per s). Johnston and Lagnado (2016)
 % Stim size: 128 px ~ 2600 um
-n_repeats = 10;
-moving_bar('barColor', 'dark','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'angle_every', 45, 'N_repeat', 8 * n_repeats); 
+n_repeats = 5;
+moving_bar('barColor', 'dark','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 0.8, 'angle_every', 45, 'N_repeat', 8 * n_repeats); 
 %%
-moving_bar('barColor','white','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 1.4, 'angle_every', 45, 'N_repeat', 8 * n_repeats);
+n_repeats = 5;
+moving_bar('barColor','white','c_mask', [0 1 1], 'barWidth', 150, 'barSpeed', 0.8, 'angle_every', 45, 'N_repeat', 8 * n_repeats);
 
 %% Bar (color) whitenoise across the dorsal-ventral direction            
 ex_title = 'Bar_1d_wn_Color';

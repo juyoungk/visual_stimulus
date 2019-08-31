@@ -86,7 +86,7 @@ if any([ex.disp.nominal_frate == 0, ex.disp.screen ==0, ex.debug==1])
     ex.disp.ifi=0.01176568031;
     %[ex.disp.w ex.disp.rect]=Screen('OpenWindow', ex.disp.screen, backColor, [10 10 1000 1000]);
     [ex.disp.winptr, ex.disp.winrect] = PsychImaging('OpenWindow', ...
-                        ex.disp.screen, ex.disp.bgcol, [0 10 1024 778]); 
+                        ex.disp.screen, ex.disp.bgcol, [700 10 1724 778]); 
     ex.rig_name = 'test';
     if ex.debug == false
         ex.debug = true;

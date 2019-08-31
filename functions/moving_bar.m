@@ -14,7 +14,7 @@ ang_every = p.Results.angle_every;
 c_mask = p.Results.c_mask;
 
 % bar sweep size
-visiblesize = 128;        % Size of the grating image. Needs to be a power of two.
+visiblesize = 256;        % Size of the grating image. Needs to be a power of two.
 %
 bar_width = Pixel_for_Micron(bar_width);
 speed_in_Pixels = Pixel_for_Micron(bar_speed*1000);
